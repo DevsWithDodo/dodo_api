@@ -1,3 +1,6 @@
-# csocsort
+# Csocsort 
+###### money and debt management app for groups
 
-Backend for the [Csocsort app](https://github.com/machiato32/csocsort_szamla).
+
+
+Laravel based back-end with the API for the [Csocsort app](https://github.com/machiato32/csocsort_szamla).
