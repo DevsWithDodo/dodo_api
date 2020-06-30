@@ -22,4 +22,9 @@ class Group extends Model
             ->withTimestamps();
     }
 
+    public function transactions()
+    {
+        return $this->hasMany('App\Transactions\Purchase');
+    }
+
 }

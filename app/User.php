@@ -35,9 +35,8 @@ class User extends Authenticatable
      */
     protected $casts = [];
 
-    /**
-     * The groups that the user in.
-     */
+
+    //The groups that the user in:
     public function groups()
     {
         return $this
@@ -46,4 +45,15 @@ class User extends Authenticatable
             ->withPivot('balance', 'nickname', 'is_admin')
             ->withTimestamps();
     }
+
+    //The user's transactions:
+    public function buyed()
+    {
+        return $this->hasMany('App\Transactions\Buyer');
+    }
+    public function received()
+    {
+        return $this->hasMany('App\Transactions\Receiver');
+    }
+
 }

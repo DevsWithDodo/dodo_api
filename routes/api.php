@@ -24,3 +24,9 @@ Route::get('/users', function () {
 
 Route::get('/groups', 'GroupController@index');
 Route::get('/groups/{id}', 'GroupController@show');
+
+Route::get('/groups/{group}/transactions', 'TransactionController@index');
+Route::get('/groups/{group}/transactions/{purchase}', 'TransactionController@show');
+Route::post('/groups/{group}/transactions', 'TransactionController@store');
+Route::put('/groups/{group}/transactions/{purchase}', 'TransactionController@update');
+Route::delete('/groups/{group}/transactions/{purchase}', 'TransactionController@delete');
