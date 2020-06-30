@@ -8,6 +8,8 @@ class Group extends Model
 {
     protected $table = 'groups';
 
+    protected $fillable = ['name'];
+
     /**
      * The groups that the user in.
      */

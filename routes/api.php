@@ -22,6 +22,5 @@ Route::get('/users', function () {
     return UserResource::collection(User::all());
 });
 
-Route::get('/groups', function (){
-    return GroupResource::collection(Group::all());
-});
+Route::get('/groups', 'GroupController@index');
+Route::get('/groups/{id}', 'GroupController@show');
