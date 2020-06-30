@@ -2,6 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\User as UserResource;
+use App\Http\Resources\Group as GroupResource;
+use App\User;
+use App\Group;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +18,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/users', function () {
+    return UserResource::collection(User::all());
+});
+
+Route::get('/groups', function (){
+    return GroupResource::collection(Group::all());
 });

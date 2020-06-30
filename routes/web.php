@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/test', function(){
+    $group = App\Group::find(2);
+    echo $group->name;
+    foreach ($group->users as $user) {
+        echo $user->name;
+    }
+});
