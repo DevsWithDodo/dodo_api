@@ -1,4 +1,4 @@
-# Csocsort 
+# Csocsort API
 ###### money and debt management app for groups
 
 
