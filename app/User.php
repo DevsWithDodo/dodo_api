@@ -40,6 +40,10 @@ class User extends Authenticatable
      */
     public function groups()
     {
-        return $this->belongsToMany('App\Group', 'group_user');
+        return $this
+            ->belongsToMany('App\Group', 'group_user')
+            ->as('member_data')
+            ->withPivot('balance', 'nickname', 'is_admin')
+            ->withTimestamps();
     }
 }

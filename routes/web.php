@@ -18,9 +18,13 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function(){
-    $group = App\Group::find(2);
-    echo $group->name;
-    foreach ($group->users as $user) {
-        echo $user->name;
+    $user = App\User::find(1);
+    echo $user->name;
+    echo "\n";
+    foreach ($user->groups as $group) {
+        echo $group->name;
+        echo "\n";
+        echo $group->member_data->nickname;
+        echo "\n";
     }
 });

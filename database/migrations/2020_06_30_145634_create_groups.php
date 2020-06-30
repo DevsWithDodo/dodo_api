@@ -22,6 +22,9 @@ class CreateGroups extends Migration
         Schema::create('group_user', function(Blueprint $table){
             $table->integer('user_id');
             $table->integer('group_id');
+            $table->string('nickname')->nullable();
+            $table->decimal('balance', 19, 4)->default(0);
+            $table->boolean('is_admin')->default(0);
             $table->timestampsTz();
         });
     }

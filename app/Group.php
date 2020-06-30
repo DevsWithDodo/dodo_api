@@ -11,9 +11,13 @@ class Group extends Model
     /**
      * The groups that the user in.
      */
-    public function users()
+    public function members()
     {
-        return $this->belongsToMany('App\User', 'group_user');
+        return $this
+            ->belongsToMany('App\User', 'group_user')
+            ->as('member_data')
+            ->withPivot('balance', 'nickname', 'is_admin')
+            ->withTimestamps();
     }
 
 }
