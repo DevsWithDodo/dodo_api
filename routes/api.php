@@ -35,9 +35,8 @@ Route::get('/users/{user}/groups/{group}/transactions/received', 'UserController
 Route::get('/users/{user}/groups/{group}/payments/payed', 'UserController@indexPaymentsPayedInGroup');
 Route::get('/users/{user}/groups/{group}/payments/taken', 'UserController@indexPaymentsTakenInGroup');
 
-//idk whats this for yet:
-Route::get('/groups/{group}/transactions', 'TransactionController@index');
-Route::get('/groups/{group}/transactions/{purchase}', 'TransactionController@show');
+Route::get('transactions', 'TransactionController@index');
+Route::get('transactions/{purchase}', 'TransactionController@show');
 /*Route::post('/groups/{group}/transactions', 'TransactionController@store');
 Route::put('/groups/{group}/transactions/{purchase}', 'TransactionController@update');
 Route::delete('/groups/{group}/transactions/{purchase}', 'TransactionController@delete'); */

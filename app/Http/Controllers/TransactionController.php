@@ -12,17 +12,13 @@ use App\User;
 
 class TransactionController extends Controller
 {
-    public function index(Group $group)
+    public function index()
     {
-        return TransactionResource::collection($group->transactions);
+        return TransactionResource::collection(Purchase::all());
     }
 
-    public function show(Group $group, Purchase $purchase)
+    public function show(Purchase $purchase)
     {
-        if($purchase->group_id == $group->id){
-            return new TransactionResource($purchase);
-        } else {
-            return response()->json(['error' => 'This purchase is not belong to this group.'], 400);
-        }
+        return new TransactionResource($purchase);
     }
 }
