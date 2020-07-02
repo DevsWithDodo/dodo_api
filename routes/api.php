@@ -17,7 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/groups', 'GroupController@index');
 Route::get('/groups/{group}', 'GroupController@show');
+Route::get('/groups/{group}/refresh', 'GroupController@refreshBalances');
 
+
+Route::get('/users/{user}/balance', 'UserController@balance');
+Route::get('/users/{user}/groups/{group}/balance', 'UserController@balanceInGroup');
 Route::get('/users/{user}/groups', 'UserController@indexGroups');
 Route::get('/users/{user}/groups/{group}', 'UserController@showGroup');
 

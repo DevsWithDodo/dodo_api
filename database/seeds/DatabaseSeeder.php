@@ -23,21 +23,21 @@ class DatabaseSeeder extends Seeder
             [
                 'user_id' => '1',
                 'group_id' => '1',
-                'balance' => '5000',
+                'balance' => 0,
                 'is_admin' => 0,
                 'nickname' => 'Dominyik',
             ],
             [
                 'user_id' => '1',
                 'group_id' => '2',
-                'balance' => '-200',
+                'balance' => 0,
                 'is_admin' => 0,
                 'nickname' => null,
             ],            
             [
                 'user_id' => '2',
                 'group_id' => '1',
-                'balance' => '50',
+                'balance' => 0,
                 'is_admin' => '1',
                 'nickname' => 'Samupipoke'
             ],            
@@ -55,5 +55,7 @@ class DatabaseSeeder extends Seeder
             ['purchase_id' => 1, 'receiver_id' => 2, 'amount' => 250],
             ['purchase_id' => 2, 'receiver_id' => 1, 'amount' => 1200],
         ]);
+
+        App\Http\Controllers\GroupController::refreshBalances(App\Group::find(1));
     }
 }

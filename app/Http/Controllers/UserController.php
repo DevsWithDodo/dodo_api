@@ -17,6 +17,21 @@ use SplPriorityQueue; //priority queue
 class UserController extends Controller
 {
 
+    public function balance(User $user)
+    {
+        $balance=0;
+        foreach ($user->groups as $group) {
+            $balance += $group->member_data->balance;
+        }
+        return response()->json($balance);
+    }
+
+    public function balanceInGroup(User $user, Group $group)
+    {
+        $balance = $group->members->find($user)->member_data->balance;
+        return response()->json($balance);
+    }
+
     public function indexGroups(User $user)
     {
         return GroupResource::collection($user->groups);
@@ -35,7 +50,7 @@ class UserController extends Controller
         }
     }
 
-    public function indexTransactions(User $user)
+    public function indexTransactions(User $user) //could be slow
     {
         $transactions = new SplPriorityQueue();
         foreach ($user->buyed as $buyer){

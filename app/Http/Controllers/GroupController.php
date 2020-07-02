@@ -8,6 +8,23 @@ use App\Group;
 
 class GroupController extends Controller
 {
+    public static function refreshBalances(Group $group)
+    {
+        foreach ($group->members as $member) {
+            $balance = 0;
+            foreach ($member->buyed as $buyer) {
+                if($buyer->purchase->group->id == $group->id){
+                    $balance += $buyer->amount;
+                }
+            }
+            foreach ($member->received as $receiver) {
+                if($receiver->purchase->group->id == $group->id){
+                    $balance -= $receiver->amount;
+                }
+            }
+            $member->member_data->update(['balance' => $balance]);
+        }
+    }
     //List all group
     public function index()
     {
