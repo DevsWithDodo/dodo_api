@@ -46,14 +46,13 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    //The user's transactions:
     public function buyed()
     {
-        return $this->hasMany('App\Transactions\Buyer');
+        return $this->hasMany('App\Transactions\Buyer', 'buyer_id');
     }
     public function received()
     {
-        return $this->hasMany('App\Transactions\Receiver');
+        return $this->hasMany('App\Transactions\Receiver', 'receiver_id');
     }
 
 }

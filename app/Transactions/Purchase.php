@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Depts;
+namespace App\Transactions;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -8,7 +8,7 @@ class Purchase extends Model
 {
     protected $table = 'purchases';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'group_id'];
 
     public function group()
     {
@@ -17,7 +17,7 @@ class Purchase extends Model
 
     public function buyers()
     {
-        return $this->hasMany('App\Transactions\Buyers');
+        return $this->hasMany('App\Transactions\Buyer');
     }
 
     public function receivers()

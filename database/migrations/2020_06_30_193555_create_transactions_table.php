@@ -22,12 +22,14 @@ class CreateTransactionsTable extends Migration
 
         Schema::create('buyers', function (Blueprint $table) {
             $table->id();
+            $table->integer('purchase_id');
             $table->integer('buyer_id');
             $table->decimal('amount', 19, 4);
         });
 
         Schema::create('receivers', function (Blueprint $table) {
             $table->id();
+            $table->integer('purchase_id');
             $table->integer('receiver_id');
             $table->decimal('amount', 19, 4);
         });

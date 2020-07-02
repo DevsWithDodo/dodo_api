@@ -2,10 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Resources\User as UserResource;
-use App\Http\Resources\Group as GroupResource;
-use App\User;
-use App\Group;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,15 +14,20 @@ use App\Group;
 |
 */
 
-Route::get('/users', function () {
-    return UserResource::collection(User::all());
-});
 
 Route::get('/groups', 'GroupController@index');
-Route::get('/groups/{id}', 'GroupController@show');
+Route::get('/groups/{group}', 'GroupController@show');
+
+Route::get('/users/{user}/groups', 'UserController@indexGroups');
+Route::get('/users/{user}/groups/{group}', 'UserController@showGroup');
+
+
+Route::get('/users/{user}/transactions', 'UserController@indexTransactions');
+Route::get('/users/{user}/groups/{group}/transactions', 'UserController@indexTransactionsInGroup');
+
 
 Route::get('/groups/{group}/transactions', 'TransactionController@index');
 Route::get('/groups/{group}/transactions/{purchase}', 'TransactionController@show');
-Route::post('/groups/{group}/transactions', 'TransactionController@store');
+/*Route::post('/groups/{group}/transactions', 'TransactionController@store');
 Route::put('/groups/{group}/transactions/{purchase}', 'TransactionController@update');
-Route::delete('/groups/{group}/transactions/{purchase}', 'TransactionController@delete');
+Route::delete('/groups/{group}/transactions/{purchase}', 'TransactionController@delete'); */

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\Group as GroupResource;
-use App\Http\Resources\GroupCollection;
 use App\Group;
 
 class GroupController extends Controller
@@ -12,13 +11,13 @@ class GroupController extends Controller
     //List all group
     public function index()
     {
-        return new GroupCollection(Group::all());
+        return GroupResource::collection(Group::all());
     }
 
     //Return a group with its members 
-    public function show(Request $request, $id)
+    public function show(Group $group)
     {
-        return new GroupResource(Group::find($id));
+        return new GroupResource($group);
     }
 
     public function createGroup(Request $request)

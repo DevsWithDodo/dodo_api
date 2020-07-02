@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Depts;
+namespace App\Transactions;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,7 +12,7 @@ class Buyer extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\User', 'buyer_id');
     }
 
     public function purchase()

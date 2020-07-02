@@ -42,6 +42,18 @@ class DatabaseSeeder extends Seeder
                 'nickname' => 'Samupipoke'
             ],            
         ]);
-        
+        DB::table('purchases')->insert([
+            ['name' => 'Sajt','group_id' => 1],
+            ['name' => 'Sok Sajt', 'group_id' => 1]
+        ]);
+        DB::table('buyers')->insert([
+            ['purchase_id' => 1, 'buyer_id' => 1, 'amount' => 500],
+            ['purchase_id' => 2, 'buyer_id' => 2, 'amount' => 1200]
+        ]);
+        DB::table('receivers')->insert([
+            ['purchase_id' => 1, 'receiver_id' => 1, 'amount' => 250],
+            ['purchase_id' => 1, 'receiver_id' => 2, 'amount' => 250],
+            ['purchase_id' => 2, 'receiver_id' => 1, 'amount' => 1200],
+        ]);
     }
 }

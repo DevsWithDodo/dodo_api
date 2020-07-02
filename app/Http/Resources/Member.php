@@ -3,18 +3,17 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Member;
 
-class Group extends JsonResource
+class Member extends JsonResource
 {
     public function toArray($request)
     {
-        $group = [
+        return [
             'id' => $this->id,
             'name' => $this->name,
-            'members' => Member::collection($this->members)
+            'nickname' => $this->member_data->nickname,
+            'balance' => $this->member_data->balance,
+            'is_admin' => $this->member_data->is_admin
         ];
-
-        return $group;
     }
 }
