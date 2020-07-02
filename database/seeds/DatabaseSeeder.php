@@ -56,6 +56,12 @@ class DatabaseSeeder extends Seeder
             ['purchase_id' => 2, 'receiver_id' => 1, 'amount' => 1200],
         ]);
 
+        DB::table('payments')->insert([
+            ['group_id' => 1, 'payer_id'=> 1, 'taker_id'=> 2, 'amount' => 500],
+            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 100],
+            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 300],
+        ]);
+
         App\Http\Controllers\GroupController::refreshBalances(App\Group::find(1));
     }
 }

@@ -8,7 +8,7 @@ class Purchase extends Model
 {
     protected $table = 'purchases';
 
-    protected $fillable = ['name', 'group_id'];
+    protected $fillable = ['name'];
 
     public function group()
     {

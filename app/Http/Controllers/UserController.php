@@ -6,16 +6,20 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Group as GroupResource;
+use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Resources\Member as MemberResource;
+use App\Http\Resources\Purchase as PurchaseResource;
 use App\User;
 use App\Group;
 use App\Transactions\Purchase;
 use App\Transactions\Buyer;
 use App\Transactions\Receiver;
+use App\Transactions\Payment;
 use SplPriorityQueue; //priority queue
 
 class UserController extends Controller
 {
+    /* Balance getters */
 
     public function balance(User $user)
     {
@@ -31,6 +35,8 @@ class UserController extends Controller
         $balance = $group->members->find($user)->member_data->balance;
         return response()->json($balance);
     }
+
+    /* Group getters */
 
     public function indexGroups(User $user)
     {
@@ -50,25 +56,40 @@ class UserController extends Controller
         }
     }
 
-    public function indexTransactions(User $user) //could be slow
+    /* Transaction getters */
+
+    public function indexHistory(User $user) 
+    //could be slow
+    //only last x can be enough
     {
         $transactions = new SplPriorityQueue();
         foreach ($user->buyed as $buyer){
-            $transaction = $buyer->purchase;
-            $transaction['group_name'] = $buyer->purchase->group->name;
             $transaction['type'] = 'buyed';
-            $transaction['amount'] = $buyer->amount;
-            unset($transaction['group']);
-            $transactions->insert($transaction, $transaction->created_at);
+            $transaction['data'] = new PurchaseResource($buyer->purchase);
+            $transaction['data']['group_name'] = $buyer->purchase->group->name;
+            $transaction['data']['amount'] = $buyer->amount;
+            unset($transaction['data']['group']);
+            $transactions->insert($transaction, $transaction['data']->created_at);
         }
         foreach ($user->received as $receiver) {
-            $transaction = $receiver->purchase;
-            $transaction['group_name'] = $receiver->purchase->group->name;
             $transaction['type'] = 'received';
-            $transaction['amount'] = $receiver->amount;
-            unset($transaction['group']);
-            $transactions->insert($transaction, $transaction->created_at);
+            $transaction['data'] = new PurchaseResource($receiver->purchase);
+            $transaction['data']['group_name'] = $receiver->purchase->group->name;
+            $transaction['data']['amount'] = $receiver->amount;
+            unset($transaction['data']['group']);
+            $transactions->insert($transaction, $transaction['data']->created_at);
         }
+        foreach ($user->payed as $payment) {
+            $transaction['data'] = new PaymentResource($payment);
+            $transaction['type'] = 'payed';
+            $transactions->insert($transaction, $transaction['data']->created_at);
+        }
+        foreach ($user->taken as $payment) {
+            $transaction['data'] = new PaymentResource($payment);
+            $transaction['type'] = 'taken';
+            $transactions->insert($transaction, $transaction['data']->created_at);
+        }
+
         $array = [];
         foreach($transactions as $transaction){
             $array[] = $transaction;
@@ -102,5 +123,17 @@ class UserController extends Controller
             }
         }
         return new JsonResource($transactions);
+    }
+
+    /* Payment getters */
+
+    public function indexPaymentsPayedInGroup(User $user, Group $group)
+    {
+        return PaymentResource::collection($user->payed->where('group_id', $group->id));
+    }
+
+    public function indexPaymentsTakenInGroup(User $user, Group $group)
+    {
+        return PaymentResource::collection($user->taken->where('group_id', $group->id));
     }
 }

@@ -10,8 +10,8 @@ class Group extends JsonResource
     public function toArray($request)
     {
         $group = [
-            'id' => $this->id,
-            'name' => $this->name,
+            'group_id' => $this->id,
+            'group_name' => $this->name,
             'members' => Member::collection($this->members)
         ];
 

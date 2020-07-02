@@ -27,4 +27,9 @@ class Group extends Model
         return $this->hasMany('App\Transactions\Purchase');
     }
 
+    public function payments()
+    {
+        return $this->hasMany('App\Transactions\Payment');
+    }
+
 }

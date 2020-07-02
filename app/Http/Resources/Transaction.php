@@ -16,20 +16,20 @@ class Transaction extends JsonResource
     {
         $transaction = [
             'name' => $this->name,
-            //'group_id' => $this->group_id,
-            'group' =>$this->group->name,
+            'group_id' => $this->group_id,
+            'group_name' =>$this->group->name,
         ];
         foreach ($this->buyers as $buyer) {
             $transaction['buyers'][] = [
-                //'user_id' => $buyer->buyer_id,
-                'user' => $buyer->user->name,
+                'user_id' => $buyer->buyer_id,
+                'user_name' => $buyer->user->name,
                 'amount' => $buyer->amount
             ];
         }
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
-                //'user_id' => $receiver->receiver_id,
-                'user' => $receiver->user->name,
+                'user_id' => $receiver->receiver_id,
+                'user_name' => $receiver->user->name,
                 'amount' => $receiver->amount
             ];
         }
