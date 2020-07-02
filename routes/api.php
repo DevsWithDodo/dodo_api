@@ -23,7 +23,8 @@ Route::get('/users/{user}/groups/{group}', 'UserController@showGroup');
 
 
 Route::get('/users/{user}/transactions', 'UserController@indexTransactions');
-Route::get('/users/{user}/groups/{group}/transactions', 'UserController@indexTransactionsInGroup');
+Route::get('/users/{user}/groups/{group}/transactions/buyed', 'UserController@indexTransactionsBuyedInGroup');
+Route::get('/users/{user}/groups/{group}/transactions/received', 'UserController@indexTransactionsReceivedInGroup');
 
 
 Route::get('/groups/{group}/transactions', 'TransactionController@index');
