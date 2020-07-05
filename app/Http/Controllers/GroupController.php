@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\Group as GroupResource;
+use App\User;
 use App\Group;
 
 class GroupController extends Controller
@@ -25,6 +26,14 @@ class GroupController extends Controller
             $member->member_data->update(['balance' => $balance]);
         }
     }
+
+    public static function updateBalance(Group $group, User $user, $amount)
+    {
+        $member = $group->members->find($user);
+        $old_balance = $member->member_data->balance;
+        $member->member_data->update(['balance' => $old_balance + $amount]);
+    }
+
     //List all group
     public function index()
     {

@@ -8,7 +8,9 @@ class Receiver extends Model
 {
     protected $table = 'receivers';
 
-    protected $fillable = ['amount'];
+    protected $fillable = ['amount', 'receiver_id', 'purchase_id'];
+
+    public $timestamps = false;
 
     public function user()
     {

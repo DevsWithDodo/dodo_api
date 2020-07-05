@@ -15,9 +15,12 @@ class Transaction extends JsonResource
     public function toArray($request) //Purchase
     {
         $transaction = [
+            'transaction_id' => $this->id,
             'name' => $this->name,
             'group_id' => $this->group_id,
-            'group_name' =>$this->group->name,
+            'group_name' => $this->group->name,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at
         ];
         foreach ($this->buyers as $buyer) {
             $transaction['buyers'][] = [
@@ -33,7 +36,6 @@ class Transaction extends JsonResource
                 'amount' => $receiver->amount
             ];
         }
-
         return $transaction;
     }
 }

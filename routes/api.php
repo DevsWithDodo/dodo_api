@@ -14,18 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+/* Groups */
 Route::get('/groups', 'GroupController@index');
 Route::get('/groups/{group}', 'GroupController@show');
 //for testing:
 Route::get('/groups/{group}/refresh', 'GroupController@refreshBalances');
 
-
+/* User related getters */
 Route::get('/users/{user}/balance', 'UserController@balance');
 Route::get('/users/{user}/groups/{group}/balance', 'UserController@balanceInGroup');
 Route::get('/users/{user}/groups', 'UserController@indexGroups');
 Route::get('/users/{user}/groups/{group}', 'UserController@showGroup');
-
 
 Route::get('/users/{user}/history', 'UserController@indexHistory');
 
@@ -35,9 +34,10 @@ Route::get('/users/{user}/groups/{group}/transactions/received', 'UserController
 Route::get('/users/{user}/groups/{group}/payments/payed', 'UserController@indexPaymentsPayedInGroup');
 Route::get('/users/{user}/groups/{group}/payments/taken', 'UserController@indexPaymentsTakenInGroup');
 
-Route::get('transactions', 'TransactionController@index');
-Route::get('transactions/{purchase}', 'TransactionController@show');
-/*Route::post('/groups/{group}/transactions', 'TransactionController@store');
-Route::put('/groups/{group}/transactions/{purchase}', 'TransactionController@update');
-Route::delete('/groups/{group}/transactions/{purchase}', 'TransactionController@delete'); */
+/* Transactions */
+Route::get('/transactions', 'TransactionController@index');
+Route::get('/transactions/{purchase}', 'TransactionController@show');
+Route::post('/transactions', 'TransactionController@store');
+Route::put('/transactions/{purchase}', 'TransactionController@update');
+Route::delete('/transactions/{purchase}', 'TransactionController@delete');
 

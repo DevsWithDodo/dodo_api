@@ -8,7 +8,9 @@ class Buyer extends Model
 {
     protected $table = 'buyers';
 
-    protected $fillable = ['amount'];
+    protected $fillable = ['amount', 'purchase_id', 'buyer_id'];
+
+    public $timestamps = false;
 
     public function user()
     {
