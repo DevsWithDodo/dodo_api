@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\User;
 
 
 Route::post('register', 'Auth\RegisterController@register');
@@ -17,7 +16,7 @@ Route::get('/groups/{group}', 'GroupController@show');
 Route::get('/groups/{group}/refresh', 'GroupController@refreshBalances'); //for testing
 
 /* User related getters */
-Route::get('/users', function(){ return User::all(); }); //for testing
+Route::get('/users', function(){ return App\User::all(); }); //for testing
 Route::get('/users/id/{user}', 'UserController@showById');
 Route::get('/users/mail/{email}', 'UserController@showByMail');
 Route::get('/users/{user}/balance', 'UserController@balance');
