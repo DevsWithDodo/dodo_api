@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+
 
 class RegisterController extends Controller
 {
@@ -58,7 +60,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
         ]);
     }
@@ -73,8 +75,35 @@ class RegisterController extends Controller
     {
         return User::create([
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => $data['email'] ?? null,
+            'registered' => isset($data['email']),
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * Registering email to a 'guest' user.
+     */
+    public function registerEmail(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+
+        if(!$user){
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        if($user->registered){
+            return response()->json(['error' => 'User already registered with email'], 400);
+        }
+
+        $request->validate([
+            'email' => 'required|string|unique:users',
+            'password' => 'required|string|password:api',
+        ]);
+        
+        $user->email = $request->email;
+        $user->registered = true;
+        $user->save();
+        
+        return response()->json(['data' => $user->toArray()], 200);
     }
 }

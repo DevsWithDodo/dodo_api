@@ -19,6 +19,17 @@ use SplPriorityQueue; //priority queue
 
 class UserController extends Controller
 {
+    public function showById(User $user)
+    {
+        return $user;
+    }
+
+    public function showByMail($email)
+    {
+        $user = User::firstWhere('email', $email);
+        return $user;
+    }
+
     /* Balance getters */
 
     public function balance(User $user)

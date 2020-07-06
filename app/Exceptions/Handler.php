@@ -52,14 +52,14 @@ class Handler extends ExceptionHandler
     {
         // Define the response
         $response = [
-            'error' => 'Sorry, something went wrong.'
+            'error' => $e->getMessage()
         ];
 
         // If the app is in debug mode
         if (config('app.debug')) {
             // Add the exception class name, message and stack trace to response
             $response['exception'] = get_class($e); // Reflection might be better here
-            $response['message'] = $e->getMessage();
+            //$response['message'] = $e->getMessage();
             $response['trace'] = $e->getTrace();
         }
 

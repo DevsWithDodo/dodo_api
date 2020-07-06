@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -40,7 +41,7 @@ class LoginController extends Controller
     }
     public function username()
     {
-        return 'email';
+        return 'id';
     }
 
     public function login(Request $request)
@@ -74,7 +75,7 @@ class LoginController extends Controller
     protected function validateLogin(Request $request)
     {
         $request->validate([
-            $this->username() => 'required|string',
+            $this->username() => 'required|integer',
             'password' => 'required|string',
         ]);
     }

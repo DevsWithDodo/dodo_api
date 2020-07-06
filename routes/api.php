@@ -2,29 +2,24 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\User;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
 Route::post('register', 'Auth\RegisterController@register');
+Route::post('register_email', 'Auth\RegisterController@registerEmail');
 Route::post('login', 'Auth\LoginController@login');
-Route::post('logout', 'Auth\LoginController@logout');
+Route::post('logout', 'Auth\LoginController@logout')->middleware('auth:api');
+
 
 /* Groups */
 Route::get('/groups', 'GroupController@index');
 Route::get('/groups/{group}', 'GroupController@show');
-//for testing:
-Route::get('/groups/{group}/refresh', 'GroupController@refreshBalances');
+Route::get('/groups/{group}/refresh', 'GroupController@refreshBalances'); //for testing
 
 /* User related getters */
+Route::get('/users', function(){ return User::all(); }); //for testing
+Route::get('/users/id/{user}', 'UserController@showById');
+Route::get('/users/mail/{email}', 'UserController@showByMail');
 Route::get('/users/{user}/balance', 'UserController@balance');
 Route::get('/users/{user}/groups/{group}/balance', 'UserController@balanceInGroup');
 Route::get('/users/{user}/groups', 'UserController@indexGroups');
