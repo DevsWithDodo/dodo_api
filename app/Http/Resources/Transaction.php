@@ -25,14 +25,14 @@ class Transaction extends JsonResource
         foreach ($this->buyers as $buyer) {
             $transaction['buyers'][] = [
                 'user_id' => $buyer->buyer_id,
-                'user_name' => $buyer->user->name,
+                'nickname' => $buyer->purchase->group->members->find($buyer->user)->member_data->nickname,
                 'amount' => $buyer->amount
             ];
         }
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
-                'user_name' => $receiver->user->name,
+                'nickname' => $receiver->purchase->group->members->find($receiver->user)->member_data->nickname,
                 'amount' => $receiver->amount
             ];
         }

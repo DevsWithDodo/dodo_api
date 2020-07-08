@@ -21,7 +21,7 @@ class CreateGroups extends Migration
 
         Schema::create('group_user', function(Blueprint $table){
             $table->id();
-            $table->integer('user_id');
+            $table->string('user_id');
             $table->integer('group_id');
             $table->string('nickname')->nullable();
             $table->decimal('balance', 19, 4)->default(0);

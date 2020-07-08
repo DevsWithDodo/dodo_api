@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 class User extends Authenticatable
 {
     use Notifiable;
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -20,11 +23,6 @@ class User extends Authenticatable
         'id', 'name', 'password', 'registered', 'email', 'api_token'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password',
     ];
