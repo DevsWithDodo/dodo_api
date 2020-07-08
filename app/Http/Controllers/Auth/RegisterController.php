@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -14,26 +15,6 @@ use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    use RegistersUsers;
-
-    /**
-     * Where to redirect users after registering
-     *
-     * @var string
-     */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
     /**
      * Create a new controller instance.
      *
@@ -44,41 +25,29 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
-    public function registered(Request $request, $user)
+    public function register(Request $request)
     {
-        $user->generateToken();
-        
-        return response()->json(['data' => $user->toArray()], 201);
-    }
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'alpha_num', 'min:4', 'max:20'],
             'email' => ['string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
         ]);
-    }
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
-    protected function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'] ?? null,
-            'registered' => isset($data['email']),
-            'password' => Hash::make($data['password']),
+        do{
+            $id = strtolower($request->username)."#".sprintf("%04d",rand(1,9999));
+        } while(DB::table('users')->select('id')->where('id', $id)->get() == null);
+        
+        $user = User::create([
+            'id' => $id,
+            'email' => $request->email ?? null,
+            'password' => Hash::make($request->password),
         ]);
+        $user->generateToken();
+        
+        return response()->json(['data' => $user->toArray()], 201);
     }
 
     /**
@@ -91,17 +60,20 @@ class RegisterController extends Controller
         if(!$user){
             return response()->json(['error' => 'User not found'], 404);
         }
-        if($user->registered){
+        if(isset($user->email)){
             return response()->json(['error' => 'User already registered with email'], 400);
         }
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|string|unique:users',
             'password' => 'required|string|password:api',
         ]);
-        
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
         $user->email = $request->email;
-        $user->registered = true;
         $user->save();
         
         return response()->json(['data' => $user->toArray()], 200);
