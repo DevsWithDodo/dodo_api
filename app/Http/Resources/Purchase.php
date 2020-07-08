@@ -15,6 +15,8 @@ class Purchase extends JsonResource
     public function toArray($request)
     {
         return [
+            'group_id' => $this->group->id,
+            'group_name' => $this->group->name,
             'purchase_id' => $this->id,
             'purchase_name' => $this->name,
             'created_at' => $this->created_at,
