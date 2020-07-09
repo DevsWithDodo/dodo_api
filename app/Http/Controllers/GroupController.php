@@ -30,6 +30,9 @@ class GroupController extends Controller
     public static function updateBalance(Group $group, User $user, $amount)
     {
         $member = $group->members->find($user);
+        if($member == null){
+            //TODO
+        }
         $old_balance = $member->member_data->balance;
         $member->member_data->update(['balance' => $old_balance + $amount]);
     }

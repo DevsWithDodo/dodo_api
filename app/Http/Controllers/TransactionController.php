@@ -70,7 +70,6 @@ class TransactionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'group_id' => 'required|exists:groups,id',
             'amount' => 'required|integer|min:0',
             'buyers' => 'required|array|min:1',
             'buyers.*.user_id' => 'required|exists:users,id',
@@ -80,25 +79,24 @@ class TransactionController extends Controller
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
+        $group = $purchase->group;
 
         //delete associated buyers and receivers
         foreach ($purchase->buyers as $buyer) {
-            GroupController::updateBalance($purchase->group, $buyer->user, (-1)*$buyer->amount);
+            GroupController::updateBalance($group, $buyer->user, (-1)*$buyer->amount);
             $buyer->delete();
         }
         foreach ($purchase->receivers as $receiver) {
-            GroupController::updateBalance($purchase->group, $receiver->user, $receiver->amount);
+            GroupController::updateBalance($group, $receiver->user, $receiver->amount);
             $receiver->delete();
         }
 
         //update purchase - with the extortion of updating the timestamps
         $purchase->update([
             'name' => "",
-            'group_id' => 0,
         ]);
         $purchase->update([
-            'name' => $request->name,
-            'group_id' => $request->group_id,
+            'name' => $request->name
         ]);
 
         //recreate buyers and receivers
@@ -109,7 +107,7 @@ class TransactionController extends Controller
                 'buyer_id' => $buyer_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            GroupController::updateBalance(Group::find($request->group_id), User::find($buyer_data['user_id']), $amount);
+            GroupController::updateBalance($group, User::find($buyer_data['user_id']), $amount);
         }
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
@@ -118,7 +116,7 @@ class TransactionController extends Controller
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            GroupController::updateBalance(Group::find($request->group_id), User::find($receiver_data['user_id']), (-1)*$amount);
+            GroupController::updateBalance($group, User::find($receiver_data['user_id']), (-1)*$amount);
         }
         return response()->json(new TransactionResource($purchase), 200);
     }

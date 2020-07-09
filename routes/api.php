@@ -39,3 +39,8 @@ Route::post('/transactions', 'TransactionController@store');
 Route::put('/transactions/{purchase}', 'TransactionController@update');
 Route::delete('/transactions/{purchase}', 'TransactionController@delete');
 
+/* Payments */
+Route::get('/payments/{payment}', 'PaymentController@show');
+Route::post('/payments', 'PaymentController@store');
+Route::put('/payments/{payment}', 'PaymentController@update');
+Route::delete('/payments/{payment}', 'PaymentController@delete');
