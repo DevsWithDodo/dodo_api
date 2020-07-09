@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Controllers\GroupController;
 use App\Transactions\Payment;
+use App\Rules\IsMember;
 use App\Group;
 use App\User;
 
@@ -23,8 +24,8 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'group_id' => 'required|exists:groups,id',
             'amount' => 'required|integer|min:0',
-            'payer_id' => 'required|exists:users,id',
-            'taker_id' => 'required|exists:users,id'
+            'payer_id' => ['required','exists:users,id', new IsMember($request->group_id)],
+            'taker_id' => ['required','exists:users,id', 'different:payer_id', new IsMember($request->group_id)]
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -42,8 +43,8 @@ class PaymentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'amount' => 'required|integer|min:0',
-            'payer_id' => 'required|exists:users,id',
-            'taker_id' => 'required|exists:users,id'
+            'payer_id' => ['required','exists:users,id', new IsMember($request->group_id)],
+            'taker_id' => ['required','exists:users,id', 'different:payer_id', new IsMember($request->group_id)]
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);

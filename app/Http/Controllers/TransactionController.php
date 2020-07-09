@@ -33,9 +33,9 @@ class TransactionController extends Controller
             'group_id' => 'required|exists:groups,id',
             'amount' => 'required|integer|min:0',
             'buyers' => 'required|array|min:1',
-            'buyers.*.user_id' => 'required|exists:users,id',
+            'buyers.*.user_id' => ['required','exists:users,id', new IsMember($request->group_id)],
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => 'required|exists:users,id'
+            'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group_id)]
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -68,13 +68,14 @@ class TransactionController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
+        $group = $purchase->group;
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'amount' => 'required|integer|min:0',
             'buyers' => 'required|array|min:1',
-            'buyers.*.user_id' => 'required|exists:users,id',
+            'buyers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)],
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => 'required|exists:users,id'
+            'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
