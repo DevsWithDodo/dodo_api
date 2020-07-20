@@ -38,16 +38,36 @@ class GroupController extends Controller
     }
 
     //List all group
-    public function index()
+    /* public function index()
     {
         return GroupResource::collection(Group::all());
-    }
+    } */
 
+    public function index()
+    {
+        $user = Auth::guard('api')->user();
+        return GroupResource::collection($user->groups);
+    }
+    
     //Return a group with its members 
     public function show(Group $group)
     {
         return new GroupResource($group);
     }
+    
+    /* public function show(Group $group)
+    {
+        $user = Auth::guard('api')->user();
+        if($group->members->contains($user)){
+            return new JsonResource([
+                    'group_id' => $group->id,
+                    'group_name' => $group->name,
+                    'member' => new MemberResource($group->members->find($user))
+                ]);
+        } else {
+            return response()->json(['error' => 'This user is not a member of this group.'], 400);
+        }
+    } */
 
     public function createGroup(Request $request)
     {

@@ -19,21 +19,14 @@ use SplPriorityQueue; //priority queue
 
 class UserController extends Controller
 {
-    public function showById(User $user)
+    public function show(User $user)
     {
         return $user;
     }
 
-    public function showByMail($email)
+    public function balance()
     {
-        $user = User::firstWhere('email', $email);
-        return $user;
-    }
-
-    /* Balance getters */
-
-    public function balance(User $user)
-    {
+        $user = Auth::guard('api')->user();
         $balance=0;
         foreach ($user->groups as $group) {
             $balance += $group->member_data->balance;
@@ -41,38 +34,18 @@ class UserController extends Controller
         return response()->json($balance);
     }
 
-    public function balanceInGroup(User $user, Group $group)
+    public function balanceInGroup(Group $group)
     {
+        $user = Auth::guard('api')->user();
         $balance = $group->members->find($user)->member_data->balance;
         return response()->json($balance);
     }
 
-    /* Group getters */
-
-    public function indexGroups(User $user)
-    {
-        return GroupResource::collection($user->groups);
-    }
-
-    public function showGroup(User $user, Group $group)
-    {
-        if($group->members->contains($user)){
-            return new JsonResource([
-                    'group_id' => $group->id,
-                    'group_name' => $group->name,
-                    'member' => new MemberResource($group->members->find($user))
-                ]);
-        } else {
-            return response()->json(['error' => 'This user is not a member of this group.'], 400);
-        }
-    }
-
-    /* Transaction getters */
-
-    public function indexHistory(User $user) 
+    public function indexHistory() 
     //could be slow
     //only last x can be enough
     {
+        $user = Auth::guard('api')->user();
         $transactions = new SplPriorityQueue();
         foreach ($user->buyed as $buyer){
             $transaction['type'] = 'buyed';
@@ -108,43 +81,4 @@ class UserController extends Controller
         return new JsonResource($array);
     }
 
-    public function indexTransactionsBuyedInGroup(User $user, Group $group)
-    {
-        $transactions = [];
-        foreach ($user->buyed as $buyer){
-            if($buyer->purchase->group == $group){
-                $transaction = $buyer->purchase;
-                $transaction['amount'] = $buyer->amount;
-                unset($transaction['group']);
-                $transactions[] = $transaction;
-            }
-        }
-        return new JsonResource($transactions);
-    }
-
-    public function indexTransactionsReceivedInGroup(User $user, Group $group)
-    {
-        $transactions = [];
-        foreach ($user->received as $receiver){
-            if($receiver->purchase->group == $group){
-                $transaction = $receiver->purchase;
-                $transaction['amount'] = $receiver->amount;
-                unset($transaction['group']);
-                $transactions[] = $transaction;
-            }
-        }
-        return new JsonResource($transactions);
-    }
-
-    /* Payment getters */
-
-    public function indexPaymentsPayedInGroup(User $user, Group $group)
-    {
-        return PaymentResource::collection($user->payed->where('group_id', $group->id));
-    }
-
-    public function indexPaymentsTakenInGroup(User $user, Group $group)
-    {
-        return PaymentResource::collection($user->taken->where('group_id', $group->id));
-    }
 }

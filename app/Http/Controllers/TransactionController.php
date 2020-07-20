@@ -16,9 +16,53 @@ use App\User;
 
 class TransactionController extends Controller
 {
-    public function index()
+
+    public function indexBuyedInGroup(Request $request)
     {
-        return TransactionResource::collection(Purchase::all());
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required|exists:groups,id'
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        
+        $user = Auth::guard('api')->user();
+        $group = Group::find($request->group_id);
+
+        $transactions = [];
+        foreach ($user->buyed as $buyer){
+            if($buyer->purchase->group == $group){
+                $transaction = $buyer->purchase;
+                $transaction['amount'] = $buyer->amount;
+                unset($transaction['group']);
+                $transactions[] = $transaction;
+            }
+        }
+        return new JsonResource($transactions);
+    }
+
+    public function indexReceivedInGroup(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required|exists:groups,id'
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $user = Auth::guard('api')->user();
+        $group = Group::find($request->group_id);
+
+        $transactions = [];
+        foreach ($user->received as $receiver){
+            if($receiver->purchase->group == $group){
+                $transaction = $receiver->purchase;
+                $transaction['amount'] = $receiver->amount;
+                unset($transaction['group']);
+                $transactions[] = $transaction;
+            }
+        }
+        return new JsonResource($transactions);
     }
 
     public function show(Purchase $purchase)
