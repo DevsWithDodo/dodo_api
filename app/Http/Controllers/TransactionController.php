@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\Transactions\Purchase;
@@ -11,6 +12,7 @@ use App\Transactions\Receiver;
 use App\Transactions\Buyer;
 use App\Http\Resources\Transaction as TransactionResource;
 use App\Http\Controllers\GroupController;
+
 use App\Group;
 use App\User;
 

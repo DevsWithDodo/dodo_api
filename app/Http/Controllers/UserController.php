@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\Purchase as PurchaseResource;
+
 use App\User;
 use App\Group;
 use App\Transactions\Purchase;
