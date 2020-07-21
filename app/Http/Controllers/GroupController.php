@@ -109,6 +109,9 @@ class GroupController extends Controller
     public function addMember(Group $group, Request $request)
     {
         $user = Auth::guard('api')->user();
+        if($group->members->count()==20){
+            return response()->json(['error' => 'Group member limit reached'], 400);
+        }
         $group->members()->attach($user, [
             'nickname' => $request->nickname ?? null,
             'is_admin' => $group->members()->count() == 0 //set to true on first member
