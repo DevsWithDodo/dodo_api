@@ -53,10 +53,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('/payments/{payment}', 'PaymentController@delete');
 
     /* Shopping Cart */
-   /*  Route::get('/users/{user}/groups/{group}/shopping_cart', 'ShoppingCartController@indexInGroup');
+    Route::get('/shopping_cart', 'ShoppingCartController@index');
     Route::get('/shopping_cart/{shopping_cart}', 'ShoppingCartController@show');
     Route::post('/shopping_cart', 'ShoppingCartController@store');
-    Route::put('/shopping_cart/{shopping_cart}', 'ShoppingCartController@update');
+    Route::put('/shopping_cart/{shopping_cart}', 'ShoppingCartController@fulfill');
     Route::delete('/shopping_cart/{shopping_cart}', 'ShoppingCartController@delete');
- */
 });

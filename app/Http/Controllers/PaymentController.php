@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Rules\IsMember;
 
 use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Controllers\GroupController;
+
 use App\Transactions\Payment;
-use App\Rules\IsMember;
 use App\Group;
 use App\User;
 
