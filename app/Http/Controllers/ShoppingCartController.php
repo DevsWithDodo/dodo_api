@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Rules\IsMember;
@@ -13,15 +14,14 @@ use App\User;
 
 class ShoppingCartController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, Group $group)
     {        
-        $group = Group::findOrFail($request->group_id);
-        return response()->json($group->shopping_carts->where('fulfilled', false)->get());
+        return new JsonResource($group->shopping_carts->where('fulfilled', false)->get());
     }
 
     public function show(ShoppingCart $shopping_cart)
     {
-        return response()->json($shopping_cart);
+        return new JsonResource($shopping_cart);
     }
 
     public function store(Request $request)

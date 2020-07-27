@@ -20,20 +20,16 @@ class Transaction extends JsonResource
             'group_id' => $this->group_id,
             'group_name' => $this->group->name,
             'updated_at' => $this->updated_at,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'buyer_id' => $this->buyer->buyer_id,
+            'buyer_nickname' => $this->group->members->find($this->buyer->user)->member_data->nickname,
+            'total_amount' => floatval($this->buyer->amount),
         ];
-        foreach ($this->buyers as $buyer) {
-            $transaction['buyers'][] = [
-                'user_id' => $buyer->buyer_id,
-                'nickname' => $buyer->purchase->group->members->find($buyer->user)->member_data->nickname,
-                'amount' => $buyer->amount
-            ];
-        }
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
                 'nickname' => $receiver->purchase->group->members->find($receiver->user)->member_data->nickname,
-                'amount' => $receiver->amount
+                'amount' => floatval($receiver->amount)
             ];
         }
         return $transaction;

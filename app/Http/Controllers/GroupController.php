@@ -31,6 +31,7 @@ class GroupController extends Controller
 
     public static function updateBalance(Group $group, User $user, $amount)
     {
+        //TODO move this to model
         $member = $group->members->find($user);
         if($member == null){
             abort(400, 'User is not a member of this group.');
@@ -39,19 +40,12 @@ class GroupController extends Controller
         $member->member_data->update(['balance' => $old_balance + $amount]);
     }
 
-    //List all group
-    /* public function index()
-    {
-        return GroupResource::collection(Group::all());
-    } */
-
     public function index()
     {
         $user = Auth::guard('api')->user();
         return GroupResource::collection($user->groups);
     }
-    
-    //Return a group with its members 
+     
     public function show(Group $group)
     {
         return new GroupResource($group);

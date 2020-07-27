@@ -11,6 +11,7 @@ use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\Purchase as PurchaseResource;
+use App\Http\Resources\Transaction as TransactionResource;
 
 use App\User;
 use App\Group;
@@ -18,7 +19,7 @@ use App\Transactions\Purchase;
 use App\Transactions\Buyer;
 use App\Transactions\Receiver;
 use App\Transactions\Payment;
-use SplPriorityQueue; //priority queue
+//use SplPriorityQueue; //priority queue
 
 class UserController extends Controller
 {
@@ -40,48 +41,81 @@ class UserController extends Controller
     public function balanceInGroup(Group $group)
     {
         $user = Auth::guard('api')->user();
-        $balance = $group->members->find($user)->member_data->balance;
+        $balance = $group->members->findOrFail($user)->member_data->balance;
         return response()->json($balance);
     }
 
-    public function indexHistory() 
-    //could be slow
-    //only last x can be enough
+ /*    public function indexHistory(Group $group) 
     {
         $user = Auth::guard('api')->user();
-        $transactions = new SplPriorityQueue();
+        $member = $group->members->find($user);
+        if($member == null){
+            return response()->json(['error' => 'User is not a member of this group'], 400);
+        }
+
+        $transactions = [];
+        foreach ($group->transactions as $purchase) {
+            if($purchase->buyer->user == $user){
+                $transactions[] = [
+                    'type' => 'buyed',
+                    'data' => new TransactionResource($purchase)
+                ];
+            }
+            foreach($purchase->receivers as $receiver){
+                if($receiver->user == $user){
+                    $transactions[] = [
+                        'type' => 'received',
+                        'data' => new TransactionResource($purchase)
+                    ];
+                }
+            }
+        }
+
+        return $transactions; */
+        
+/*         $transactions = new SplPriorityQueue();
         foreach ($user->buyed as $buyer){
-            $transaction['type'] = 'buyed';
-            $transaction['data'] = new PurchaseResource($buyer->purchase);
-            $transaction['data']['group_name'] = $buyer->purchase->group->name;
-            $transaction['data']['amount'] = $buyer->amount;
-            unset($transaction['data']['group']);
-            $transactions->insert($transaction, $transaction['data']->created_at);
+            //if($buyer->purchase->group == $group){
+                $transaction['type'] = 'buyed';
+                $transaction['data'] = new TransactionResource($buyer->purchase);
+                //$transaction['data']['amount'] = $buyer->amount;
+                //unset($transaction['data']['group']);
+                $transactions->insert($transaction, $transaction['data']->created_at);
+            //}
         }
         foreach ($user->received as $receiver) {
-            $transaction['type'] = 'received';
-            $transaction['data'] = new PurchaseResource($receiver->purchase);
-            $transaction['data']['group_name'] = $receiver->purchase->group->name;
-            $transaction['data']['amount'] = $receiver->amount;
-            unset($transaction['data']['group']);
-            $transactions->insert($transaction, $transaction['data']->created_at);
+            if($receiver->purchase->group == $group){
+                $transaction['type'] = 'received';
+                $transaction['data'] = new TransactionResource($receiver->purchase);
+                $transaction['data']['amount'] = $receiver->amount;
+                unset($transaction['data']['group']);
+                $transactions->insert($transaction, $transaction['data']->created_at);
+            }
         }
+        $payments = new SplPriorityQueue();
         foreach ($user->payed as $payment) {
-            $transaction['data'] = new PaymentResource($payment);
-            $transaction['type'] = 'payed';
-            $transactions->insert($transaction, $transaction['data']->created_at);
+            if($payment->group == $group){
+                $transaction['data'] = new PaymentResource($payment);
+                $transaction['type'] = 'payed';
+                $payments->insert($transaction, $transaction['data']->created_at);
+            }
         }
         foreach ($user->taken as $payment) {
-            $transaction['data'] = new PaymentResource($payment);
-            $transaction['type'] = 'taken';
-            $transactions->insert($transaction, $transaction['data']->created_at);
+            if($payment->group == $group){
+                $transaction['data'] = new PaymentResource($payment);
+                $transaction['type'] = 'taken';
+                $payments->insert($transaction, $transaction['data']->created_at);
+            }
         }
 
         $array = [];
         foreach($transactions as $transaction){
-            $array[] = $transaction;
+            $array['transactions'][] = $transaction;
         }
-        return new JsonResource($array);
-    }
+        foreach($payments as $payment){
+            $array['payments'][] = $payment;
+        } */
+        //return new JsonResource($array);
+    //}
 
-}
+//}

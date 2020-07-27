@@ -22,7 +22,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/balance/all', 'UserController@balance');
     Route::get('/balance/group/{group}', 'UserController@balanceInGroup');
 
-    Route::get('/history', 'UserController@indexHistory');
+    //Route::get('/history/groups/{group}', 'UserController@indexHistory');
     
     /* Groups */
     Route::get('/groups', 'GroupController@index');
@@ -37,23 +37,21 @@ Route::middleware(['auth:api'])->group(function () {
     //Route::delete('/groups/{group}/members', 'GroupController@deleteMember');
 
     /* Transactions */
-    Route::get('/transactions_buyed', 'TransactionController@indexBuyedInGroup');
-    Route::get('/transactions_received', 'TransactionController@indexReceivedInGroup');
+    Route::get('/transactions/groups/{group}', 'TransactionController@index');
     Route::get('/transactions/{purchase}', 'TransactionController@show');
     Route::post('/transactions', 'TransactionController@store');
     Route::put('/transactions/{purchase}', 'TransactionController@update');
     Route::delete('/transactions/{purchase}', 'TransactionController@delete');
 
     /* Payments */
-    Route::get('/payments_payed', 'PaymentController@indexPayedInGroup');
-    Route::get('/payments_taken', 'PaymentController@indexTakenInGroup');
+    Route::get('/payments/groups/{group}', 'PaymentController@index');
     Route::get('/payments/{payment}', 'PaymentController@show');
     Route::post('/payments', 'PaymentController@store');
     Route::put('/payments/{payment}', 'PaymentController@update');
     Route::delete('/payments/{payment}', 'PaymentController@delete');
 
     /* Shopping Cart */
-    Route::get('/shopping_cart', 'ShoppingCartController@index');
+    Route::get('/shopping_cart/groups/{group}', 'ShoppingCartController@index');
     Route::get('/shopping_cart/{shopping_cart}', 'ShoppingCartController@show');
     Route::post('/shopping_cart', 'ShoppingCartController@store');
     Route::put('/shopping_cart/{shopping_cart}', 'ShoppingCartController@fulfill');

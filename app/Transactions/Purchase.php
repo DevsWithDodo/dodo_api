@@ -15,9 +15,9 @@ class Purchase extends Model
         return $this->belongsTo('App\Group'); 
     }
 
-    public function buyers()
+    public function buyer()
     {
-        return $this->hasMany('App\Transactions\Buyer');
+        return $this->hasOne('App\Transactions\Buyer');
     }
 
     public function receivers()

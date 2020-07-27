@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Rules\IsMember;
@@ -16,30 +17,21 @@ use App\User;
 
 class PaymentController extends Controller
 {
-    public function indexPayedInGroup(Request $request)
+    public function index(Request $request, Group $group)
     {
-        $validator = Validator::make($request->all(), [
-            'group_id' => 'required|exists:groups,id'
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
-        }
-        
         $user = Auth::guard('api')->user();
-        return PaymentResource::collection($user->payed->where('group_id', $request->group_id));
-    }
+        $member = $group->members->find($user);
+        if($member == null){
+            return response()->json(['error' => 'User is not a member of this group'], 400);
+        }
 
-    public function indexTakenInGroup(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'group_id' => 'required|exists:groups,id'
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+        $payments = [];
+        foreach ($group->payments as $payment) {
+            if(($payment->taker == $user) || ($payment->payer == $user)){
+                $payments[] = new PaymentResource($payment);
+            }
         }
-        
-        $user = Auth::guard('api')->user();
-        return PaymentResource::collection($user->taken->where('group_id', $request->group_id));
+        return $payments;
     }
 
     public function show(Payment $payment)
