@@ -19,6 +19,7 @@ class CreatePaymentsTable extends Migration
             $table->string('payer_id');
             $table->string('taker_id');
             $table->decimal('amount', 19, 4);
+            $table->string('note')->nullable();
             $table->timestampsTz();
         });
     }

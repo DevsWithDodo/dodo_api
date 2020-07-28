@@ -8,7 +8,7 @@ class Payment extends Model
 {
     protected $table = 'payments';
 
-    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id'];
+    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note'];
 
     public function payer()
     {

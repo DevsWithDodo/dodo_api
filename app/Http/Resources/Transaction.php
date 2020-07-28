@@ -17,17 +17,17 @@ class Transaction extends JsonResource
         $transaction = [
             'transaction_id' => $this->id,
             'name' => $this->name,
-            'group_id' => $this->group_id,
-            'group_name' => $this->group->name,
+            //'group_id' => $this->group_id,
+            //'group_name' => $this->group->name,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
-            'buyer_id' => $this->buyer->buyer_id,
+            //'buyer_id' => $this->buyer->buyer_id,
             'buyer_nickname' => $this->group->members->find($this->buyer->user)->member_data->nickname,
             'total_amount' => floatval($this->buyer->amount),
         ];
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
-                'user_id' => $receiver->receiver_id,
+                //'user_id' => $receiver->receiver_id,
                 'nickname' => $receiver->purchase->group->members->find($receiver->user)->member_data->nickname,
                 'amount' => floatval($receiver->amount)
             ];
