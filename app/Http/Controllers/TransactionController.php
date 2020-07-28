@@ -60,8 +60,7 @@ class TransactionController extends Controller
             'name' => 'required|string',
             'group_id' => 'required|exists:groups,id',
             'amount' => 'required|integer|min:0',
-            'buyers' => 'required|array|min:1',
-            'buyers.*.user_id' => ['required','exists:users,id', new IsMember($request->group_id)],
+            'buyer_id' => ['required','exists:users,id', new IsMember($request->group_id)],
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group_id)]
         ]);
@@ -73,15 +72,14 @@ class TransactionController extends Controller
             'name' => $request->name,
             'group_id' => $request->group_id
         ]);
-        foreach ($request->buyers as $buyer_data) {
-            $amount = $request->amount/count($request->buyers);
-            Buyer::create([
-                'amount' => $amount,
-                'buyer_id' => $buyer_data['user_id'],
-                'purchase_id' => $purchase->id
-            ]);
-            GroupController::updateBalance(Group::find($request->group_id), User::find($buyer_data['user_id']), $amount);
-        }
+
+        Buyer::create([
+            'amount' => $request->amount,
+            'buyer_id' => $request->buyer_id,
+            'purchase_id' => $purchase->id
+        ]);
+        GroupController::updateBalance(Group::find($request->group_id), User::find($request->buyer_id), $request->amount);
+
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
             Receiver::create([
