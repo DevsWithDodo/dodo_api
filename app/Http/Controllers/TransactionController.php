@@ -29,15 +29,20 @@ class TransactionController extends Controller
         }
 
         $transactions = [];
-        foreach ($group->transactions as $purchase) {
-            if($purchase->buyer->user == $user){
+        foreach ($group->transactions->sortByDesc('created_at') as $purchase) {
+            if(($purchase->buyer->user == $user) && ($purchase->receivers->contains('receiver_id', $user->id))){
                 $transactions[] = [
-                    'type' => 'buyed',
+                    'type' => 'buyed_received',
                     'data' => new TransactionResource($purchase)
                 ];
-            }
-            foreach($purchase->receivers as $receiver){
-                if($receiver->user == $user){
+            } else{
+                if($purchase->buyer->user == $user){
+                    $transactions[] = [
+                        'type' => 'buyed',
+                        'data' => new TransactionResource($purchase)
+                    ];
+                }
+                if($purchase->receivers->contains('receiver_id', $user->id)){
                     $transactions[] = [
                         'type' => 'received',
                         'data' => new TransactionResource($purchase)
@@ -45,13 +50,7 @@ class TransactionController extends Controller
                 }
             }
         }
-
         return $transactions;
-    }
-
-    public function show(Purchase $purchase)
-    {
-        return new TransactionResource($purchase);
     }
 
     public function store(Request $request)
@@ -59,13 +58,19 @@ class TransactionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'group_id' => 'required|exists:groups,id',
-            'amount' => 'required|integer|min:0',
-            'buyer_id' => ['required','exists:users,id', new IsMember($request->group_id)],
+            'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group_id)]
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $user = Auth::guard('api')->user();
+        $group = Group::find($request->group_id);
+        $member = $group->members->find($user);
+        if($member == null){
+            abort(400, 'User is not a member of this group.');
         }
 
         $purchase = Purchase::create([
@@ -75,10 +80,10 @@ class TransactionController extends Controller
 
         Buyer::create([
             'amount' => $request->amount,
-            'buyer_id' => $request->buyer_id,
+            'buyer_id' => $user->id,
             'purchase_id' => $purchase->id
         ]);
-        GroupController::updateBalance(Group::find($request->group_id), User::find($request->buyer_id), $request->amount);
+        GroupController::updateBalance(Group::find($request->group_id), $user, $request->amount);
 
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
@@ -94,72 +99,72 @@ class TransactionController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
-        $group = $purchase->group;
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'amount' => 'required|integer|min:0',
-            'buyers' => 'required|array|min:1',
-            'buyers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)],
-            'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
-        }
-        $group = $purchase->group;
+        $user = Auth::guard('api')->user();
+        if($user == $purchase->buyer->user){
+            $group = $purchase->group;
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string',
+                'amount' => 'required|numeric|min:0',
+                'receivers' => 'required|array|min:1',
+                'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
+            ]);
+            if($validator->fails()){
+                return response()->json(['error' => $validator->errors()], 400);
+            }
 
-        //delete associated buyers and receivers
-        foreach ($purchase->buyers as $buyer) {
+            //update buyer
+            $buyer = $purchase->buyer;
             GroupController::updateBalance($group, $buyer->user, (-1)*$buyer->amount);
-            $buyer->delete();
-        }
-        foreach ($purchase->receivers as $receiver) {
-            GroupController::updateBalance($group, $receiver->user, $receiver->amount);
-            $receiver->delete();
-        }
+            $buyer->update(['amount' => $request->amount]);
+            GroupController::updateBalance($group, $buyer->user, $buyer->amount);
 
-        //update purchase - with the extortion of updating the timestamps
-        $purchase->update([
-            'name' => "",
-        ]);
-        $purchase->update([
-            'name' => $request->name
-        ]);
+            //update receivers
+            foreach ($purchase->receivers as $receiver) {
+                GroupController::updateBalance($group, $receiver->user, $receiver->amount);
+                $receiver->delete();
+            }
+            foreach ($request->receivers as $receiver_data) {
+                $amount = $request->amount/count($request->receivers);
+                Receiver::create([
+                    'amount' => $amount,
+                    'receiver_id' => $receiver_data['user_id'],
+                    'purchase_id' => $purchase->id
+                ]);
+                GroupController::updateBalance($group, User::find($receiver_data['user_id']), (-1)*$amount);
+            }
 
-        //recreate buyers and receivers
-        foreach ($request->buyers as $buyer_data) {
-            $amount = $request->amount/count($request->buyers);
-            Buyer::create([
-                'amount' => $amount,
-                'buyer_id' => $buyer_data['user_id'],
-                'purchase_id' => $purchase->id
-            ]);
-            GroupController::updateBalance($group, User::find($buyer_data['user_id']), $amount);
+            //update purchase - with the extortion of updating the timestamps
+            $purchase->update(['name' => $request->name]);
+            $purchase->touch();
+
+            return response()->json(new TransactionResource($purchase), 200);
+        } else {
+            return response()->json(['error' => 'User is not the buyer of the transaction'], 400);
         }
-        foreach ($request->receivers as $receiver_data) {
-            $amount = $request->amount/count($request->receivers);
-            Receiver::create([
-                'amount' => $amount,
-                'receiver_id' => $receiver_data['user_id'],
-                'purchase_id' => $purchase->id
-            ]);
-            GroupController::updateBalance($group, User::find($receiver_data['user_id']), (-1)*$amount);
-        }
-        return response()->json(new TransactionResource($purchase), 200);
+        
     }
 
     public function delete(Purchase $purchase)
     {
-        foreach ($purchase->buyers as $buyer) {
+        $user = Auth::guard('api')->user();
+        if($user == $purchase->buyer->user){
+            //delete buyer
+            $buyer = $purchase->buyer;
             GroupController::updateBalance($purchase->group, $buyer->user, (-1)*$buyer->amount);
             $buyer->delete();
-        }
-        foreach ($purchase->receivers as $receiver) {
-            GroupController::updateBalance($purchase->group, $receiver->user, $receiver->amount);
-            $receiver->delete();
-        }
-        $purchase->delete();
+            
+            //delete receivers
+            foreach ($purchase->receivers as $receiver) {
+                GroupController::updateBalance($purchase->group, $receiver->user, $receiver->amount);
+                $receiver->delete();
+            }
 
-        return response()->json(null, 204);
+            //delete purchase
+            $purchase->delete();
+
+            return response()->json(null, 204);
+        } else {
+            return response()->json(['error' => 'User is not the buyer of the transaction'], 400);
+        }
     }
 }

@@ -14,13 +14,14 @@ class Purchase extends JsonResource
      */
     public function toArray($request)
     {
+        //TODO not sure if used
         return [
             'group_id' => $this->group->id,
             'group_name' => $this->group->name,
             'purchase_id' => $this->id,
             'purchase_name' => $this->name,
             'created_at' => $this->created_at,
-            'modified_at' => $this->modified_at
+            'updated_at' => $this->updated_at
         ];
     }
 }

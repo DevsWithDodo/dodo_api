@@ -32,9 +32,9 @@ class Group extends Model
         return $this->hasMany('App\Transactions\Payment');
     }
 
-    public function shopping_carts()
+    public function requests()
     {
-        return $this->hasMany('App\ShoppingCart');
+        return $this->hasMany('App\Request');
     }
 
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,8 +14,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            ['id' => 'dominik#0000', 'password' => Hash::make(1234)],
-            ['id' => 'samu#0000', 'password' => Hash::make(1234)]
+            ['id' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now()],
+            ['id' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now()]
         ]);
         DB::table('groups')->insert([
             ['name' => 'Csocsort'],
@@ -44,8 +45,8 @@ class DatabaseSeeder extends Seeder
             ],            
         ]);
         DB::table('purchases')->insert([
-            ['name' => 'Sajt','group_id' => 1],
-            ['name' => 'Sok Sajt', 'group_id' => 1]
+            ['name' => 'Sajt','group_id' => 1, 'created_at' => Carbon::now()],
+            ['name' => 'Sok Sajt', 'group_id' => 1, 'created_at' => Carbon::now()]
         ]);
         DB::table('buyers')->insert([
             ['purchase_id' => 1, 'buyer_id' => "dominik#0000", 'amount' => 500.8],
@@ -54,13 +55,17 @@ class DatabaseSeeder extends Seeder
         DB::table('receivers')->insert([
             ['purchase_id' => 1, 'receiver_id' => "dominik#0000", 'amount' => 250.6],
             ['purchase_id' => 1, 'receiver_id' => "samu#0000", 'amount' => 250.6],
-            ['purchase_id' => 2, 'receiver_id' => "samu#0000", 'amount' => 1200.25],
+            ['purchase_id' => 2, 'receiver_id' => "dominik#0000", 'amount' => 1200.25],
         ]);
 
         DB::table('payments')->insert([
-            ['group_id' => 1, 'payer_id'=> "dominik#0000", 'taker_id'=> "samu#0000", 'amount' => 500],
-            ['group_id' => 1, 'payer_id'=> "samu#0000", 'taker_id'=> "dominik#0000", 'amount' => 100],
-            ['group_id' => 1, 'payer_id'=> "samu#0000", 'taker_id'=> "dominik#0000", 'amount' => 300],
+            ['group_id' => 1, 'payer_id'=> "dominik#0000", 'taker_id'=> "samu#0000", 'amount' => 500, 'created_at' => Carbon::now()],
+            ['group_id' => 1, 'payer_id'=> "samu#0000", 'taker_id'=> "dominik#0000", 'amount' => 100, 'created_at' => Carbon::now()],
+            ['group_id' => 1, 'payer_id'=> "samu#0000", 'taker_id'=> "dominik#0000", 'amount' => 300, 'created_at' => Carbon::now()],
+        ]);
+
+        DB::table('requests')->insert([
+            ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => "samu#0000", 'created_at' => Carbon::now()]
         ]);
 
         App\Http\Controllers\GroupController::refreshBalances(App\Group::find(1));

@@ -4,9 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ShoppingCart extends Model
+class Request extends Model
 {
-    protected $fillable = ['name', 'group_id', 'requester_id'];
+    protected $table = 'requests';
+
+    protected $fillable = ['name', 'group_id', 'requester_id', 'fulfilled', 'fulfiller_id', 'fulfilled_at'];
 
     protected $attributes = ['fulfilled' => false];
 

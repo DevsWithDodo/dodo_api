@@ -59,6 +59,7 @@ class User extends Authenticatable
     }
 
     /* Payment relations */
+
     public function payed()
     {
         return $this->hasMany('App\Transactions\Payment', 'payer_id');
