@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\User;
 
 class LoginController extends Controller
 {
@@ -69,7 +71,7 @@ class LoginController extends Controller
             $user->save();
         }
 
-        return response()->json(['data' => 'User logged out'], 200);
+        return response()->json(null, 204);
     }
 
     protected function validateLogin(Request $request)
@@ -78,5 +80,36 @@ class LoginController extends Controller
             $this->username() => 'required|string',
             'password' => 'required|string',
         ]);
+    }
+
+    public function isValidId(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
+            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
+        return response()->json(User::find($id) == null);
+    }
+
+    public function passwordReminder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
+            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
+        $user = User::find($id);
+        if($user == null){
+            return response()->json(['error' => 'User does not exist.'], 400);
+        }
+        return response()->json($user->password_reminder ?? "");
+
     }
 }

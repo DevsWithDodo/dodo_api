@@ -20,11 +20,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'password', 'registered', 'email', 'api_token'
+        'id', 'password', 'api_token', 'password_reminder'
     ];
 
     protected $hidden = [
-        'password',
+        'password', 'password_reminder'
     ];
 
     public function generateToken()
@@ -34,7 +34,6 @@ class User extends Authenticatable
 
         return $this->api_token;
     }
-
 
     //The groups that the user in:
     public function groups()

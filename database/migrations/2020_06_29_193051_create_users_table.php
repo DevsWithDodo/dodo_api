@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration
             $table->string('id')->primary();
             $table->string('password');
             $table->string('api_token', 60)->unique()->nullable();
+            $table->string('password_reminder')->nullable();
             $table->timestampsTz();
         });
     }

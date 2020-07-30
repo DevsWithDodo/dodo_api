@@ -7,7 +7,6 @@ use App\Providers\RouteServiceProvider;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -28,23 +27,31 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => ['required', 'alpha_num', 'min:4', 'max:20'],
+            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
+            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
+            'password_reminder' => ['string']
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
+        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
+        
+        if(User::find($id) == null){
+            $user = User::create([
+                'id' => $id,
+                'password' => Hash::make($request->password),
+                'password_reminder' => $request->password_reminder ?? null
+            ]);
+            $user->generateToken(); // login 
 
-        do{
-            $id = strtolower($request->username)."#".sprintf("%04d",rand(1,9999));
-        } while(DB::table('users')->select('id')->where('id', $id)->get() == null);
+            return response()->json(['data' => $user->toArray()], 201);
+        } else {
+            return response()->json(['error' => "Id is already taken."], 400);
+        }
         
-        $user = User::create([
-            'id' => $id,
-            'password' => Hash::make($request->password),
-        ]);
-        $user->generateToken();
         
-        return response()->json(['data' => $user->toArray()], 201);
+        
+        
     }
 }
