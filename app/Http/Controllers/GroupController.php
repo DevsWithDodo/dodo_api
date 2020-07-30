@@ -56,6 +56,7 @@ class GroupController extends Controller
         if($member == null){
             abort(400, 'User is not a member of this group.');
         }
+        $user->update(['last_active_group' => $group->id]);
         return new GroupResource($group);
     }
 

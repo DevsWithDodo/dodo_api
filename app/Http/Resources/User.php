@@ -10,7 +10,8 @@ class User extends JsonResource
     {
         return [
             'id' => $this->id,
-            'api_token' => $this->api_token
+            'api_token' => $this->api_token,
+            'last_active_group' => $this->last_active_group
         ];
     }
 }
