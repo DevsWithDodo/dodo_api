@@ -18,7 +18,7 @@ Route::get('password_reminder', 'Auth\LoginController@passwordReminder');
 
 Route::middleware(['auth:api'])->group(function () {
     /* User related */
-    Route::get('/balance', 'UserController@balance');
+    Route::get('/user', 'UserController@show');
     
     /* Groups */
     Route::get('/groups', 'GroupController@index');

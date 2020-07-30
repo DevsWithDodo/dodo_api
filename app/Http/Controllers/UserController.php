@@ -13,13 +13,9 @@ use App\Group;
 
 class UserController extends Controller
 {
-    public function balance()
+    public function show()
     {
         $user = Auth::guard('api')->user();
-        $balance=0;
-        foreach ($user->groups as $group) {
-            $balance += $group->member_data->balance;
-        }
-        return response()->json(floatval($balance));
+        return new UserResource($user);
     }
 }
