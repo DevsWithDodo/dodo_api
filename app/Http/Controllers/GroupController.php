@@ -56,14 +56,21 @@ class GroupController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:3'
+            'group_name' => 'required|string|min:3',
+            'member_nickname' => 'string|min:3'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $group = Group::create($request->all());
+        $group = Group::create(['name' => $request->group_name]);
+
+        $group->members()->attach($user, [
+            'nickname' => $request->member_nickname ?? null,
+            'is_admin' => true //set to true on first member
+        ]);
 
         return response()->json(new GroupResource($group), 200);
     }
@@ -117,7 +124,7 @@ class GroupController extends Controller
         if($group->members->find($user) == null){
             $group->members()->attach($user, [
                 'nickname' => $request->nickname ?? null,
-                'is_admin' => $group->members()->count() == 0 //set to true on first member
+                'is_admin' => false
             ]);
         } else {
             return response()->json(['error' => 'The user is already a member in this group'], 400);
@@ -155,9 +162,34 @@ class GroupController extends Controller
 
     }
 
-    public function deleteMember(Group $group)
+    public function deleteMember(Request $request, Group $group)
     {
-        //TODO
-        //Check for last admin
+        $user = Auth::guard('api')->user();
+        $member = $group->members->find($user);
+        if($member == null){
+            abort(400, 'User is not a member of this group.');
+        }
+        $validator = Validator::make($request->all(), [
+            'member_id' => ['required','exists:users,id', new IsMember($group->id)],
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        if($member == $group->members->find($request->member_id)){
+            $group->members()->detach($member);
+        } else {
+            if($member->member_data->is_admin){
+                $group->members()->detach(User::find($request->member_id));
+            } else {
+                return response()->json(['error' => 'User is not admin'], 400);
+            }
+        }
+
+        if($group->members()->count() == 0){
+            $group->delete();
+        } else if($group->admins()->count() == 0){
+            $group->members()->update(['is_admin' => true]);
+        }
+        return response()->json(null, 204);
     }
 }

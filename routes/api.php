@@ -28,7 +28,7 @@ Route::middleware(['auth:api'])->group(function () {
     /* Members */
     Route::post('/groups/{group}/members', 'GroupController@addMember');
     Route::put('/groups/{group}/members', 'GroupController@updateMember');
-    //Route::delete('/groups/{group}/members', 'GroupController@deleteMember');
+    Route::delete('/groups/{group}/members', 'GroupController@deleteMember');
 
     /* Transactions */
     Route::get('/transactions/groups/{group}', 'TransactionController@index');
