@@ -74,7 +74,7 @@ class GroupController extends Controller
         $group = Group::create(['name' => $request->group_name]);
 
         $group->members()->attach($user, [
-            'nickname' => $request->member_nickname ?? null,
+            'nickname' => $request->member_nickname ?? explode("#", $user->id)[0],
             'is_admin' => true //set to true on first member
         ]);
 
@@ -134,8 +134,12 @@ class GroupController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
         if($group->members->find($user) == null){
+            $nickname = $request->nickname ?? explode("#", $user->id)[0];
+            if($group->members->firstWhere('nickname', $nickname) != null){
+                return response()->json(['error' => 'Please choose a new nickname.'], 400);
+            }
             $group->members()->attach($user, [
-                'nickname' => $request->nickname ?? null,
+                'nickname' => $nickname,
                 'is_admin' => false
             ]);
         } else {
@@ -161,14 +165,26 @@ class GroupController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
         if($member == $group->members->find($request->member_id)){
-            $member->member_data->update($request->except('member_id'));
+            $member_to_update = $member;
+        } else if($member->member_data->is_admin){
+            $member_to_update = $group->members->find($request->member_id);
         } else {
+            return response()->json(['error' => 'User is not admin'], 400);
+        }
+        if ($request->has('nickname')) {
+            $nickname = $request->nickname ?? explode("#", $member_to_update->id)[0];
+            if($group->members->firstWhere('nickname', $nickname) != null){
+                return response()->json(['error' => 'Please choose a new nickname.'], 400);
+            }
+            $member->member_data->update(['nickname' => $nickname]);
+        }
+        if($request->has('is_admin')){
             if($member->member_data->is_admin){
-                $group->members->find($request->member_id)->member_data->update($request->except('member_id'));
+                $member->member_data->update(['is_admin' => $request->is_admin]);
             } else {
                 return response()->json(['error' => 'User is not admin'], 400);
             }
-        }
+        };
 
         return response()->json(null, 204);
 
