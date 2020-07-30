@@ -56,7 +56,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
+            'name' => 'required|string|min:3|max:20',
             'group_id' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
@@ -103,7 +103,7 @@ class TransactionController extends Controller
         if($user == $purchase->buyer->user){
             $group = $purchase->group;
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string',
+                'name' => 'required|string|min:3|max:20',
                 'amount' => 'required|numeric|min:0',
                 'receivers' => 'required|array|min:1',
                 'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]

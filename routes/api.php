@@ -12,6 +12,7 @@ Route::get('/groups_all', function() { return App\Http\Resources\Group::collecti
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->middleware('auth:api');
+Route::post('change_password', 'Auth\ChangePasswordController@changePassword')->middleware('auth:api');
 Route::get('is_valid_id', 'Auth\LoginController@isValidId');
 Route::get('password_reminder', 'Auth\LoginController@passwordReminder');
 

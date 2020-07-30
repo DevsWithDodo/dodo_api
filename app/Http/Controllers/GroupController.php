@@ -51,6 +51,11 @@ class GroupController extends Controller
      
     public function show(Group $group)
     {
+        $user = Auth::guard('api')->user();
+        $member = $group->members->find($user);
+        if($member == null){
+            abort(400, 'User is not a member of this group.');
+        }
         return new GroupResource($group);
     }
 
@@ -58,8 +63,8 @@ class GroupController extends Controller
     {
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
-            'group_name' => 'required|string|min:3',
-            'member_nickname' => 'string|min:3'
+            'group_name' => 'required|string|min:3|max:20',
+            'member_nickname' => 'string|min:3|max:15'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -72,13 +77,13 @@ class GroupController extends Controller
             'is_admin' => true //set to true on first member
         ]);
 
-        return response()->json(new GroupResource($group), 200);
+        return response()->json(new GroupResource($group), 201);
     }
 
     public function update(Request $request, Group $group)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:3',
+            'name' => 'required|string|min:3|max:20',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -121,6 +126,12 @@ class GroupController extends Controller
         if($group->members->count()==20){
             return response()->json(['error' => 'Group member limit reached'], 400);
         }
+        $validator = Validator::make($request->all(), [
+            'nickname' => 'string|min:3|max:15',
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
         if($group->members->find($user) == null){
             $group->members()->attach($user, [
                 'nickname' => $request->nickname ?? null,
@@ -142,7 +153,7 @@ class GroupController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'member_id' => ['required','exists:users,id', new IsMember($group->id)],
-            'nickname' => 'string|min:3',
+            'nickname' => 'string|min:3|max:15',
             'is_admin' => 'boolean'
         ]);
         if($validator->fails()){

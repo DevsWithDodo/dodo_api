@@ -22,6 +22,11 @@ class Group extends Model
             ->withTimestamps();
     }
 
+    public function admins()
+    {
+        return $this->members->where('is_admin', true);
+    }
+
     public function transactions()
     {
         return $this->hasMany('App\Transactions\Purchase');

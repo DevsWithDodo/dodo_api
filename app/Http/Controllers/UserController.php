@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 use App\Http\Resources\User as UserResource;
 
@@ -12,11 +13,6 @@ use App\Group;
 
 class UserController extends Controller
 {
-    public function show(User $user)
-    {
-        return new UserResource($user);
-    }
-
     public function balance()
     {
         $user = Auth::guard('api')->user();
