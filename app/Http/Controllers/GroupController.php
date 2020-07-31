@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 use App\Http\Controllers\CurrencyController;
 use App\Rules\IsMember;
@@ -23,14 +24,14 @@ class GroupController extends Controller
         $user = Auth::guard('api')->user();
         return GroupResource::collection($user->groups);
     }
-     
+    
+    /**
+     * Show a group's details.
+     * Updates the User's $last_active_group attribute with this group.
+     */
     public function show(Group $group)
     {
-        $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
+        $user = Auth::guard('api')->user(); //member
         $user->update(['last_active_group' => $group->id]);
         return new GroupResource($group);
     }
@@ -62,6 +63,8 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
+        Gate::authorize('edit-group', $group);
+        abort(400, "ok");
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:3|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
@@ -71,9 +74,6 @@ class GroupController extends Controller
         }
         $user = Auth::guard('api')->user();
         $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
         if($member->member_data->is_admin){
             $group->update($request->all());
             return response()->json(new GroupResource($group), 200);

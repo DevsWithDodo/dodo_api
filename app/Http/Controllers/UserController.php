@@ -25,29 +25,23 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
-            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+            'id' => ['required', 'string', 'regex:/^[a-z0-9]{3,20}#{1}[0-9]{4}$/', 'unique:users,id'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
-            'password_reminder' => ['string']
+            'password_reminder' => ['nullable', 'string']
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
-        
-        if(User::find($id) == null){
-            $user = User::create([
-                'id' => $id,
-                'password' => Hash::make($request->password),
-                'password_reminder' => $request->password_reminder ?? null,
-                'default_currency' => $request->default_currency
-            ]);
-            $user->generateToken(); // login 
-            return response()->json(new UserResource($user), 201);
-        } else {
-            return response()->json(['error' => "Id is already taken."], 400);
-        }
+
+        $user = User::create([
+            'id' => $request->id,
+            'password' => Hash::make($request->password),
+            'password_reminder' => $request->password_reminder ?? null,
+            'default_currency' => $request->default_currency
+        ]);
+        $user->generateToken(); // login 
+        return response()->json(new UserResource($user), 201);
     }
 
     public function changePassword(Request $request)
@@ -82,30 +76,23 @@ class UserController extends Controller
     public function isValidId(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
-            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+            'id' => ['required', 'string', 'regex:/^[a-z0-9]{3,20}#{1}[0-9]{4}$/', 'unique:users,id'],
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
-        return response()->json(User::find($id) == null);
+        return response()->json(true);
     }
 
     public function passwordReminder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
-            'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+            'id' => ['required', 'string', 'exists:users,id'],
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $id = strtolower($request->id_name)."#".sprintf("%04d",$request->id_token);
-        $user = User::find($id);
-        if($user == null){
-            return response()->json(['error' => 'User does not exist.'], 400);
-        }
-        return response()->json($user->password_reminder ?? "");
+
+        return response()->json(['data' => User::find($request->id)->password_reminder]);
     }
 }
