@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('api_token', 60)->unique()->nullable();
             $table->string('password_reminder')->nullable();
             $table->integer('last_active_group')->nullable();
-            $table->char('default_currency', 3)->default("HUF"); //TODO delete default
+            $table->char('default_currency', 3);
             $table->timestampsTz();
         });
     }
