@@ -4,10 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /* For testing */
-Route::get('/transactions', function(){ return App\Http\Resources\Transaction::collection(App\Transactions\Purchase::all());}); 
 Route::get('/users', function(){ return App\User::all(); });
 Route::get('/groups_all', function() { return App\Http\Resources\Group::collection(App\Group::all()); });
-Route::get('/balance', function(){ return App\Http\Controllers\CurrencyController::currency_list(); });
 
 /* Auth */
 Route::post('register', 'UserController@register');

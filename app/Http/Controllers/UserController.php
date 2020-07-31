@@ -44,8 +44,7 @@ class UserController extends Controller
                 'default_currency' => $request->default_currency
             ]);
             $user->generateToken(); // login 
-
-            return response()->json(['data' => $user->toArray()], 201);
+            return response()->json(new UserResource($user), 201);
         } else {
             return response()->json(['error' => "Id is already taken."], 400);
         }

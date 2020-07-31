@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
+use App\Http\Resources\User as UserResource;
 use App\User;
 
 class LoginController extends Controller
@@ -54,9 +56,7 @@ class LoginController extends Controller
             $user = $this->guard()->user();
             $user->generateToken();
 
-            return response()->json([
-                'data' => $user->toArray()
-            ]);
+            return new UserResource($user);
         }
 
         return $this->sendFailedLoginResponse($request);

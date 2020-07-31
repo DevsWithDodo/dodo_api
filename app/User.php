@@ -90,9 +90,9 @@ class User extends Authenticatable
                 $result += $group_balance;
             } else {
                 //convert to base currency
-                $in_base = $group_balance   / (($group_currency == $base)   ? 1 : ($rates[$group_currency]  ?? abort(500)));
+                $in_base = $group_balance   / (($group_currency == $base)   ? 1 : ($rates[$group_currency]  ?? abort(500, "Invalid currency.")));
                 //convert to result currency
-                $result += $in_base         * (($result_currency == $base)  ? 1 : ($rates[$result_currency] ?? abort(500)));
+                $result += $in_base         * (($result_currency == $base)  ? 1 : ($rates[$result_currency] ?? abort(500, "Invalid currency.")));
             }
         }
         return ['amount' => $result, 'currency' => $result_currency];
