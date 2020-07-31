@@ -40,7 +40,7 @@ class PaymentController extends Controller
             'group_id' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'taker_id' => ['required','exists:users,id', new IsMember($request->group_id)],
-            'note' => 'string|min:1'
+            'note' => 'nullable|string|min:1'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -79,7 +79,7 @@ class PaymentController extends Controller
             $validator = Validator::make($request->all(), [
                 'amount' => 'required|numeric|min:0',
                 'taker_id' => ['required','exists:users,id', new IsMember($group->id)],
-                'note' => 'string|min:1'
+                'note' => 'nullable|string|min:1'
             ]);
             if($validator->fails()){
                 return response()->json(['error' => $validator->errors()], 400);

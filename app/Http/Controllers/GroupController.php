@@ -40,8 +40,8 @@ class GroupController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:3|max:20',
-            'currency' => ['string','size:3', Rule::in(CurrencyController::currencyList())],
-            'member_nickname' => 'string|min:3|max:15'
+            'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
+            'member_nickname' => 'nullable|string|min:3|max:15'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -63,8 +63,8 @@ class GroupController extends Controller
     public function update(Request $request, Group $group)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'string|min:3|max:20',
-            'currency' => ['string','size:3', Rule::in(CurrencyController::currencyList())],
+            'name' => 'nullable|string|min:3|max:20',
+            'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -107,7 +107,7 @@ class GroupController extends Controller
             return response()->json(['error' => 'Group member limit reached'], 400);
         }
         $validator = Validator::make($request->all(), [
-            'nickname' => 'string|min:3|max:15',
+            'nickname' => 'nullable|string|min:3|max:15',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -137,8 +137,8 @@ class GroupController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'member_id' => ['required','exists:users,id', new IsMember($group->id)],
-            'nickname' => 'string|min:3|max:15',
-            'is_admin' => 'boolean'
+            'nickname' => 'nullable|string|min:3|max:15',
+            'is_admin' => 'nullable|boolean'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -150,14 +150,14 @@ class GroupController extends Controller
         } else {
             return response()->json(['error' => 'User is not admin'], 400);
         }
-        if ($request->has('nickname')) {
+        if ($request->has('nickname') && $request->nickname != null) {
             $nickname = $request->nickname ?? explode("#", $member_to_update->id)[0];
             if($group->members->firstWhere('nickname', $nickname) != null){
                 return response()->json(['error' => 'Please choose a new nickname.'], 400);
             }
             $member->member_data->update(['nickname' => $nickname]);
         }
-        if($request->has('is_admin')){
+        if($request->has('is_admin') && $request->is_admin != null){
             if($member->member_data->is_admin){
                 $member->member_data->update(['is_admin' => $request->is_admin]);
             } else {
