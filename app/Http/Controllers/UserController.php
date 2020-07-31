@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
+use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
 
 use App\User;
@@ -25,6 +27,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'id_name' => ['required', 'alpha_num', 'min:4', 'max:20'],
             'id_token' => ['required', 'integer', 'min:0', 'max:9999'],
+            'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'password_reminder' => ['string']
         ]);
@@ -37,7 +40,8 @@ class UserController extends Controller
             $user = User::create([
                 'id' => $id,
                 'password' => Hash::make($request->password),
-                'password_reminder' => $request->password_reminder ?? null
+                'password_reminder' => $request->password_reminder ?? null,
+                'default_currency' => $request->default_currency
             ]);
             $user->generateToken(); // login 
 

@@ -12,6 +12,7 @@ class Group extends JsonResource
         $group = [
             'group_id' => $this->id,
             'group_name' => $this->name,
+            'currency' => $this->currency,
             'members' => Member::collection($this->members)
         ];
 

@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
+use App\Http\Controllers\CurrencyController;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -20,7 +22,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'password', 'api_token', 'password_reminder', 'last_active_group'
+        'id', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency'
     ];
 
     protected $hidden = [
@@ -67,5 +69,32 @@ class User extends Authenticatable
     public function taken()
     {
         return $this->hasMany('App\Transactions\Payment', 'taker_id');
+    }
+
+
+    /**
+     * Returns the user's total balance calculated from it's groups and their currencies.
+     */
+    public function balance()
+    {
+        $currencies = CurrencyController::currencyRates();
+        $base = $currencies['base'];
+        $rates = $currencies['rates'];
+        $result_currency = $this->default_currency;
+        
+        $result = 0;
+        foreach ($this->groups as $group) {
+            $group_balance = $group->member_data->balance;
+            $group_currency = $group->currency;
+            if($group_currency == $result_currency){
+                $result += $group_balance;
+            } else {
+                //convert to base currency
+                $in_base = $group_balance   / (($group_currency == $base)   ? 1 : ($rates[$group_currency]  ?? abort(500)));
+                //convert to result currency
+                $result += $in_base         * (($result_currency == $base)  ? 1 : ($rates[$result_currency] ?? abort(500)));
+            }
+        }
+        return ['amount' => $result, 'currency' => $result_currency];
     }
 }

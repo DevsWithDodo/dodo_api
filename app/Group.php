@@ -9,7 +9,7 @@ class Group extends Model
 {
     protected $table = 'groups';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'currency'];
 
     /**
      * The groups that the user in.

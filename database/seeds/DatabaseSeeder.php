@@ -14,12 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            ['id' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now()],
-            ['id' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now()]
+            ['id' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'default_currency' => 'CML'],
+            ['id' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'default_currency' => 'EUR']
         ]);
         DB::table('groups')->insert([
-            ['name' => 'Csocsort'],
-            ['name' => 'Sajt']
+            ['name' => 'Csocsort', 'currency' => 'CML'],
+            ['name' => 'Sajt', 'currency' => 'EUR']
         ]);
         DB::table('group_user')->insert([
             [
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             [
                 'user_id' => 'dominik#0000',
                 'group_id' => '2',
-                'balance' => 0,
+                'balance' => 5,
                 'is_admin' => 0,
                 'nickname' => 'domi',
             ],            
