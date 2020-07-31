@@ -14,35 +14,6 @@ use App\Group;
 
 class GroupController extends Controller
 {
-    public static function refreshBalances(Group $group)
-    {
-        foreach ($group->members as $member) {
-            $balance = 0;
-            foreach ($member->buyed as $buyer) {
-                if($buyer->purchase->group->id == $group->id){
-                    $balance += $buyer->amount;
-                }
-            }
-            foreach ($member->received as $receiver) {
-                if($receiver->purchase->group->id == $group->id){
-                    $balance -= $receiver->amount;
-                }
-            }
-            $member->member_data->update(['balance' => $balance]);
-        }
-    }
-
-    public static function updateBalance(Group $group, User $user, $amount)
-    {
-        //TODO move this to model
-        $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
-        $old_balance = $member->member_data->balance;
-        $member->member_data->update(['balance' => $old_balance + $amount]);
-    }
-
     public function index()
     {
         $user = Auth::guard('api')->user();
@@ -117,7 +88,6 @@ class GroupController extends Controller
         } else {
             return response()->json(['error' => 'User is not an admin'], 400);
         }
-
     }
 
     /* Members */

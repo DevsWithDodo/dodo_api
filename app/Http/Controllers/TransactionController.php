@@ -83,7 +83,7 @@ class TransactionController extends Controller
             'buyer_id' => $user->id,
             'purchase_id' => $purchase->id
         ]);
-        GroupController::updateBalance(Group::find($request->group_id), $user, $request->amount);
+        $group->updateBalance($user, $request->amount);
 
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
@@ -92,7 +92,7 @@ class TransactionController extends Controller
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            GroupController::updateBalance(Group::find($request->group_id), User::find($receiver_data['user_id']), (-1)*$amount);
+            $group->updateBalance(User::find($receiver_data['user_id']), (-1)*$amount);
         }
         return response()->json(new TransactionResource($purchase), 201);
     }
@@ -114,13 +114,13 @@ class TransactionController extends Controller
 
             //update buyer
             $buyer = $purchase->buyer;
-            GroupController::updateBalance($group, $buyer->user, (-1)*$buyer->amount);
+            $group->updateBalance($buyer->user, (-1)*$buyer->amount);
             $buyer->update(['amount' => $request->amount]);
-            GroupController::updateBalance($group, $buyer->user, $buyer->amount);
+            $group->updateBalance($buyer->user, $buyer->amount);
 
             //update receivers
             foreach ($purchase->receivers as $receiver) {
-                GroupController::updateBalance($group, $receiver->user, $receiver->amount);
+                $group->updateBalance($receiver->user, $receiver->amount);
                 $receiver->delete();
             }
             foreach ($request->receivers as $receiver_data) {
@@ -130,7 +130,7 @@ class TransactionController extends Controller
                     'receiver_id' => $receiver_data['user_id'],
                     'purchase_id' => $purchase->id
                 ]);
-                GroupController::updateBalance($group, User::find($receiver_data['user_id']), (-1)*$amount);
+                $group->updateBalance(User::find($receiver_data['user_id']), (-1)*$amount);
             }
 
             //update purchase - with the extortion of updating the timestamps
@@ -150,12 +150,12 @@ class TransactionController extends Controller
         if($user == $purchase->buyer->user){
             //delete buyer
             $buyer = $purchase->buyer;
-            GroupController::updateBalance($purchase->group, $buyer->user, (-1)*$buyer->amount);
+            $purchase->group->updateBalance($buyer->user, (-1)*$buyer->amount);
             $buyer->delete();
             
             //delete receivers
             foreach ($purchase->receivers as $receiver) {
-                GroupController::updateBalance($purchase->group, $receiver->user, $receiver->amount);
+                $purchase->group->updateBalance($receiver->user, $receiver->amount);
                 $receiver->delete();
             }
 

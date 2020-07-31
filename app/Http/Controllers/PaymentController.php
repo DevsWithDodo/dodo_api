@@ -65,8 +65,8 @@ class PaymentController extends Controller
             'note' => $request->note ?? null
         ]);
         
-        GroupController::updateBalance($group, $payer, $request->amount);
-        GroupController::updateBalance($group, $taker, (-1)*$request->amount);
+        $group->updateBalance($payer, $request->amount);
+        $group->updateBalance($taker, (-1)*$request->amount);
 
         return response()->json(new PaymentResource($payment), 200);
     }
@@ -89,12 +89,12 @@ class PaymentController extends Controller
                 return response()->json(['error' => 'Payer and taker cannot be the same.'],400);
             }
 
-            GroupController::updateBalance($group, $payment->payer, (-1)*$payment->amount);
-            GroupController::updateBalance($group, $payment->taker, $payment->amount);
+            $group->updateBalance($payment->payer, (-1)*$payment->amount);
+            $group->updateBalance($payment->taker, $payment->amount);
 
             $payment->update($request->all());
-            GroupController::updateBalance($group, $payment->payer, $request->amount);
-            GroupController::updateBalance($group, $payment->taker, (-1)*$request->amount);
+            $group->updateBalance($payment->payer, $request->amount);
+            $group->updateBalance($payment->taker, (-1)*$request->amount);
 
             return response()->json(new PaymentResource($payment), 200);
         } else {
@@ -107,8 +107,8 @@ class PaymentController extends Controller
         $user = Auth::guard('api')->user();
         if($user == $payment->payer){
             $group = $payment->group;
-            GroupController::updateBalance($group, $payment->payer, (-1)*$payment->amount);
-            GroupController::updateBalance($group, $payment->taker, $payment->amount);
+            $group->updateBalance($payment->payer, (-1)*$payment->amount);
+            $group->updateBalance($payment->taker, $payment->amount);
             $payment->delete();
 
             return response()->json(null, 204);

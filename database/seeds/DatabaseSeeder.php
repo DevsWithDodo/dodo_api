@@ -49,13 +49,13 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Sok Sajt', 'group_id' => 1, 'created_at' => Carbon::now()]
         ]);
         DB::table('buyers')->insert([
-            ['purchase_id' => 1, 'buyer_id' => "dominik#0000", 'amount' => 500.8],
-            ['purchase_id' => 2, 'buyer_id' => "samu#0000", 'amount' => 1200.6]
+            ['purchase_id' => 1, 'buyer_id' => "dominik#0000", 'amount' => 500],
+            ['purchase_id' => 2, 'buyer_id' => "samu#0000", 'amount' => 1200]
         ]);
         DB::table('receivers')->insert([
-            ['purchase_id' => 1, 'receiver_id' => "dominik#0000", 'amount' => 250.6],
-            ['purchase_id' => 1, 'receiver_id' => "samu#0000", 'amount' => 250.6],
-            ['purchase_id' => 2, 'receiver_id' => "dominik#0000", 'amount' => 1200.25],
+            ['purchase_id' => 1, 'receiver_id' => "dominik#0000", 'amount' => 250],
+            ['purchase_id' => 1, 'receiver_id' => "samu#0000", 'amount' => 250],
+            ['purchase_id' => 2, 'receiver_id' => "dominik#0000", 'amount' => 1200],
         ]);
 
         DB::table('payments')->insert([
@@ -68,6 +68,6 @@ class DatabaseSeeder extends Seeder
             ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => "samu#0000", 'created_at' => Carbon::now()]
         ]);
 
-        App\Http\Controllers\GroupController::refreshBalances(App\Group::find(1));
+        App\Group::find(1)->refreshBalances();
     }
 }
