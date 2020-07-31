@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
+
+use App\Http\Controllers\CurrencyController;
 use App\Rules\IsMember;
 
 use App\Http\Resources\Group as GroupResource;
@@ -36,13 +40,17 @@ class GroupController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:3|max:20',
+            'currency' => ['string','size:3', Rule::in(CurrencyController::currencyList())],
             'member_nickname' => 'string|min:3|max:15'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $group = Group::create(['name' => $request->group_name]);
+        $group = Group::create([
+            'name' => $request->group_name,
+            'currency' => $request->currency ?? $user->default_currency
+        ]);
 
         $group->members()->attach($user, [
             'nickname' => $request->member_nickname ?? explode("#", $user->id)[0],
@@ -55,7 +63,8 @@ class GroupController extends Controller
     public function update(Request $request, Group $group)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:3|max:20',
+            'name' => 'string|min:3|max:20',
+            'currency' => ['string','size:3', Rule::in(CurrencyController::currencyList())],
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
