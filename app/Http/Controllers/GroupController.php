@@ -135,7 +135,7 @@ class GroupController extends Controller
         }
         if($group->members->find($user) == null){
             $nickname = $request->nickname ?? explode("#", $user->id)[0];
-            if($group->members->firstWhere('nickname', $nickname) != null){
+            if($group->members->firstWhere('member_data.nickname', $nickname) != null){
                 return response()->json(['error' => 'Please choose a new nickname.'], 400);
             }
             $group->members()->attach($user, [
@@ -183,6 +183,9 @@ class GroupController extends Controller
                 $member->member_data->update(['is_admin' => $request->is_admin]);
             } else {
                 return response()->json(['error' => 'User is not admin'], 400);
+            }
+            if($group->admins()->count() == 0){
+                $group->members()->update(['is_admin' => true]);
             }
         };
 
