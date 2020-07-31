@@ -23,7 +23,7 @@ class CreateGroups extends Migration
             $table->id();
             $table->string('user_id');
             $table->integer('group_id');
-            $table->string('nickname')->nullable();
+            $table->string('nickname');
             $table->decimal('balance', 19, 4)->default(0);
             $table->boolean('is_admin')->default(0);
             $table->timestampsTz();

@@ -34,14 +34,14 @@ class DatabaseSeeder extends Seeder
                 'group_id' => '2',
                 'balance' => 0,
                 'is_admin' => 0,
-                'nickname' => null,
+                'nickname' => 'domi',
             ],            
             [
                 'user_id' => 'samu#0000',
                 'group_id' => '1',
                 'balance' => 0,
                 'is_admin' => '1',
-                'nickname' => 'Samupipoke'
+                'nickname' => 'samuuuu'
             ],            
         ]);
         DB::table('purchases')->insert([
