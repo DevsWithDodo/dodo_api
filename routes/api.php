@@ -22,31 +22,31 @@ Route::middleware(['auth:api'])->group(function () {
     
     /* Groups */
     Route::get('/groups', 'GroupController@index');
-    Route::get('/groups/{group}', 'GroupController@show');
+    Route::get('/groups/{group}', 'GroupController@show')->middleware('member');
     Route::post('/groups', 'GroupController@store');
-    Route::put('/groups/{group}', 'GroupController@update');
-    Route::delete('/groups/{group}', 'GroupController@delete');
+    Route::put('/groups/{group}', 'GroupController@update')->middleware('member'); //admin
+    Route::delete('/groups/{group}', 'GroupController@delete')->middleware('member'); //admin
     
     /* Members */
     Route::post('/groups/{group}/members', 'GroupController@addMember');
-    Route::put('/groups/{group}/members', 'GroupController@updateMember');
-    Route::delete('/groups/{group}/members', 'GroupController@deleteMember');
+    Route::put('/groups/{group}/members', 'GroupController@updateMember')->middleware('member'); //admin if other
+    Route::delete('/groups/{group}/members', 'GroupController@deleteMember')->middleware('member'); //admin if other
 
     /* Transactions */
-    Route::get('/transactions/groups/{group}', 'TransactionController@index');
-    Route::post('/transactions', 'TransactionController@store');
-    Route::put('/transactions/{purchase}', 'TransactionController@update');
-    Route::delete('/transactions/{purchase}', 'TransactionController@delete');
+    Route::get('/transactions', 'TransactionController@index')->middleware('member');
+    Route::post('/transactions', 'TransactionController@store')->middleware('member');
+    Route::put('/transactions/{purchase}', 'TransactionController@update')->middleware('owner:purchase');
+    Route::delete('/transactions/{purchase}', 'TransactionController@delete')->middleware('owner:purchase');
 
     /* Payments */
-    Route::get('/payments/groups/{group}', 'PaymentController@index');
-    Route::post('/payments', 'PaymentController@store');
-    Route::put('/payments/{payment}', 'PaymentController@update');
-    Route::delete('/payments/{payment}', 'PaymentController@delete');
+    Route::get('/payments/groups/{group}', 'PaymentController@index')->middleware('member');
+    Route::post('/payments', 'PaymentController@store')->middleware('member');
+    Route::put('/payments/{payment}', 'PaymentController@update')->middleware('owner:payment');
+    Route::delete('/payments/{payment}', 'PaymentController@delete')->middleware('owner:payment');
 
     /* Requests*/
-    Route::get('/requests/groups/{group}', 'RequestController@index');
-    Route::post('/requests', 'RequestController@store');
-    Route::put('/requests/{user_request}', 'RequestController@fulfill');
-    Route::delete('/requests/{user_request}', 'RequestController@delete');
+    Route::get('/requests/groups/{group}', 'RequestController@index')->middleware('member');
+    Route::post('/requests', 'RequestController@store')->middleware('member');
+    Route::put('/requests/{shopping_request}', 'RequestController@fulfill')->middleware('member');
+    Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
 });

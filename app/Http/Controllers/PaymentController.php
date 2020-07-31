@@ -19,47 +19,34 @@ class PaymentController extends Controller
 {
     public function index(Request $request, Group $group)
     {
-        $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
-        if($member == null){
-            return response()->json(['error' => 'User is not a member of this group'], 400);
-        }
+        $user = Auth::guard('api')->user(); //member
 
-        $payments = [];
-        foreach ($group->payments->sortByDesc('created_at') as $payment) {
-            if(($payment->taker == $user) || ($payment->payer == $user)){
-                $payments[] = new PaymentResource($payment);
-            }
-        }
-        return $payments;
+        return PaymentResource::collection(
+            $group->payments()
+                ->where('taker_id', $user->id)
+                ->orWhere('payer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get());
     }
 
     public function store(Request $request)
     {
+        $payer = Auth::guard('api')->user(); //member
         $validator = Validator::make($request->all(), [
-            'group_id' => 'required|exists:groups,id',
+            'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required','exists:users,id', new IsMember($request->group_id)],
-            'note' => 'string|min:1'
+            'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($request->group) ],
+            'note' => 'nullable|string|min:1'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-
-        $group = Group::find($request->group_id);
-        $payer = Auth::guard('api')->user();
+        $group = Group::find($request->group);
         $taker = User::find($request->taker_id);
-        
-        if(Group::find($request->group_id)->members->find($payer->id) == null){
-            return response()->json(['error' => 'User is not a member of this group'], 400);
-        }
-        if($payer == $taker) {
-            return response()->json(['error' => 'Payer and taker cannot be the same.'],400);
-        }
 
         $payment = Payment::create([
             'amount' => $request->amount,
-            'group_id' => $request->group_id,
+            'group_id' => $group->id,
             'taker_id' => $taker->id,
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
@@ -73,47 +60,34 @@ class PaymentController extends Controller
 
     public function update(Request $request, Payment $payment)
     {
-        $user = Auth::guard('api')->user();
-        if($user == $payment->payer){
-            $group = $payment->group;
-            $validator = Validator::make($request->all(), [
-                'amount' => 'required|numeric|min:0',
-                'taker_id' => ['required','exists:users,id', new IsMember($group->id)],
-                'note' => 'string|min:1'
-            ]);
-            if($validator->fails()){
-                return response()->json(['error' => $validator->errors()], 400);
-            }
-
-            if($user == User::find($request->taker_id)) {
-                return response()->json(['error' => 'Payer and taker cannot be the same.'],400);
-            }
-
-            $group->updateBalance($payment->payer, (-1)*$payment->amount);
-            $group->updateBalance($payment->taker, $payment->amount);
-
-            $payment->update($request->all());
-            $group->updateBalance($payment->payer, $request->amount);
-            $group->updateBalance($payment->taker, (-1)*$request->amount);
-
-            return response()->json(new PaymentResource($payment), 200);
-        } else {
-            return response()->json(['error' => 'User is not the payer of the payment'], 400);
+        $payer = Auth::guard('api')->user();
+        $group = $payment->group;
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:0',
+            'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($group->id)],
+            'note' => 'nullable|string|min:1'
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
         }
+
+        $group->updateBalance($payment->payer, (-1)*$payment->amount);
+        $group->updateBalance($payment->taker, $payment->amount);
+
+        $payment->update($request->all());
+        $group->updateBalance($payment->payer, $request->amount);
+        $group->updateBalance($payment->taker, (-1)*$request->amount);
+
+        return response()->json(new PaymentResource($payment), 200);
     }
 
     public function delete(Payment $payment)
     {
-        $user = Auth::guard('api')->user();
-        if($user == $payment->payer){
-            $group = $payment->group;
-            $group->updateBalance($payment->payer, (-1)*$payment->amount);
-            $group->updateBalance($payment->taker, $payment->amount);
-            $payment->delete();
+        $group = $payment->group;
+        $group->updateBalance($payment->payer, (-1)*$payment->amount);
+        $group->updateBalance($payment->taker, $payment->amount);
+        $payment->delete();
 
-            return response()->json(null, 204);
-        } else {
-            return response()->json(['error' => 'User is not the payer of the payment'], 400);
-        }
+        return response()->json(null, 204);
     }
 }

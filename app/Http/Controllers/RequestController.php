@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\Http\Resources\Request as RequestResource;
-use App\Request as UserRequest;
+use App\Request as ShoppingRequest;
 use App\Group;
 use App\User;
 
 class RequestController extends Controller
 {
     public function index(Group $group)
-    {        
-        $user = Auth::guard('api')->user();
+    {
+        $user = Auth::guard('api')->user(); //member
 
         $active = $group->requests()
             ->where('fulfilled', false)
@@ -48,45 +48,36 @@ class RequestController extends Controller
             abort(400, 'User is not a member of this group.');
         }
 
-        $user_request = UserRequest::create([
+        $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
             "group_id" => $request->group_id,
             "requester_id" => $user->id,
         ]);
 
-        return new RequestResource($user_request);
+        return new RequestResource($shopping_request);
     }
 
-    public function fulfill(UserRequest $user_request)
+    public function fulfill(ShoppingRequest $shopping_request)
     {
-        if($user_request->fulfilled){
+        $user = Auth::guard('api')->user();
+        if($shopping_request->fulfilled){
             return response()->json(['error' => 'Request already fulfilled'], 400);
         }
-        $user = Auth::guard('api')->user();
-        $member = $user_request->group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
-        if($user == $user_request->requester){
+        if($user == $shopping_request->requester){
             return response()->json(['error' => 'Cannot be fulfilled by requester.'], 400);
         }
 
-        $user_request->update([
+        $shopping_request->update([
             'fulfiller_id' => $user->id,
             'fulfilled' => true,
             'fulfilled_at' => Carbon::now()
         ]);
-        return new RequestResource($user_request);
+        return new RequestResource($shopping_request);
     }
 
-    public function delete(UserRequest $user_request)
+    public function delete(ShoppingRequest $shopping_request)
     {
-        $user = Auth::guard('api')->user();
-        if($user_request->requester == $user) {
-            $user_request->delete();
-            return response()->json(null, 204);
-        } else {
-            return response()->json(['error' => 'Request can only be deleted by requester'], 400);
-        }
+        $shopping_request->delete();
+        return response()->json(null, 204);
     }
 }
