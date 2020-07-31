@@ -63,8 +63,6 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
-        Gate::authorize('edit-group', $group);
-        abort(400, "ok");
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:3|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
@@ -176,9 +174,6 @@ class GroupController extends Controller
     {
         $user = Auth::guard('api')->user();
         $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
         $validator = Validator::make($request->all(), [
             'member_id' => ['required','exists:users,id', new IsMember($group->id)],
         ]);
