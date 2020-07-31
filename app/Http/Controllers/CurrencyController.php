@@ -21,7 +21,7 @@ class CurrencyController extends Controller
             curl_close($ch);
 
             $result = json_decode($json, true);
-            $result['rates']['CML'] = $currencies['rates']['HUF']; //Camel currency (1 CML = 1 HUF)
+            $result['rates']['CML'] = $result['rates']['HUF']; //Camel currency (1 CML = 1 HUF)
             return $result;
         });
     }
