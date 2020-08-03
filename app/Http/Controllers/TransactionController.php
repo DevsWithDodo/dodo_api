@@ -19,11 +19,19 @@ use App\User;
 
 class TransactionController extends Controller
 {
-    public function index(Request $request, Group $group)
+    public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
+        $validator = Validator::make($request->all(), [
+            'group' => 'required|exists:groups,id'
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        $group = Group::find($request->group);
+
         $transactions = [];
-        foreach ($group->transactions->sortByDesc('created_at') as $purchase) {
+        foreach ($grDoup->transactions->sortByDesc('created_at') as $purchase) {
             if(($purchase->buyer->user == $user) && ($purchase->receivers->contains('receiver_id', $user->id))){
                 $transactions[] = [
                     'type' => 'buyed_received',
@@ -44,7 +52,7 @@ class TransactionController extends Controller
                 }
             }
         }
-        return $transactions;
+        return new JsonResource($transactions);
     }
 
     public function store(Request $request)
