@@ -162,7 +162,6 @@ class GroupController extends Controller
     public function deleteMember(Request $request, Group $group)
     {
         $user = Auth::guard('api')->user();
-
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);

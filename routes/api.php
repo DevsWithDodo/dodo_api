@@ -40,13 +40,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('/transactions/{purchase}', 'TransactionController@delete')->middleware('owner:purchase');
 
     /* Payments */
-    Route::get('/payments/groups/{group}', 'PaymentController@index')->middleware('member');
+    Route::get('/payments', 'PaymentController@index')->middleware('member');
     Route::post('/payments', 'PaymentController@store')->middleware('member');
     Route::put('/payments/{payment}', 'PaymentController@update')->middleware('owner:payment');
     Route::delete('/payments/{payment}', 'PaymentController@delete')->middleware('owner:payment');
 
     /* Requests*/
-    Route::get('/requests/groups/{group}', 'RequestController@index')->middleware('member');
+    Route::get('/requests', 'RequestController@index')->middleware('member');
     Route::post('/requests', 'RequestController@store')->middleware('member');
     Route::put('/requests/{shopping_request}', 'RequestController@fulfill')->middleware('member');
     Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
