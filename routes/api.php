@@ -24,13 +24,14 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/groups', 'GroupController@index');
     Route::get('/groups/{group}', 'GroupController@show')->middleware('member');
     Route::post('/groups', 'GroupController@store');
-    Route::put('/groups/{group}', 'GroupController@update')->middleware('member'); //admin
-    Route::delete('/groups/{group}', 'GroupController@delete')->middleware('member'); //admin
+    Route::put('/groups/{group}', 'GroupController@update')->middleware('member');
+    Route::delete('/groups/{group}', 'GroupController@delete')->middleware('member');
     
     /* Members */
     Route::post('/groups/{group}/members', 'GroupController@addMember');
-    Route::put('/groups/{group}/members', 'GroupController@updateMember')->middleware('member'); //admin or user
-    Route::delete('/groups/{group}/members', 'GroupController@deleteMember')->middleware('member'); //admin or user
+    Route::put('/groups/{group}/members', 'GroupController@updateMember')->middleware('member'); 
+    Route::put('/groups/{group}/admins', 'GroupController@updateAdmin')->middleware('member'); 
+    Route::delete('/groups/{group}/members', 'GroupController@deleteMember')->middleware('member');
 
     /* Transactions */
     Route::get('/transactions', 'TransactionController@index')->middleware('member');

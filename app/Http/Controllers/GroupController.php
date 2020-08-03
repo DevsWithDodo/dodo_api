@@ -63,6 +63,7 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
+        Gate::authorize('edit-group', $group);
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:3|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
@@ -70,34 +71,26 @@ class GroupController extends Controller
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
-        if($member->member_data->is_admin){
-            $group->update($request->all());
-            return response()->json(new GroupResource($group), 200);
-        } else {
-            return response()->json(['error' => 'User is not an admin'], 400);
-        }
+
+        $group->update($request->only('name', 'currency'));
+        
+        return response()->json(new GroupResource($group), 200);
     }
 
     public function delete(Group $group)
     {
-        $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
-        if($member->member_data->is_admin){
-            $group->members()->detach($group->members);
-            $group->delete();
+        Gate::authorize('edit-group', $group);
+        
+        $group->members()->detach($group->members);
+        $group->delete();
     
-            return response()->json(null, 204);
-        } else {
-            return response()->json(['error' => 'User is not an admin'], 400);
-        }
+        return response()->json(null, 204);
     }
 
-    /* Members */
+    /**
+     * Member related functions
+     */
+
     public function addMember(Group $group, Request $request)
     {
         $user = Auth::guard('api')->user();
@@ -129,66 +122,56 @@ class GroupController extends Controller
     public function updateMember(Group $group, Request $request)
     {
         $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
         $validator = Validator::make($request->all(), [
-            'member_id' => ['required','exists:users,id', new IsMember($group->id)],
-            'nickname' => 'nullable|string|min:3|max:15',
-            'is_admin' => 'nullable|boolean'
+            'member_id' => ['exists:users,id', new IsMember($group->id)],
+            'nickname' => 'required|string|min:3|max:15',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        if($member == $group->members->find($request->member_id)){
-            $member_to_update = $member;
-        } else if($member->member_data->is_admin){
-            $member_to_update = $group->members->find($request->member_id);
-        } else {
-            return response()->json(['error' => 'User is not admin'], 400);
+
+        $member_to_update = $group->members->find($request->member_id ?? $user->id);
+        Gate::authorize('edit-member', [$member_to_update, $group]);
+        
+        if($group->members->firstWhere('nickname', $request->nickname) != null){
+            return response()->json(['error' => 'Please choose a new nickname.'], 400);
         }
-        if ($request->has('nickname') && $request->nickname != null) {
-            $nickname = $request->nickname ?? explode("#", $member_to_update->id)[0];
-            if($group->members->firstWhere('nickname', $nickname) != null){
-                return response()->json(['error' => 'Please choose a new nickname.'], 400);
-            }
-            $member->member_data->update(['nickname' => $nickname]);
+        $member_to_update->member_data->update(['nickname' => $request->nickname]);
+        
+        return response()->json(null, 204);
+    }
+
+    public function updateAdmin(Group $group, Request $request)
+    {
+        Gate::authorize('edit-group', $group);
+        $validator = Validator::make($request->all(), [
+            'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
+            'admin' => 'required|boolean',
+        ]);
+        
+        $group->members->find($request->member_id)
+            ->member_data->update(['is_admin' => $request->admin]);
+        
+        if($group->admins()->count() == 0){
+            $group->members()->update(['is_admin' => true]);
         }
-        if($request->has('is_admin') && $request->is_admin != null){
-            if($member->member_data->is_admin){
-                $member->member_data->update(['is_admin' => $request->is_admin]);
-            } else {
-                return response()->json(['error' => 'User is not admin'], 400);
-            }
-            if($group->admins()->count() == 0){
-                $group->members()->update(['is_admin' => true]);
-            }
-        };
 
         return response()->json(null, 204);
-
     }
 
     public function deleteMember(Request $request, Group $group)
     {
         $user = Auth::guard('api')->user();
-        $member = $group->members->find($user);
         $validator = Validator::make($request->all(), [
-            'member_id' => ['required','exists:users,id', new IsMember($group->id)],
+            'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        if($member == $group->members->find($request->member_id)){
-            $group->members()->detach($member);
-        } else {
-            if($member->member_data->is_admin){
-                $group->members()->detach(User::find($request->member_id));
-            } else {
-                return response()->json(['error' => 'User is not admin'], 400);
-            }
-        }
+        $member_to_delete = $group->members->find($request->member_id ?? $user->id);
+        Gate::authorize('edit-member', [$member_to_delete, $group]);
+        
+        $group->members()->detach($member_to_delete);
 
         if($group->members()->count() == 0){
             $group->delete();

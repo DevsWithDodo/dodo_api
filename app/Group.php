@@ -25,7 +25,7 @@ class Group extends Model
 
     public function admins()
     {
-        return $this->members->where('is_admin', true);
+        return $this->members()->where('is_admin', true);
     }
 
     public function transactions()
