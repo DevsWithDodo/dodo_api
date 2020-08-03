@@ -132,9 +132,6 @@ class GroupController extends Controller
     {
         $user = Auth::guard('api')->user();
         $member = $group->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
         $validator = Validator::make($request->all(), [
             'member_id' => ['required','exists:users,id', new IsMember($group->id)],
             'nickname' => 'nullable|string|min:3|max:15',
