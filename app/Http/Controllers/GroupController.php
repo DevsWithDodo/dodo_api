@@ -72,7 +72,7 @@ class GroupController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $group->update($request->all());
+        $group->update($request->only('name', 'currency'));
         
         return response()->json(new GroupResource($group), 200);
     }

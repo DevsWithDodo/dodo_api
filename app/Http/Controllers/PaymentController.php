@@ -74,7 +74,7 @@ class PaymentController extends Controller
         $group->updateBalance($payment->payer, (-1)*$payment->amount);
         $group->updateBalance($payment->taker, $payment->amount);
 
-        $payment->update($request->all());
+        $payment->update($request->only('amount', 'taker_id', 'note'));
         $group->updateBalance($payment->payer, $request->amount);
         $group->updateBalance($payment->taker, (-1)*$request->amount);
 
