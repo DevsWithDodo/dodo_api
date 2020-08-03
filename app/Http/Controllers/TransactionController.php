@@ -31,7 +31,7 @@ class TransactionController extends Controller
         $group = Group::find($request->group);
 
         $transactions = [];
-        foreach ($grDoup->transactions->sortByDesc('created_at') as $purchase) {
+        foreach ($group->transactions->sortByDesc('created_at') as $purchase) {
             if(($purchase->buyer->user == $user) && ($purchase->receivers->contains('receiver_id', $user->id))){
                 $transactions[] = [
                     'type' => 'buyed_received',
