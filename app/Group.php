@@ -9,8 +9,22 @@ class Group extends Model
 {
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency'];
+    protected $fillable = ['name', 'currency', 'anyone_can_invite'];
 
+    public function delete(){
+        $this->members()->detach($this->members);
+        foreach ($this->transactions as $purchase) {
+            $purchase->buyer->delete();
+            $purchase->receivers()->delete();
+        }
+        $this->transactions()->delete();
+        $this->payments()->delete();
+        $this->requests()->delete();
+        $this->invitations()->delete();
+
+        return parent::delete();
+    }
+    
     /**
      * The groups that the user in.
      */
@@ -41,6 +55,11 @@ class Group extends Model
     public function requests()
     {
         return $this->hasMany('App\Request');
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany('App\Invitation');
     }
 
     public function updateBalance(User $member, $amount)

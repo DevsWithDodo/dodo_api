@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
@@ -68,6 +69,10 @@ class DatabaseSeeder extends Seeder
             ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => "samu#0000", 'created_at' => Carbon::now()]
         ]);
 
+        DB::table('invitations')->insert([
+            ['group_id' => 1, 'token' => Str::random(20), 'usable_once_only' => false]
+        ]);
+        
         App\Group::find(1)->refreshBalances();
     }
 }

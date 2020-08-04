@@ -16,6 +16,7 @@ class CreateGroups extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('anyone_can_invite')->default(true);
             $table->char('currency', 3);
             $table->timestampsTz();
         });
@@ -29,6 +30,14 @@ class CreateGroups extends Migration
             $table->boolean('is_admin')->default(0);
             $table->timestampsTz();
         });
+
+        Schema::create('invitations', function (Blueprint $table) {
+            $table->id();
+            $table->integer('group_id');
+            $table->string('token');
+            $table->boolean('usable_once_only');
+            $table->timestampsTz();
+        });
     }
 
     /**
@@ -40,5 +49,6 @@ class CreateGroups extends Migration
     {
         Schema::dropIfExists('groups');
         Schema::dropIfExists('group_user');
+        Schema::dropIfExists('invitations');
     }
 }
