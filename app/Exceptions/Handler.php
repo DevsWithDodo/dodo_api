@@ -54,6 +54,11 @@ class Handler extends ExceptionHandler
         if ($e instanceof ModelNotFoundException) {
             return response()->json(['error' => 'Resource not found'], 404);
         }
+        if ($this->isHttpException($e)) {
+            if($e->getStatusCode() == '404'){
+                return response()->json(['error' => '404 Not Found'], 404);
+            }
+        }
         
         // Define the response
         $response = [
