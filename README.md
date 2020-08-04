@@ -3,4 +3,6 @@
 
 
 
-[Laravel](https://laravel.com/) API for the [app](https://github.com/machiato32/csocsort_szamla).
+[Laravel](https://laravel.com/) based API.
+
+[Lender app](https://github.com/machiato32/csocsort_app).
