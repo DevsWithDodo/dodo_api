@@ -46,9 +46,10 @@
 
             .title {
                 font-size: 84px;
+                margin-bottom: 30px;
             }
 
-            .links > a {
+            p {
                 color: #636b6f;
                 padding: 0 25px;
                 font-size: 13px;
@@ -57,21 +58,25 @@
                 text-decoration: none;
                 text-transform: uppercase;
             }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
         </style>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
+            <div class="top-right">
+            <div class="links">
+            <a href="https://github.com/kdmnk/csocsort_api">
+                <img src="GitHub_Logo.png" alt="GitHub logo" height="25px">
+            </a>
+            </div>
+            
+            </div>
             <div class="content">
-                <div class="title m-b-md">
-                    Lender
-                </div>
-                <div class="links">
-                    <a href="https://github.com/kdmnk/csocsort_api">Money and debt management app designed for groups</a>
-                </div>
+                <div class="title">Lender</div>
+                <p>Money and debt management app designed for groups</p>
+                <div style="margin:100px"></div>
+                <a href='https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+                    <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80px"/>
+                </a>
             </div>
         </div>
     </body>
