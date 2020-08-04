@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 /* For testing */
 Route::get('/users', function(){ return App\User::all(); });
@@ -54,4 +56,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/requests', 'RequestController@store')->middleware('member');
     Route::put('/requests/{shopping_request}', 'RequestController@fulfill');
     Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
+});
+
+
+/**
+ * Bug report to admin's email.
+ */
+Route::post('/bug', function(Request $request) {
+    Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+    return response()->json(null, 204);
 });
