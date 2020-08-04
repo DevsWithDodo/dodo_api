@@ -81,7 +81,6 @@ class GroupController extends Controller
     {
         Gate::authorize('edit-group', $group);
         
-        $group->members()->detach($group->members);
         $group->delete();
     
         return response()->json(null, 204);

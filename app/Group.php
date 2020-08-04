@@ -11,6 +11,20 @@ class Group extends Model
 
     protected $fillable = ['name', 'currency'];
 
+    public function delete(){
+        $this->members()->detach($this->members);
+        foreach ($this->transactions as $purchase) {
+            $purchase->buyer->delete();
+            $purchase->receivers()->delete();
+        }
+        $this->transactions()->delete();
+        $this->payments()->delete();
+        $this->requests()->delete();
+        $this->invitations()->delete();
+
+        return parent::delete();
+    }
+    
     /**
      * The groups that the user in.
      */
