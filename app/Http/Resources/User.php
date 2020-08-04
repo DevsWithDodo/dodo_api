@@ -14,7 +14,7 @@ class User extends JsonResource
             'api_token' => $this->api_token,
             'last_active_group' => $this->last_active_group,
             'default_currency' => $this->default_currency,
-            'total_balance' => $this->balance()['amount']
+            'total_balance' => round(floatval($this->balance()['amount']), 2)
         ];
     }
 }
