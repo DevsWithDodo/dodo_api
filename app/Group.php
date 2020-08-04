@@ -9,7 +9,7 @@ class Group extends Model
 {
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency'];
+    protected $fillable = ['name', 'currency', 'anyone_can_invite'];
 
     public function delete(){
         $this->members()->detach($this->members);
@@ -55,6 +55,11 @@ class Group extends Model
     public function requests()
     {
         return $this->hasMany('App\Request');
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany('App\Invitation');
     }
 
     public function updateBalance(User $member, $amount)

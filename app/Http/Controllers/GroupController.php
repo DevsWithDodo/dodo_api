@@ -16,6 +16,7 @@ use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Member as MemberResource;
 use App\User;
 use App\Group;
+use App\Invitation;
 
 class GroupController extends Controller
 {
@@ -90,29 +91,37 @@ class GroupController extends Controller
      * Member related functions
      */
 
-    public function addMember(Group $group, Request $request)
+    public function addMember(Request $request)
     {
-        $user = Auth::guard('api')->user();
-        if($group->members->count()==20){
-            return response()->json(['error' => 'Group member limit reached'], 400);
-        }
         $validator = Validator::make($request->all(), [
+            'invitation_token' => 'required|string|exists:invitations,token',
             'nickname' => 'nullable|string|min:3|max:15',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        if($group->members->find($user) == null){
-            $nickname = $request->nickname ?? explode("#", $user->id)[0];
-            if($group->members->firstWhere('member_data.nickname', $nickname) != null){
-                return response()->json(['error' => 'Please choose a new nickname.'], 400);
-            }
-            $group->members()->attach($user, [
-                'nickname' => $nickname,
-                'is_admin' => false
-            ]);
-        } else {
+        $user = Auth::guard('api')->user();
+        $invitation = Invitation::firstWhere('token', $request->invitation_token);
+        $group = $invitation->group;
+
+        if($group->members->count()==20){
+            return response()->json(['error' => 'Group member limit reached'], 400);
+        }
+        if($group->members->contains($user)){
             return response()->json(['error' => 'The user is already a member in this group'], 400);
+        } 
+        $nickname = $request->nickname ?? explode("#", $user->id)[0];
+        if($group->members->firstWhere('member_data.nickname', $nickname) != null){
+            return response()->json(['error' => 'Please choose a new nickname.'], 400);
+        }
+
+        $group->members()->attach($user, [
+            'nickname' => $nickname,
+            'is_admin' => false
+        ]);
+
+        if($invitation->usable_once_only) {
+            $invitation->delete();
         }
         
         return response()->json(null, 204);
