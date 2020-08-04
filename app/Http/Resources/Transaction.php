@@ -23,13 +23,13 @@ class Transaction extends JsonResource
             'created_at' => $this->created_at,
             'buyer_id' => $this->buyer->buyer_id,
             'buyer_nickname' => $this->group->members->find($this->buyer->user)->member_data->nickname,
-            'total_amount' => floatval($this->buyer->amount),
+            'total_amount' => round(floatval($this->buyer->amount),2),
         ];
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
                 'nickname' => $receiver->purchase->group->members->find($receiver->user)->member_data->nickname,
-                'amount' => floatval($receiver->amount)
+                'amount' => round(floatval($receiver->amount),2)
             ];
         }
         return $transaction;

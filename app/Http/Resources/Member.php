@@ -11,7 +11,7 @@ class Member extends JsonResource
         return [
             'user_id' => $this->id,
             'nickname' => $this->member_data->nickname,
-            'balance' => floatval($this->member_data->balance),
+            'balance' => round(floatval($this->member_data->balance),2),
             'is_admin' => $this->member_data->is_admin
         ];
     }
