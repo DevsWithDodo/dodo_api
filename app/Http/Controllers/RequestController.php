@@ -15,21 +15,31 @@ use App\User;
 
 class RequestController extends Controller
 {
-    public function index(Group $group)
+    public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
 
-        $active = $group->requests()
-            ->where('fulfilled', false)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $validator = Validator::make($request->all(), [
+            'group' => 'required|exists:groups,id',
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        $group = Group::find($request->group);
 
-        $fulfilled = $group->requests()
-            ->where('fulfilled', true)
-            ->where('fulfiller_id', $user->id)
-            ->orWhere('requester_id', '=', $user->id)
-            ->orderBy('fulfilled_at', 'desc')
-            ->get();
+        $active = RequestResource::collection(
+            $group->requests()
+                ->where('fulfilled', false)
+                ->orderBy('created_at', 'desc')
+                ->get()
+            );
+
+        $fulfilled = [];
+        foreach ($group->requests()->where('fulfilled', true)->orderBy('created_at', 'desc')->get() as $request) {
+            if($request->fulfiller_id == $user->id || $request->requester_id == $user->id){
+                $fulfilled[] = new RequestResource($request);
+            }
+        }
         return new JsonResource(['active' => $active, 'fulfilled' => $fulfilled]);
     }
 
@@ -60,11 +70,15 @@ class RequestController extends Controller
     public function fulfill(ShoppingRequest $shopping_request)
     {
         $user = Auth::guard('api')->user();
+        $group = $shopping_request->group;
         if($shopping_request->fulfilled){
             return response()->json(['error' => 'Request already fulfilled'], 400);
         }
         if($user == $shopping_request->requester){
             return response()->json(['error' => 'Cannot be fulfilled by requester.'], 400);
+        }
+        if(!$group->members->contains($user)){
+            return response()->json(['error' => 'User is not a member of this group'], 400);
         }
 
         $shopping_request->update([
