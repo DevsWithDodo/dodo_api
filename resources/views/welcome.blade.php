@@ -71,6 +71,7 @@
             
             </div>
             <div class="content">
+                <img src="logo_color.png" alt="Lender logo" height="200px"> 
                 <div class="title">Lender</div>
                 <p>Money and debt management app designed for groups</p>
                 <div style="margin:100px"></div>
