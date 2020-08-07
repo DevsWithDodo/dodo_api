@@ -124,7 +124,7 @@ class GroupController extends Controller
             $invitation->delete();
         }
         
-        return response()->json(null, 204);
+        return new GroupResource($group);
     }
 
     public function updateMember(Group $group, Request $request)
