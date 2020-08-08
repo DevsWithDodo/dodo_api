@@ -33,7 +33,7 @@ class InvitationController extends Controller
         
         do {
             $token = Str::random(20);
-        } while (DB::table('invitations')->first('token', $token) != null);
+        } while (DB::table('invitations')->first('token', $token) == null);
 
         $invitation = Invitation::create([
             'group_id' => $group->id,
