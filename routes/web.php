@@ -20,12 +20,25 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/join', function (Request $request) {
-    if ($request->has('token')){
-        $invitation = Invitation::firstWhere('token', $request->token);
-        return view('join', ['invitation' => $invitation]);
+Route::get('/join/{token}', function ($token) {
+    $invitation = Invitation::firstWhere('token', $token);
+    return view('join', ['invitation' => $invitation]);
+});
+
+Route::get('/link_prw', function(){
+    $path = public_path() . '/lender_preview.png';
+
+    if(!File::exists($path)) {
+        return response()->json(['message' => 'Image not found.'], 404);
     }
-    return view('welcome');
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
 });
 
 Auth::routes();

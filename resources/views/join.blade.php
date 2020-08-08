@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta property="og:url" content="{{ Request::url() }}" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" />
+        <meta property="og:image" content="http://www.lenderapp.net/link_prw" />
         @if($invitation == null)
         <meta property="og:title" content="Lender" />
         <meta property="og:description" content="Money and debt management app designed for groups. Invalid invitation token." />
@@ -89,12 +89,14 @@
     <body>
         <div class="flex-center position-ref full-height">            
             <div class="content">
-                <img src="logo_color.png" alt="Lender logo" height="200px"> 
+                <img src="/logo_color.png" alt="Lender logo" height="200px"> 
                 <div class="title">Lender</div>
                 @if($invitation == null)
                 <p class="large">Invalid invitation token</p>
                 @else
-                <p class="large" id="joining">Joining group <span class="uppercase">{{ $invitation->group->name }}</span>...</p>
+                <!-- <p><img src="https://miro.medium.com/max/441/1*9EBHIOzhE1XfMYoKz1JcsQ.gif" alt="loading animation" height="100px"></p>  -->
+                <p class="large" id="joining">Joining group <span class="uppercase">{{ $invitation->group->name }}</span></p>
+                
                 Invitation token (if needed): <br>
                 <input type="text" style="position: absolute; left: -999px;" value="{{ $invitation->token }}" id="token">
                 <i> {{ $invitation->token }}</i> <button onclick="copyToken()">Copy</button>
