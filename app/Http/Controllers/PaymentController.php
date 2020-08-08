@@ -17,10 +17,16 @@ use App\User;
 
 class PaymentController extends Controller
 {
-    public function index(Request $request, Group $group)
+    public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
-
+        $validator = Validator::make($request->all(), [
+            'group' => 'required|exists:groups,id',
+        ]);
+        if($validator->fails()){
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        $group = Group::find($request->group);
         return PaymentResource::collection(
             $group->payments()
                 ->where('taker_id', $user->id)
