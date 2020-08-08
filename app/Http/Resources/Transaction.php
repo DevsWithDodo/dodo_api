@@ -29,7 +29,7 @@ class Transaction extends JsonResource
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
                 'nickname' => $receiver->purchase->group->members->find($receiver->user)->member_data->nickname,
-                'amount' => round(floatval($receiver->amount),2)
+                'balance' => round(floatval($receiver->amount),2)
             ];
         }
         return $transaction;
