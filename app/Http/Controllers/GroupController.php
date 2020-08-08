@@ -43,9 +43,9 @@ class GroupController extends Controller
     {
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
-            'group_name' => 'required|string|min:3|max:20',
+            'group_name' => 'required|string|min:1|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
-            'member_nickname' => 'nullable|string|min:3|max:15'
+            'member_nickname' => 'nullable|string|min:1|max:15'
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -78,7 +78,7 @@ class GroupController extends Controller
     {
         Gate::authorize('edit-group', $group);
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|min:3|max:20',
+            'name' => 'nullable|string|min:1|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
         ]);
         if($validator->fails()){
@@ -113,7 +113,7 @@ class GroupController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'invitation_token' => 'required|string|exists:invitations,token',
-            'nickname' => 'nullable|string|min:3|max:15',
+            'nickname' => 'nullable|string|min:1|max:15',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -150,7 +150,7 @@ class GroupController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
-            'nickname' => 'required|string|min:3|max:15',
+            'nickname' => 'required|string|min:1|max:15',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
