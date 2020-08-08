@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\CurrencyController;
 use App\Rules\IsMember;
@@ -57,6 +59,16 @@ class GroupController extends Controller
         $group->members()->attach($user, [
             'nickname' => $request->member_nickname ?? explode("#", $user->id)[0],
             'is_admin' => true //set to true on first member
+        ]);
+        
+        do {
+            $token = Str::random(20);
+        } while (DB::table('invitations')->first('token', $token) == null);
+
+        $invitation = Invitation::create([
+            'group_id' => $group->id,
+            'token' => Str::random(20),
+            'usable_once_only' => false
         ]);
 
         return response()->json(new GroupResource($group), 201);
