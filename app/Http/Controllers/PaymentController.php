@@ -27,12 +27,14 @@ class PaymentController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
         $group = Group::find($request->group);
-        return PaymentResource::collection(
-            $group->payments()
-                ->where('taker_id', $user->id)
-                ->orWhere('payer_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get());
+
+        $payments = [];
+        foreach ($group->payments->sortByDesc('created_at') as $payment) {
+            if($payment->taker_id == $user->id || $payment->payer_id == $user->id){
+                $payments[] = $payment;
+            }
+        }
+        return PaymentResource::collection($payments);
     }
 
     public function store(Request $request)
