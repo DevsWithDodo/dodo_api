@@ -47,20 +47,20 @@ class RequestController extends Controller
     {
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
-            'group_id' => 'required|exists:groups,id',
+            'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:3|max:20',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $member = Group::find($request->group_id)->members->find($user);
+        $member = Group::find($request->group)->members->find($user);
         if($member == null){
             abort(400, 'User is not a member of this group.');
         }
 
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
-            "group_id" => $request->group_id,
+            "group_id" => $request->group,
             "requester_id" => $user->id,
         ]);
 
