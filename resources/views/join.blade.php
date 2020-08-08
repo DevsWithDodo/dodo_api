@@ -89,6 +89,7 @@
     <body>
         <div class="flex-center position-ref full-height">            
             <div class="content">
+                <img src="logo_color.png" alt="Lender logo" height="200px"> 
                 <div class="title">Lender</div>
                 @if($invitation == null)
                 <p class="large">Invalid invitation token</p>
