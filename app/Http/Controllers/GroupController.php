@@ -103,6 +103,12 @@ class GroupController extends Controller
      * Member related functions
      */
 
+    public function indexMember(Group $group) 
+    {
+        $user = Auth::guard('api')->user(); //member
+        return new MemberResource($group->members->find($user));
+    }
+
     public function addMember(Request $request)
     {
         $validator = Validator::make($request->all(), [
