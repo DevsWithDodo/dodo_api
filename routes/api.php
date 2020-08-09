@@ -2,12 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-
-/* For testing */
-Route::get('/users', function(){ return App\User::all(); });
-Route::get('/groups_all', function() { return App\Http\Resources\Group::collection(App\Group::all()); });
 
 /* Auth */
 Route::post('register', 'UserController@register');
