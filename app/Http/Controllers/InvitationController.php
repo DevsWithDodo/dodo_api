@@ -31,13 +31,9 @@ class InvitationController extends Controller
             Gate::authorize('edit-group', $group);
         }
         
-        do {
-            $token = Str::random(20);
-        } while (DB::table('invitations')->first('token', $token) == null);
-
         $invitation = Invitation::create([
             'group_id' => $group->id,
-            'token' => $token,
+            'token' => Str::random(20),
             'usable_once_only' => $request->usable_once_only
         ]);
         return new InvitationResource($invitation);

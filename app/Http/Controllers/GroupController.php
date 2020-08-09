@@ -61,10 +61,6 @@ class GroupController extends Controller
             'is_admin' => true //set to true on first member
         ]);
         
-        do {
-            $token = Str::random(20);
-        } while (DB::table('invitations')->first('token', $token) == null);
-
         $invitation = Invitation::create([
             'group_id' => $group->id,
             'token' => Str::random(20),
@@ -159,7 +155,7 @@ class GroupController extends Controller
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_update, $group]);
         
-        if($group->members->firstWhere('nickname', $request->nickname) != null){
+        if($group->members->firstWhere('member_data.nickname', $request->nickname) != null){
             return response()->json(['error' => 'Please choose a new nickname.'], 400);
         }
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
