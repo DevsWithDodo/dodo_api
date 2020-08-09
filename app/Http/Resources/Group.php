@@ -15,7 +15,7 @@ class Group extends JsonResource
             'group_name' => $this->name,
             'currency' => $this->currency,
             'anyone_can_invite' => $this->anyone_can_invite,
-            'members' => Member::collection($this->members),
+            'members' => Member::collection($this->members->sortBy('member_data.nickname')),
             'invitations' => Invitation::collection($this->invitations)
         ];
 
