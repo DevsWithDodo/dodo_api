@@ -62,3 +62,7 @@ Route::post('/bug', function(Request $request) {
     Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
     return response()->json(null, 204);
 });
+
+Route::get('/supported_app_version', function(Request $request) {
+    return response()->json(env('SUPPORTED_APP_VERSION', '1.0'));
+});
