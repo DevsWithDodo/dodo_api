@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta property="og:url" content="{{ Request::url() }}" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="http://www.lenderapp.net/link_prw" />
+        <meta property="og:image" content="http://www.lenderapp.net/landscape_preview" />
         <meta property="og:image:width" content="160" />
         <meta property="og:image:height" content="63" />
         <meta property="og:title" content="Lender" />

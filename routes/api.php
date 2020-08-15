@@ -63,6 +63,6 @@ Route::post('/bug', function(Request $request) {
     return response()->json(null, 204);
 });
 
-Route::get('/supported_app_version', function(Request $request) {
-    return response()->json(env('SUPPORTED_APP_VERSION', '1.0'));
+Route::get('/supported', function(Request $request) {
+    return response()->json($request->version >= env('SUPPORTED_APP_VERSION', 17));
 });

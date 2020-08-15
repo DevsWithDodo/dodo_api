@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta property="og:url" content="{{ Request::url() }}" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="http://www.lenderapp.net/link_prw" />
+        <meta property="og:image" content="http://www.lenderapp.net/landscape_preview" />
         @if($invitation == null)
         <meta property="og:title" content="Lender" />
         <meta property="og:description" content="Money and debt management app designed for groups. Invalid invitation token." />
