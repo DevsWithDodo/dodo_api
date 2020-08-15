@@ -84,6 +84,13 @@
             token.setSelectionRange(0, token.value.length); /*For mobile devices*/
             document.execCommand("copy");
         }
+        @if($invitation != null)
+        window.onload = function() {
+            //Deep link URL for users with app already installed on their device
+            window.location = 'lenderapp://lenderapp/join/{{ $invitation->token }}';
+        }
+        @endif
+        
         </script>
     </head>
     <body>
@@ -95,8 +102,9 @@
                 <p class="large">Invalid invitation token</p>
                 @else
                 <!-- <p><img src="https://miro.medium.com/max/441/1*9EBHIOzhE1XfMYoKz1JcsQ.gif" alt="loading animation" height="100px"></p>  -->
-                <p class="large" id="joining">Joining group <span class="uppercase">{{ $invitation->group->name }}</span></p>
-                
+                <a href="lenderapp://lenderapp/join/{{ $invitation->token }}" target="_blank">
+                    <p class="large" id="joining">Click here to join group <span class="uppercase">{{ $invitation->group->name }}</span></p>
+                </a>
                 Invitation token (if needed): <br>
                 <input type="text" style="position: absolute; left: -999px;" value="{{ $invitation->token }}" id="token">
                 <i> {{ $invitation->token }}</i> <button onclick="copyToken()">Copy</button>
@@ -106,6 +114,7 @@
                 <a href='https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
                     <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80px"/>
                 </a>
+                <p>
             </div>
         </div>
     </body>
