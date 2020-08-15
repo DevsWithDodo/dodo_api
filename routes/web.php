@@ -25,7 +25,7 @@ Route::get('/join/{token}', function ($token) {
     return view('join', ['invitation' => $invitation]);
 });
 
-Route::get('/link_prw', function(){
+Route::get('/landscape_preview', function(){
     $path = public_path() . '/lender_preview.png';
 
     if(!File::exists($path)) {

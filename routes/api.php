@@ -62,7 +62,9 @@ Route::post('/bug', function(Request $request) {
     Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
     return response()->json(null, 204);
 });
-
+/**
+ * Returns if the client app version is supported by the server
+ */
 Route::get('/supported', function(Request $request) {
     return response()->json($request->version >= env('SUPPORTED_APP_VERSION', 17));
 });
