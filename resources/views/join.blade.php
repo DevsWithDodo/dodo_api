@@ -17,63 +17,136 @@
 
         <title>Lender</title>
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+         <!-- Fonts -->
+         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
 
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
+         <!-- Styles -->
+         <style>
+             @font-face {
+                font-family: 'Product Sans';
+                font-style: normal;
+                font-weight: 400;
+                src: local('Open Sans'), local('OpenSans'), url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2) format('woff2');
             }
 
-            .full-height {
-                height: 100vh;
-            }
+             html, body {
+                 color: white;
+                 font-family: 'Roboto', sans-serif;
+                 font-weight: 200;
+                 height: 90vh;
+                 margin: 0;
+                 background-image: url('/lender_landscape.png');
+                 background-repeat: no-repeat;
+                 background-attachment: fixed;
+                 background-size: cover;
+                 background-position: center;
+             }
+ 
+             .full-height {
+                 height: 90vh;
+             }
+ 
+             .flex-center {
+                 align-items: center;
+                 display: flex;
+                 justify-content: center;
+             }
+ 
+             .position-ref {
+                 position: relative;
+             }
+ 
+             .top-right {
+                 position: absolute;
+                 right: 10px;
+                 top: 18px;
+             }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
+             .bottom {
+                 position: absolute;
+                 bottom: 0px;
+                 text-align: center;
+             }
+ 
+             .content {
+                 text-align: center;
+             }
+ 
+             .title {
+                 font-size: 84px;
+                /*  margin-bottom: 30px; */
+                 text-transform: uppercase;
+                 font-weight: 200;
+             }
+ 
+             p {
+                 padding: 0 25px;
+                 font-size: 13px;
+                 font-weight: 300;
+                 letter-spacing: .1rem;
+                 text-decoration: none;
+                 /* text-transform: uppercase; */
+             }
+             
+             a {
+                 color: white;
+             }
 
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 70px;
-                margin-bottom: 30px;
-            }
-
-            p {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-            }
             .large {
-                font-size: 18px;
+                font-size: 22px;
             }
+
             .uppercase {
                 text-transform: uppercase;
             }
+
+            .copyBtn {
+                background-color:transparent;
+                border-radius:6px;
+                color:white;
+                border:1px solid white;
+                display:inline-block;
+                cursor:pointer;
+                padding:5px;
+                margin:5px;
+                text-decoration:none;
+            }
+
+            .joinBtn {
+                background-color:black;
+                border-radius:6px;
+                color:white;
+                border:1px solid #a6a6a6;
+                /* border:1px solid #70C5EB; */
+                display:inline-block;
+                cursor:pointer;
+                padding:2px;
+                margin:5px;
+                text-decoration:none;
+                position:relative;
+                bottom:8px;
+            }
+            td {
+                vertical-align: bottom;
+                text-align: left;
+                line-height: 1;
+                font-family: Product Sans, 'Roboto';
+                padding-right: 5px;
+            }
+            .join_group {
+                font-size:11px;
+                font-weight:400;
+                text-transform: uppercase;
+                position:relative;
+                bottom:5px;
+            }
+            .group_name {
+                font-weight:550;
+                font-size:21px;
+                position:relative;
+                bottom:5px;
+            }
+
         </style>
 
         <script>
@@ -94,27 +167,48 @@
         </script>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">            
+        @if($invitation != null)
+        <input type="text" style="position: absolute; left: -999px;" value="{{ $invitation->token }}" id="token">
+        @endif
+        <div class="flex-center position-ref full-height">
+            <div class="top-right">
+                <a href="https://github.com/kdmnk/csocsort_api" target="_blank">
+                    <img src="/GitHub_Logo.png" alt="GitHub logo" height="25px">
+                </a>
+            </div>           
             <div class="content">
                 <img src="/logo_color.png" alt="Lender logo" height="200px"> 
                 <div class="title">Lender</div>
                 @if($invitation == null)
-                <p class="large">Invalid invitation token</p>
+                <p class="large uppercase">Invalid or expired invitation</p>
                 @else
-                <!-- <p><img src="https://miro.medium.com/max/441/1*9EBHIOzhE1XfMYoKz1JcsQ.gif" alt="loading animation" height="100px"></p>  -->
-                <a href="lenderapp://lenderapp/join/{{ $invitation->token }}" target="_blank">
-                    <p class="large" id="joining">Click here to join group <span class="uppercase">{{ $invitation->group->name }}</span></p>
-                </a>
-                Invitation token (if needed): <br>
-                <input type="text" style="position: absolute; left: -999px;" value="{{ $invitation->token }}" id="token">
-                <i> {{ $invitation->token }}</i> <button onclick="copyToken()">Copy</button>
+                <span class="uppercase" style="font-size: 11px;font-weight:400">Money and debt management app designed for groups</span>
                 @endif
-                <div style="margin:100px"></div>
-                <p class="uppercase">Money and debt management app designed for groups</p>
+            </div>
+            <div class="bottom">
+                @if($invitation != null)
+                <a class="joinBtn" id="joining" href="lenderapp://lenderapp/join/{{ $invitation->token }}" target="_blank">
+                    <table>
+                        <tr>
+                            <td>
+                                <img src="/login_icon.png" alt="login icon" height="38px">
+                            </td>
+                            <td>
+                                <span class="join_group">Join group</span><br>
+                                <span class="group_name">{{ $invitation->group->name }}</span><br>
+                            </td>
+                        </tr>
+                    </table>
+                </a>
+                @endif
                 <a href='https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
                     <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80px"/>
                 </a>
-                <p>
+                @if($invitation != null)
+                <br>
+                <span class="uppercase">Invitation:</span> <i>{{ $invitation->token }}</i>
+                <a href="#" class="copyBtn" onclick="copyToken()">Copy</a>
+                @endif
             </div>
         </div>
     </body>

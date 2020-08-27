@@ -14,17 +14,21 @@
         <title>Lender</title>
 
         <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
 
         <!-- Styles -->
         <style>
             html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
+                color: white;
+                font-family: 'Roboto', sans-serif;
                 font-weight: 200;
                 height: 100vh;
                 margin: 0;
+                background-image: url('lender_landscape.png');
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+                background-position: center;
             }
 
             .full-height {
@@ -54,17 +58,27 @@
             .title {
                 font-size: 84px;
                 margin-bottom: 30px;
+                text-transform: uppercase;
+                font-weight: 200;
             }
 
             p {
-                color: #636b6f;
                 padding: 0 25px;
                 font-size: 13px;
-                font-weight: 600;
+                font-weight: 300;
                 letter-spacing: .1rem;
                 text-decoration: none;
+                /* text-transform: uppercase; */
+            }
+
+            .large {
+                font-size: 18px;
+            }
+
+            .uppercase {
                 text-transform: uppercase;
             }
+
         </style>
     </head>
     <body>
@@ -80,7 +94,7 @@
             <div class="content">
                 <img src="logo_color.png" alt="Lender logo" height="200px"> 
                 <div class="title">Lender</div>
-                <p>Money and debt management app designed for groups</p>
+                <p class="uppercase">Money and debt management app designed for groups</p>
                 <div style="margin:100px"></div>
                 <a href='https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
                     <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80px"/>
