@@ -59,7 +59,7 @@ class TransactionController extends Controller
     {
         $user = Auth::guard('api')->user(); //member
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:1|max:20',
+            'name' => 'required|string|min:1|max:30',
             'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
