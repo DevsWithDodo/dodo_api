@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
+use App\User;
+
+Route::get('/user_all', function(){ return response()->json(User::all()); });
 
 /* Auth */
 Route::post('register', 'UserController@register');

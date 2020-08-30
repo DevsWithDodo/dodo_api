@@ -22,7 +22,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency'
+        'id', 'username', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency'
     ];
 
     protected $hidden = [

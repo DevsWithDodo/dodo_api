@@ -25,7 +25,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'string', 'regex:/^[a-z0-9]{3,20}#{1}[0-9]{4}$/', 'unique:users,id'],
+            'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'password_reminder' => ['nullable', 'string']
@@ -35,7 +35,7 @@ class UserController extends Controller
         }
 
         $user = User::create([
-            'id' => $request->id,
+            'username' => $request->username,
             'password' => Hash::make($request->password),
             'password_reminder' => $request->password_reminder ?? null,
             'default_currency' => $request->default_currency
