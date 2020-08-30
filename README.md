@@ -6,3 +6,5 @@
 [Laravel](https://laravel.com/) based API.
 
 [Lender app](https://github.com/machiato32/csocsort_app).
+
+Bug reports and contributions are welcomed.
