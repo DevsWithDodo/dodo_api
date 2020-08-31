@@ -24,6 +24,8 @@ class ChangeIdSystem extends Migration
             $table->string('username')->unique()->change();
         });
 
+        DB::table('users')->update(['api_token' => null]);
+
         //group_users table
         foreach(DB::table('group_user')->get() as $row) { 
             DB::table('group_user')->where('user_id', $row->user_id)->update(['user_id' => User::firstWhere('username', $row->user_id)->id]);
@@ -56,10 +58,10 @@ class ChangeIdSystem extends Migration
      */
     public function down()
     {
-/*         Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('id');
             $table->renameColumn('username', 'id');
             $table->string('id')->primary()->change(); 
-        }); */
+        });
     }
 }
