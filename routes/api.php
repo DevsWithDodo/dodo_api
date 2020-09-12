@@ -5,15 +5,14 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\User;
 
-Route::get('/user_all', function(){ return response()->json(User::all()); });
+//Route::get('/user_all', function(){ return response()->json(User::all()); });
 
 /* Auth */
 Route::post('register', 'UserController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->middleware('auth:api');
 Route::post('change_password', 'UserController@changePassword')->middleware('auth:api');
-Route::post('change_id', 'UserController@changeId')->middleware('auth:api');
-Route::get('is_valid_id', 'UserController@isValidId');
+Route::post('change_username', 'UserController@changeUsername')->middleware('auth:api');
 Route::get('password_reminder', 'UserController@passwordReminder');
 
 Route::middleware(['auth:api'])->group(function () {

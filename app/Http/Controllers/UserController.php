@@ -73,15 +73,31 @@ class UserController extends Controller
         }
     }
 
-    public function isValidId(Request $request)
+    public function changeUsername(Request $request)
     {
+        $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'string', 'regex:/^[a-z0-9]{3,20}#{1}[0-9]{4}$/', 'unique:users,id'],
+            'password' => 'required|string',
+            'new_username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
+        } 
+        try {
+            if ((Hash::check($request->password, $user->password)) == false) {
+                return response()->json(['error' => 'Wrong password'],400);
+            } else {
+                $user->update(['username' => $request->new_username]);
+                return response()->json(new UserResource($user), 201);
+            }
+        } catch (\Exception $ex) {
+            if (isset($ex->errorInfo[2])) {
+                $msg = $ex->errorInfo[2];
+            } else {
+                $msg = $ex->getMessage();
+            }
+            return response()->json(["error" => $msg], 400);
         }
-        return response()->json(true);
     }
 
     public function passwordReminder(Request $request)
