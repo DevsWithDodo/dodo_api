@@ -85,7 +85,7 @@ class UserController extends Controller
 
         $user->update(['username' => $request->new_username]);
         
-        return response()->json(["error" => $msg], 400);
+        return response()->json(null, 204);
     }
 
     public function passwordReminder(Request $request)
