@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            ['username' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'default_currency' => 'CML'],
-            ['username' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'default_currency' => 'EUR']
+            ['username' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'CML'],
+            ['username' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'EUR']
         ]);
         DB::table('groups')->insert([
             ['name' => 'Csocsort', 'currency' => 'CML'],
@@ -46,8 +46,8 @@ class DatabaseSeeder extends Seeder
             ],            
         ]);
         DB::table('purchases')->insert([
-            ['name' => 'Sajt','group_id' => 1, 'created_at' => Carbon::now()],
-            ['name' => 'Sok Sajt', 'group_id' => 1, 'created_at' => Carbon::now()]
+            ['name' => 'Sajt','group_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Sok Sajt', 'group_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
         ]);
         DB::table('buyers')->insert([
             ['purchase_id' => 1, 'buyer_id' => 1, 'amount' => 500],
@@ -60,13 +60,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         DB::table('payments')->insert([
-            ['group_id' => 1, 'payer_id'=> 1, 'taker_id'=> 2, 'amount' => 500, 'created_at' => Carbon::now()],
-            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 100, 'created_at' => Carbon::now()],
-            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 300, 'created_at' => Carbon::now()],
+            ['group_id' => 1, 'payer_id'=> 1, 'taker_id'=> 2, 'amount' => 500, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 100, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 300, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
         ]);
 
         DB::table('requests')->insert([
-            ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => 2, 'created_at' => Carbon::now()]
+            ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => 2, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
         ]);
 
         DB::table('invitations')->insert([

@@ -49,6 +49,28 @@ class ChangeIdSystem extends Migration
         Schema::table('receivers', function (Blueprint $table) {
             $table->integer('receiver_id')->change();
         });
+
+        //payments table
+        foreach(DB::table('payments')->get() as $row) { 
+            DB::table('payments')->where('payer_id', $row->payer_id)->update(['payer_id' => User::firstWhere('username', $row->payer_id)->id]);
+            DB::table('payments')->where('taker_id', $row->taker_id)->update(['taker_id' => User::firstWhere('username', $row->taker_id)->id]);
+        }
+        Schema::table('payments', function (Blueprint $table) {
+            $table->integer('taker_id')->change();
+            $table->integer('payer_id')->change();
+        });
+
+        //requests table
+        foreach(DB::table('requests')->get() as $row) {
+            DB::table('requests')->where('requester_id', $row->requester_id)->update(['requester_id' => User::firstWhere('username', $row->requester_id)->id]);
+            if($row->fulfiller_id){
+                DB::table('requests')->where('fulfiller_id', $row->fulfiller_id)->update(['fulfiller_id' => User::firstWhere('username', $row->fulfiller_id)->id]);
+            }
+        }
+        Schema::table('requests', function (Blueprint $table) {
+            $table->integer('fulfiller_id')->change();
+            $table->integer('requester_id')->change();
+        });
     }
 
     /**
@@ -63,5 +85,7 @@ class ChangeIdSystem extends Migration
             $table->renameColumn('username', 'id');
             $table->string('id')->primary()->change(); 
         });
+
+        //TODO: other
     }
 }
