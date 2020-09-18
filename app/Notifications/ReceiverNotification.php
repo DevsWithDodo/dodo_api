@@ -31,7 +31,7 @@ class ReceiverNotification extends Notification
     {
         $message = $this->receiver->purchase->group->members->find($this->receiver->receiver_id)->member_data->nickname . ' bought you ' . $this->receiver->purchase->name . ' in ' . $this->receiver->purchase->group->name . ' for ' . $this->receiver->purchase->amount . ' HUF.'; 
         return FcmMessage::create()
-            ->setData(['id' => '0' . rand (0, 100000)])
+            ->setData(['id' => '1' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('New purchase')
                 ->setBody($message));

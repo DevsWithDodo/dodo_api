@@ -31,7 +31,7 @@ class RequestNotification extends Notification
     {
         $message = $this->request->group->members->find($this->request->requester_id)->member_data->nickname . ' added ' . $this->request->name . ' to the shopping list of ' . $this->request->group->name . '.'; 
         return FcmMessage::create()
-            ->setData(['id' => '0' . rand (0, 100000)])
+            ->setData(['id' => '2' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('New request')
                 ->setBody($message));

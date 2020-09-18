@@ -60,7 +60,9 @@ class LoginController extends Controller
                 $user->fcm_token = $request->fcm_token;
                 $user->save();
             }
-            $user->notify(new \App\Notifications\testNotification($user->username));
+            if(str_contains($user->username, '#')) { 
+                $user->notify(new \App\Notifications\ChangeUsernameNotification);
+            }
             return new UserResource($user);
         }
 

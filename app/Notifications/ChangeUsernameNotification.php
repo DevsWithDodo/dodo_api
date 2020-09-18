@@ -11,16 +11,8 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-class testNotification extends Notification
+class ChangeUsernameNotification extends Notification
 {
-
-    public $name;
-
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
-
     public function via($notifiable)
     {
         return [FcmChannel::class];
@@ -31,7 +23,7 @@ class testNotification extends Notification
         return FcmMessage::create()
             ->setData(['id' => '0'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Nem megyunk at hozzank?')
-                ->setBody($this->name));
+                ->setTitle('Change username')
+                ->setBody('Please change your username in the settings menu. Usernames containing \'#\'-s are deprecated.'));
     }
 }
