@@ -54,8 +54,9 @@ class LoginController extends Controller
 
         if ($this->attemptLogin($request)) {
             $user = $this->guard()->user();
-            $user->generateToken();
-
+            if($user->token == null) {
+                $user->generateToken();
+            }
             return new UserResource($user);
         }
 
