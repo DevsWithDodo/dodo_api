@@ -14,7 +14,7 @@ class CreateFcmToken extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('fcm_token');
+            $table->string('fcm_token')->nullable();
         });
     }
 
