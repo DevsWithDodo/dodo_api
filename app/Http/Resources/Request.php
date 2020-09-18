@@ -18,6 +18,7 @@ class Request extends JsonResource
             'request_id' => $this->id,
             'name' => $this->name,
             'requester_id' => $this->requester_id,
+            'requester_username' => $this->group->members->find($this->requester_id)->username,
             'requester_nickname' => $this->group->members->find($this->requester_id)->member_data->nickname,
             'fulfiller_id' => $this->fulfiller_id,
             'fulfiller_nickname' => $this->fulfilled ? ($this->group->members->find($this->fulfiller_id)->member_data->nickname) : null,

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\Http\Resources\Request as RequestResource;
+use App\Notifications\RequestNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
 use App\User;
@@ -53,17 +54,16 @@ class RequestController extends Controller
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
         }
-        $member = Group::find($request->group)->members->find($user);
-        if($member == null){
-            abort(400, 'User is not a member of this group.');
-        }
-
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
             "group_id" => $request->group,
             "requester_id" => $user->id,
         ]);
-
+        foreach ($shopping_request->group->members as $member) {
+            if($member->id != $user->id){
+                $member->notify(new RequestNotification($shopping_request));
+            }
+        }
         return new RequestResource($shopping_request);
     }
 

@@ -12,9 +12,6 @@ use App\Http\Controllers\CurrencyController;
 class User extends Authenticatable
 {
     use Notifiable;
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -22,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency'
+        'username', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency', 'fcm_token'
     ];
 
     protected $hidden = [
@@ -35,6 +32,16 @@ class User extends Authenticatable
         $this->save();
 
         return $this->api_token;
+    }
+
+    /**
+     * Specifies the user's FCM token
+     *
+     * @return string
+     */
+    public function routeNotificationForFcm()
+    {
+        return $this->fcm_token;
     }
 
     //The groups that the user in:
