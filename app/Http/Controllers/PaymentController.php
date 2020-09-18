@@ -11,6 +11,7 @@ use App\Rules\IsMember;
 use App\Http\Resources\Payment as PaymentResource;
 use App\Http\Controllers\GroupController;
 
+use App\Notifications\PaymentNotification;
 use App\Transactions\Payment;
 use App\Group;
 use App\User;
@@ -62,6 +63,8 @@ class PaymentController extends Controller
         
         $group->updateBalance($payer, $request->amount);
         $group->updateBalance($taker, (-1)*$request->amount);
+
+        $taker->notify(new PaymentNotification($payment));
 
         return response()->json(new PaymentResource($payment), 200);
     }
