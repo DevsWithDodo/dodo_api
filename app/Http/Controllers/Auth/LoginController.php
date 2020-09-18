@@ -56,6 +56,11 @@ class LoginController extends Controller
             $user = $this->guard()->user();
             $user->generateToken();
 
+            if($request->fcm_token){
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+            }
+            $user->notify(new \App\Notifications\testNotification($user->username));
             return new UserResource($user);
         }
 
@@ -68,6 +73,7 @@ class LoginController extends Controller
         
         if($user) {
             $user->api_token = null;
+            $user->fcm_token = null;
             $user->save();
         }
 

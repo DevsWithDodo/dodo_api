@@ -28,7 +28,8 @@ class UserController extends Controller
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
-            'password_reminder' => ['nullable', 'string']
+            'password_reminder' => ['nullable', 'string'],
+            'fcm_token' => 'required|string'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
@@ -38,9 +39,11 @@ class UserController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'password_reminder' => $request->password_reminder ?? null,
-            'default_currency' => $request->default_currency
+            'default_currency' => $request->default_currency,
+            'fcm_token' => $request->fcm_token
         ]);
         $user->generateToken(); // login 
+        $user->notify(new \App\Notifications\testNotification($user->username));
         return response()->json(new UserResource($user), 201);
     }
 
@@ -49,7 +52,7 @@ class UserController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
-            'new_password' => 'required|string|min:4|confirmed',
+            //'new_password' => 'required|string|min:4|confirmed',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);

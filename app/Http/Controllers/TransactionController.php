@@ -14,6 +14,7 @@ use App\Transactions\Buyer;
 use App\Http\Resources\Transaction as TransactionResource;
 use App\Http\Controllers\GroupController;
 
+use App\Notifications\ReceiverNotification;
 use App\Group;
 use App\User;
 
@@ -85,12 +86,15 @@ class TransactionController extends Controller
 
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
-            Receiver::create([
+            $receiver = Receiver::create([
                 'amount' => $amount,
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
             $group->updateBalance(User::find($receiver_data['user_id']), (-1)*$amount);
+            if($receiver->receiver_id != $user->id){
+                $receiver->user->notify(new ReceiverNotification($receiver));
+            }
         }
         return response()->json(new TransactionResource($purchase), 201);
     }
