@@ -45,7 +45,7 @@ class LoginController extends Controller
     }
     public function username()
     {
-        return 'id';
+        return 'username';
     }
 
     public function login(Request $request)
@@ -56,6 +56,13 @@ class LoginController extends Controller
             $user = $this->guard()->user();
             if($user->token == null) {
                 $user->generateToken();
+            }
+            if($request->fcm_token){
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+            }
+            if(str_contains($user->username, '#')) { 
+                $user->notify(new \App\Notifications\ChangeUsernameNotification);
             }
             return new UserResource($user);
         }
@@ -69,6 +76,7 @@ class LoginController extends Controller
         
         if($user) {
             $user->api_token = null;
+            $user->fcm_token = null;
             $user->save();
         }
 

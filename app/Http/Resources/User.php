@@ -11,6 +11,7 @@ class User extends JsonResource
     {
         return [
             'id' => $this->id,
+            'username' => $this->username,
             'api_token' => $this->api_token,
             'last_active_group' => $this->last_active_group,
             'default_currency' => $this->default_currency,

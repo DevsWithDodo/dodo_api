@@ -8,10 +8,10 @@
         <meta property="og:image" content="http://www.lenderapp.net/landscape_preview" />
         <meta property="og:image:width" content="160" />
         <meta property="og:image:height" content="63" />
-        <meta property="og:title" content="Lender" />
+        <meta property="og:title" content="{{ config('app.name') }}" />
         <meta property="og:description" content="Money and debt management app designed for groups" />
 
-        <title>Lender</title>
+        <title>{{ config('app.name') }}</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
             </div>
             <div class="content">
                 <img src="logo_color.png" alt="Lender logo" height="200px"> 
-                <div class="title">Lender</div>
+                <div class="title">{{ config('app.name') }}</div>
                 <p class="large uppercase">Money and debt management app designed for groups</p>
             </div>
             <div class="bottom">
