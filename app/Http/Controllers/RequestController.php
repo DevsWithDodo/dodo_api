@@ -49,7 +49,7 @@ class RequestController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
-            'name' => 'required|string|min:2|max:20',
+            'name' => 'required|string|min:2|max:30',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
