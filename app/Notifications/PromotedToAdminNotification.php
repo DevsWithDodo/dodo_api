@@ -11,15 +11,18 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Transactions\Receiver;
+use App\Group;
+use App\User;
 
-class ReceiverNotification extends Notification
+class PromotedToAdminNotification extends Notification
 {
-    public $receiver;
+    public $group;
+    public $admin;
 
-    public function __construct(Receiver $receiver)
+    public function __construct(Group $group, User $admin)
     {
-        $this->receiver = $receiver;
+        $this->group = $group;
+        $this->admin = $admin;
     }
 
     public function via($notifiable)
@@ -29,12 +32,11 @@ class ReceiverNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer->user)->member_data->nickname .
-         ' bought you ' . $this->receiver->purchase->name . ' for ' . $this->receiver->amount . ' HUF.'; 
+        $message = $this->group->members->find($this->admin)->member_data->nickname . ' promoted you to be an admin.';
         return FcmMessage::create()
-            ->setData(['id' => '1' . rand (0, 100000)])
+            ->setData(['id' => '4' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New purchase in ' . $this->receiver->purchase->group->name)
+                ->setTitle('You became an admin in ' . $this->group->name)
                 ->setBody($message));
     }
 }

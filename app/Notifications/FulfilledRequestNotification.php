@@ -11,15 +11,15 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Transactions\Receiver;
+use App\Request;
 
-class ReceiverNotification extends Notification
+class FulfilledRequestNotification extends Notification
 {
-    public $receiver;
+    public $request;
 
-    public function __construct(Receiver $receiver)
+    public function __construct(Request $request)
     {
-        $this->receiver = $receiver;
+        $this->request = $request;
     }
 
     public function via($notifiable)
@@ -29,12 +29,12 @@ class ReceiverNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer->user)->member_data->nickname .
-         ' bought you ' . $this->receiver->purchase->name . ' for ' . $this->receiver->amount . ' HUF.'; 
+        $message = "Thanks to " . $this->request->group->members->find($this->request->fulfiller)->member_data->nickname .
+             ', ' . $this->request->name . ' is within reach!';
         return FcmMessage::create()
-            ->setData(['id' => '1' . rand (0, 100000)])
+            ->setData(['id' => '6' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New purchase in ' . $this->receiver->purchase->group->name)
+                ->setTitle('Request fulfilled in ' . $this->request->group->name)
                 ->setBody($message));
     }
 }

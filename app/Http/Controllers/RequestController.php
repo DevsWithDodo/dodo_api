@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\Http\Resources\Request as RequestResource;
+use App\Notifications\FulfilledRequestNotification;
 use App\Notifications\RequestNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
@@ -86,6 +87,8 @@ class RequestController extends Controller
             'fulfilled' => true,
             'fulfilled_at' => Carbon::now()
         ]);
+
+        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
         return new RequestResource($shopping_request);
     }
 

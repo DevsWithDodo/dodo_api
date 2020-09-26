@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\CurrencyController;
 use App\Rules\IsMember;
-
+use App\Notifications\ChangedNicknameNotification;
+use App\Notifications\ChangedGroupNameNotification;
+use App\Notifications\PromotedToAdminNotification;
+use App\Notifications\JoinedGroupNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Member as MemberResource;
 use App\User;
@@ -72,6 +75,7 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
+        $user = Auth::guard('api')->user();
         Gate::authorize('edit-group', $group);
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:1|max:20',
@@ -81,8 +85,13 @@ class GroupController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
+        $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
         
+        foreach($group->members as $member){
+            if($member->id != $user->id) $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
+        }
+                
         return response()->json(new GroupResource($group), 200);
     }
 
@@ -124,7 +133,7 @@ class GroupController extends Controller
         if($group->members->contains($user)){
             return response()->json(['error' => 'The user is already a member in this group'], 400);
         } 
-        $nickname = $request->nickname ?? explode("#", $user->id)[0];
+        $nickname = $request->nickname ?? $user->username;
         if($group->members->firstWhere('member_data.nickname', $nickname) != null){
             return response()->json(['error' => 'Please choose a new nickname.'], 400);
         }
@@ -133,6 +142,10 @@ class GroupController extends Controller
             'nickname' => $nickname,
             'is_admin' => false
         ]);
+
+        foreach($group->members as $member){
+            if($member->id != $user->id) $member->notify(new JoinedGroupNotification($group, $nickname));
+        }
 
         if($invitation->usable_once_only) {
             $invitation->delete();
@@ -159,21 +172,27 @@ class GroupController extends Controller
             return response()->json(['error' => 'Please choose a new nickname.'], 400);
         }
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
+
+        if($user->id != $member_to_update->id) $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
         
         return response()->json(null, 204);
     }
 
     public function updateAdmin(Group $group, Request $request)
     {
+        $user = Auth::guard('api')->user();
         Gate::authorize('edit-group', $group);
         $validator = Validator::make($request->all(), [
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'admin' => 'required|boolean',
         ]);
-        
         $group->members->find($request->member_id)
             ->member_data->update(['is_admin' => $request->admin]);
         
+        $member = User::find($request->member_id);
+        if($request->admin && $member->id != $user->id){
+            $member->notify(new PromotedToAdminNotification($group, $user));
+        }
         if($group->admins()->count() == 0){
             $group->members()->update(['is_admin' => true]);
         }
