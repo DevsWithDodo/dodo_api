@@ -62,6 +62,7 @@ Route::middleware(['auth:api'])->group(function () {
  */
 Route::post('/bug', function(Request $request) {
     Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+    Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
     return response()->json(null, 204);
 });
 /**

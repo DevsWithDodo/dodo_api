@@ -34,7 +34,7 @@ class PromotedToAdminNotification extends Notification
     {
         $message = $this->group->members->find($this->admin)->member_data->nickname . ' promoted you to be an admin.';
         return FcmMessage::create()
-            ->setData(['id' => '4' . rand (0, 100000)])
+            ->setData(['id' => '5' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('You became an admin in ' . $this->group->name)
                 ->setBody($message));

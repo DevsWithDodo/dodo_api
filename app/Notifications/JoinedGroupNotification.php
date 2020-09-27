@@ -34,7 +34,7 @@ class JoinedGroupNotification extends Notification
     {
         $message = $this->user . ' just landed in ' . $this->group->name . '!';
         return FcmMessage::create()
-            ->setData(['id' => '5' . rand (0, 100000)])
+            ->setData(['id' => '3' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('Nem member')
                 ->setBody($message));
