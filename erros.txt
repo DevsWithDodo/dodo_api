@@ -1,0 +1,16 @@
+0   Other input error (eg. wrong format, already exists, ...)
+1   User is not a member of the group
+2   Guests can not be added to new groups
+3   Group member limit reached
+4   The user is already a member in this group
+5   Nickname already taken in the group
+6   Guests can not be admins
+7   You can not leave this group until you pay your depts!
+8   You have to choose a guest account!
+9   Request already fulfilled
+10  The request cannot be fulfilled by requester
+11  Check your old password
+12  Please enter a password which is not similar then current password
+13  You are not the buyer of the transaction
+14  You are not the payer of the transaction
+15  You did not requested this request

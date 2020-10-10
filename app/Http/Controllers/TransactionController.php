@@ -27,7 +27,7 @@ class TransactionController extends Controller
             'group' => 'required|exists:groups,id'
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $group = Group::find($request->group);
 
@@ -67,7 +67,7 @@ class TransactionController extends Controller
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group)]
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         $group = Group::find($request->group);
@@ -111,7 +111,7 @@ class TransactionController extends Controller
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         //update buyer

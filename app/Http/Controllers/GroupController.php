@@ -17,8 +17,12 @@ use App\Notifications\ChangedNicknameNotification;
 use App\Notifications\ChangedGroupNameNotification;
 use App\Notifications\PromotedToAdminNotification;
 use App\Notifications\JoinedGroupNotification;
+use App\Notifications\PaymentNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Member as MemberResource;
+use App\Http\Resources\User as UserResource;
+
+use App\Transactions\Payment;
 use App\User;
 use App\Group;
 use App\Invitation;
@@ -45,13 +49,15 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $user = Auth::guard('api')->user();
+        if($user->isGuest())
+            return response()->json(['error' => 1], 400);
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
             'member_nickname' => 'nullable|string|min:1|max:15'
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         $group = Group::create([
@@ -82,7 +88,7 @@ class GroupController extends Controller
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         $old_name = $group->name;
@@ -121,21 +127,24 @@ class GroupController extends Controller
             'nickname' => 'nullable|string|min:1|max:15',
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $user = Auth::guard('api')->user();
+        if($user->password == null){
+            return response()->json(['error' => 2], 400);
+        }
         $invitation = Invitation::firstWhere('token', $request->invitation_token);
         $group = $invitation->group;
 
         if($group->members->count()==20){
-            return response()->json(['error' => 'Group member limit reached'], 400);
+            return response()->json(['error' => 3], 400);
         }
         if($group->members->contains($user)){
-            return response()->json(['error' => 'The user is already a member in this group'], 400);
+            return response()->json(['error' => 4], 400);
         } 
         $nickname = $request->nickname ?? $user->username;
         if($group->members->firstWhere('member_data.nickname', $nickname) != null){
-            return response()->json(['error' => 'Please choose a new nickname.'], 400);
+            return response()->json(['error' => 5], 400);
         }
 
         $group->members()->attach($user, [
@@ -162,14 +171,14 @@ class GroupController extends Controller
             'nickname' => 'required|string|min:1|max:15',
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_update, $group]);
         
         if($group->members->firstWhere('member_data.nickname', $request->nickname) != null){
-            return response()->json(['error' => 'Please choose a new nickname.'], 400);
+            return response()->json(['error' => 5], 400);
         }
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
@@ -186,10 +195,12 @@ class GroupController extends Controller
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'admin' => 'required|boolean',
         ]);
-        $group->members->find($request->member_id)
-            ->member_data->update(['is_admin' => $request->admin]);
-        
         $member = User::find($request->member_id);
+        if($member->isGuest())
+            return response()->json(['error' => 6], 400);
+        $group->members->find($member)
+            ->member_data->update(['is_admin' => $request->admin]);
+                
         if($request->admin && $member->id != $user->id){
             $member->notify(new PromotedToAdminNotification($group, $user));
         }
@@ -207,10 +218,41 @@ class GroupController extends Controller
             'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $member_to_delete = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_delete, $group]);
+
+        $balance = $member_to_delete->member_data->balance;
+        if($member_to_delete->id == $user->id)
+        {
+            if($balance < 0)
+            {
+                return response()->json(['error' => 7], 400);
+            } else if ($balance > 0) {
+                $balance_divided = $balance / ($group->members->count()-1);
+                foreach ($group->members->except([$user->id]) as $member) {
+                    $payment = Payment::create([
+                        'amount' => $balance_divided,
+                        'group_id' => $group->id,
+                        'taker_id' => $member->id,
+                        'payer_id' => $user->id,
+                        'note' => 'Legacy 💰💰💰'
+                    ]);
+                    $group->updateBalance($member, (-1)*$balance_divided);
+                    $member->notify(new PaymentNotification($payment)); //TODO change
+                }
+            }
+        } else {
+            Payment::create([
+                'amount' => $balance,
+                'group_id' => $group->id,
+                'taker_id' => $user->id,
+                'payer_id' => $member_to_delete->id,
+                'note' => 'Legacy 💰💰💰'
+            ]);
+            $group->updateBalance($user, $balance);
+        }
         
         $group->members()->detach($member_to_delete);
 
@@ -219,6 +261,79 @@ class GroupController extends Controller
         } else if($group->admins()->count() == 0){
             $group->members()->update(['is_admin' => true]);
         }
+        return response()->json(null, 204);
+    }
+
+    /**
+     * Guests
+     */
+
+    public function addGuest(Request $request, Group $group)
+    {
+        Gate::authorize('edit-group', $group);
+
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
+            'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())]
+        ]);
+
+        if($group->members->count()==20){
+            return response()->json(['error' => 3], 400);
+        }
+        if($group->members->firstWhere('member_data.nickname', $request->username) != null){
+            return response()->json(['error' => 5], 400);
+        }
+        $guest = User::create([
+            'username' => $request->username,
+            'password' => null,
+            'password_reminder' => null,
+            'default_currency' => $request->default_currency,
+            'fcm_token' => null
+        ]);
+        $guest->generateToken(); // login 
+        
+        $group->members()->attach($guest, [
+            'nickname' => $request->username,
+            'is_admin' => false
+        ]);
+
+        foreach($group->members as $member){
+            if($member->id != $guest->id) $member->notify(new JoinedGroupNotification($group, $request->username));
+        }
+        
+        return response()->json(new UserResource($guest), 201);
+    }
+
+    public function mergeGuest(Request $request, Group $group)
+    {
+        Gate::authorize('edit-group', $group);
+        
+        $validator = Validator::make($request->all(), [
+            'member_id' => ['exists:users,id', new IsMember($group->id)],
+            'guest_id' => ['exists:users,id', new IsMember($group->id)],
+        ]);
+
+        $guest = User::find($request->guest_id);
+        if(!$guest->isGuest())
+            return response()->json(['error' => 8], 400);
+
+        $guest_id = $guest->id;
+        $guest_balance = $group->members->find($guest)->member_data->balance;
+        $member = User::find($request->member_id);
+        $member_id = $member->id;
+        
+        $group->members()->detach($guest);
+        $guest->delete();
+
+        DB::table('buyers')->where('buyer_id', $guest_id)->update(['buyer_id' => $member_id]);
+        DB::table('receivers')->where('receiver_id', $guest_id)->update(['receiver_id' => $member_id]);
+        DB::table('payments')->where('payer_id', $guest_id)->update(['payer_id' => $member_id]);
+        DB::table('payments')->where('taker_id', $guest_id)->update(['taker_id' => $member_id]);
+        DB::table('requests')->where('requester_id', $guest_id)->update(['requester_id' => $member_id]);
+        DB::table('requests')->where('fulfiller_id', $guest_id)->update(['fulfiller_id' => $member_id]);
+    
+        $group->updateBalance($member, $guest_balance);
+
         return response()->json(null, 204);
     }
 }

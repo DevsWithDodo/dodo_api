@@ -31,7 +31,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/groups/{group}/member', 'GroupController@indexMember')->middleware('member');
     Route::put('/groups/{group}/members', 'GroupController@updateMember')->middleware('member'); 
     Route::put('/groups/{group}/admins', 'GroupController@updateAdmin')->middleware('member'); 
-    Route::delete('/groups/{group}/members', 'GroupController@deleteMember')->middleware('member');
+    Route::post('/groups/{group}/members/delete', 'GroupController@deleteMember')->middleware('member');
+
+    /* Guests */
+    Route::post('/groups/{group}/add_guest', 'GroupController@addGuest')->middleware('member');
+    Route::post('/group/{group}/merge_guest', 'GroupController@mergeGuest')->middleware('member');
 
     /* Invitations */
     Route::post('/invitations', 'InvitationController@store')->middleware('member');
