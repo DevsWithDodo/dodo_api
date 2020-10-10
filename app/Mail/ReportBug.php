@@ -12,7 +12,7 @@ class ReportBug extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $reporter_id;
+    public $reporter;
     public $bug_description;
 
     /**
@@ -22,7 +22,7 @@ class ReportBug extends Mailable
      */
     public function __construct($reporter, $bug_description)
     {
-        $this->reporter_id = ($reporter) ? $reporter->id : "Unathenticated.";
+        $this->reporter = $reporter;
         $this->bug_description = $bug_description ?? "Not provided.";
     }
 
@@ -34,6 +34,6 @@ class ReportBug extends Mailable
     public function build()
     {
         return $this->subject('Lender Bug')
-                    ->text('mails.bugreport');
+                    ->markdown('mails.bugreport');
     }
 }

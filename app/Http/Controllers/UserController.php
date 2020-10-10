@@ -43,7 +43,6 @@ class UserController extends Controller
             'fcm_token' => $request->fcm_token
         ]);
         $user->generateToken(); // login 
-        $user->notify(new \App\Notifications\testNotification($user->username));
         return response()->json(new UserResource($user), 201);
     }
 

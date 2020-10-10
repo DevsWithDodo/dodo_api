@@ -11,15 +11,22 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Transactions\Receiver;
+use App\Group;
+use App\User;
 
-class ReceiverNotification extends Notification
+class ChangedGroupNameNotification extends Notification
 {
-    public $receiver;
+    public $group;
+    public $user;
+    public $new_name;
+    public $old_name;
 
-    public function __construct(Receiver $receiver)
+    public function __construct(Group $group, User $user, $old_name, $new_name)
     {
-        $this->receiver = $receiver;
+        $this->user = $user;
+        $this->group = $group;
+        $this->new_name = $new_name;
+        $this->old_name = $old_name;
     }
 
     public function via($notifiable)
@@ -29,12 +36,12 @@ class ReceiverNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer->user)->member_data->nickname .
-         ' bought you ' . $this->receiver->purchase->name . ' for ' . $this->receiver->amount . ' HUF.'; 
+        $message = $this->group->members->find($this->user)->member_data->nickname .
+             ' set ' . $this->old_name . '\'s name to ' . $this->new_name;
         return FcmMessage::create()
-            ->setData(['id' => '6' . rand (0, 100000)])
+            ->setData(['id' => '0' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New purchase in ' . $this->receiver->purchase->group->name)
+                ->setTitle('Changed group name')
                 ->setBody($message));
     }
 }

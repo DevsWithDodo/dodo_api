@@ -29,11 +29,12 @@ class RequestNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->request->group->members->find($this->request->requester_id)->member_data->nickname . ' added ' . $this->request->name . ' to the shopping list of ' . $this->request->group->name . '.'; 
+        $message = $this->request->group->members->find($this->request->requester_id)->member_data->nickname . 
+            ' added ' . $this->request->name . ' to the shopping list.'; 
         return FcmMessage::create()
-            ->setData(['id' => '2' . rand (0, 100000)])
+            ->setData(['id' => '7' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New request')
+                ->setTitle('New shopping request in ' . $this->request->group->name)
                 ->setBody($message));
     }
 }

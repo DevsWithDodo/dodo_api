@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\Http\Resources\Request as RequestResource;
+use App\Notifications\FulfilledRequestNotification;
 use App\Notifications\RequestNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
@@ -31,17 +32,10 @@ class RequestController extends Controller
         $active = RequestResource::collection(
             $group->requests()
                 ->where('fulfilled', false)
-                ->orderBy('created_at', 'desc')
                 ->get()
             );
 
-        $fulfilled = [];
-        foreach ($group->requests()->where('fulfilled', true)->orderBy('created_at', 'desc')->get() as $request) {
-            if($request->fulfiller_id == $user->id || $request->requester_id == $user->id){
-                $fulfilled[] = new RequestResource($request);
-            }
-        }
-        return new JsonResource(['active' => $active, 'fulfilled' => $fulfilled]);
+        return new JsonResource(['active' => $active]);
     }
 
     public function store(Request $request)
@@ -49,7 +43,7 @@ class RequestController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
-            'name' => 'required|string|min:2|max:30',
+            'name' => 'required|string|min:2|max:50',
         ]);
         if($validator->fails()){
             return response()->json(['error' => $validator->errors()], 400);
@@ -86,6 +80,8 @@ class RequestController extends Controller
             'fulfilled' => true,
             'fulfilled_at' => Carbon::now()
         ]);
+
+        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
         return new RequestResource($shopping_request);
     }
 
