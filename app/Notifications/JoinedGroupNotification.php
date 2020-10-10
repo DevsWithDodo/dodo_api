@@ -36,7 +36,7 @@ class JoinedGroupNotification extends Notification
         return FcmMessage::create()
             ->setData(['id' => '3' . rand (0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Nem member')
+                ->setTitle('New member')
                 ->setBody($message));
     }
 }

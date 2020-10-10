@@ -32,17 +32,10 @@ class RequestController extends Controller
         $active = RequestResource::collection(
             $group->requests()
                 ->where('fulfilled', false)
-                ->orderBy('created_at', 'desc')
                 ->get()
             );
 
-        $fulfilled = [];
-        foreach ($group->requests()->where('fulfilled', true)->orderBy('created_at', 'desc')->get() as $request) {
-            if($request->fulfiller_id == $user->id || $request->requester_id == $user->id){
-                $fulfilled[] = new RequestResource($request);
-            }
-        }
-        return new JsonResource(['active' => $active, 'fulfilled' => $fulfilled]);
+        return new JsonResource(['active' => $active]);
     }
 
     public function store(Request $request)

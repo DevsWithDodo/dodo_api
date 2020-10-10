@@ -85,9 +85,13 @@ class PaymentController extends Controller
         $group->updateBalance($payment->payer, (-1)*$payment->amount);
         $group->updateBalance($payment->taker, $payment->amount);
 
-        $payment->update($request->only('amount', 'taker_id', 'note'));
+        $payment->amount = $request->amount;
+        $payment->taker_id = $request->taker_id;
+        $payment->note = $request->note ?? $payment->note;
+        $payment->save();
+        
         $group->updateBalance($payment->payer, $request->amount);
-        $group->updateBalance($payment->taker, (-1)*$request->amount);
+        $group->updateBalance(User::find($request->taker_id), (-1)*$request->amount);
 
         return response()->json(new PaymentResource($payment), 200);
     }
