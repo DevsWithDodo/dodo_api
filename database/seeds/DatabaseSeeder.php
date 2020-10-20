@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            ['username' => 'dominik#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'CML'],
-            ['username' => 'samu#0000', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'EUR']
+            ['username' => 'dominik', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'CML'],
+            ['username' => 'samu', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'EUR']
         ]);
         DB::table('groups')->insert([
             ['name' => 'Csocsort', 'currency' => 'CML'],
