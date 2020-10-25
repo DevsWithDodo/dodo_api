@@ -78,8 +78,6 @@ class TransactionController extends Controller
             'amount' => $request->amount
         ]);
 
-        $group->updateBalance($user, $request->amount);
-
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
             $receiver = PurchaseReceiver::create([
@@ -87,7 +85,6 @@ class TransactionController extends Controller
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            $group->updateBalance(User::find($receiver_data['user_id']), (-1)*$amount);
             if($receiver->receiver_id != $user->id){
                 $receiver->user->notify(new ReceiverNotification($receiver));
             }
@@ -110,17 +107,8 @@ class TransactionController extends Controller
             return response()->json(['error' => 0], 400);
         }
 
-        $purchase->update(['amount' => $request->amount]);
-
-        //update buyer
-        $group->updateBalance($buyer, (-1)*$purchase->amount);
-        $group->updateBalance($buyer, $request->amount);
-
         //update receivers
-        foreach ($purchase->receivers as $receiver) {
-            $group->updateBalance($receiver->user, $receiver->amount);
-            $receiver->delete();
-        }
+        $purchase->receivers()->delete();
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
             PurchaseReceiver::create([
@@ -132,23 +120,17 @@ class TransactionController extends Controller
         }
 
         //update purchase - with the extortion of updating the timestamps
-        $purchase->update(['name' => $request->name]);
+        $purchase->update([
+            'name' => $request->name,
+            'amount' => $request->amount
+        ]);
         $purchase->touch();
 
         return response()->json(new TransactionResource($purchase), 200);
     }
 
     public function delete(Purchase $purchase)
-    { 
-        $purchase->group->updateBalance($purchase->buyer, (-1)*$purchase->amount);
-        
-        //delete receivers
-        foreach ($purchase->receivers as $receiver) {
-            $purchase->group->updateBalance($receiver->user, $receiver->amount);
-            $receiver->delete();
-        }
-
-        //delete purchase
+    {
         $purchase->delete();
 
         return response()->json(null, 204);

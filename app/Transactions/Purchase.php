@@ -10,6 +10,11 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];
 
+    public function delete(){
+        $this->receivers()->delete();
+        return parent::delete();
+    }
+
     public function group()
     {
         return $this->belongsTo('App\Group'); 

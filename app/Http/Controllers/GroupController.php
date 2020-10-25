@@ -228,7 +228,6 @@ class GroupController extends Controller
                         'payer_id' => $user->id,
                         'note' => 'Legacy 💰💰💰'
                     ]);
-                    $group->updateBalance($member, (-1)*$balance_divided);
                     $member->notify(new PaymentNotification($payment)); //TODO change
                 }
             }
@@ -240,7 +239,6 @@ class GroupController extends Controller
                 'payer_id' => $member_to_delete->id,
                 'note' => 'Legacy 💰💰💰'
             ]);
-            $group->updateBalance($user, $balance);
         }
         
         $group->members()->detach($member_to_delete);
@@ -320,8 +318,6 @@ class GroupController extends Controller
         DB::table('payments')->where('taker_id', $guest_id)->update(['taker_id' => $member_id]);
         DB::table('requests')->where('requester_id', $guest_id)->update(['requester_id' => $member_id]);
         DB::table('requests')->where('fulfiller_id', $guest_id)->update(['fulfiller_id' => $member_id]);
-    
-        $group->updateBalance($member, $guest_balance);
 
         return response()->json(null, 204);
     }

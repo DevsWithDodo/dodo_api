@@ -60,9 +60,6 @@ class PaymentController extends Controller
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
-        
-        $group->updateBalance($payer, $request->amount);
-        $group->updateBalance($taker, (-1)*$request->amount);
 
         $taker->notify(new PaymentNotification($payment));
 
@@ -82,25 +79,16 @@ class PaymentController extends Controller
             return response()->json(['error' => 0], 400);
         }
 
-        $group->updateBalance($payment->payer, (-1)*$payment->amount);
-        $group->updateBalance($payment->taker, $payment->amount);
-
         $payment->amount = $request->amount;
         $payment->taker_id = $request->taker_id;
         $payment->note = $request->note ?? $payment->note;
         $payment->save();
-        
-        $group->updateBalance($payment->payer, $request->amount);
-        $group->updateBalance(User::find($request->taker_id), (-1)*$request->amount);
 
         return response()->json(new PaymentResource($payment), 200);
     }
 
     public function delete(Payment $payment)
     {
-        $group = $payment->group;
-        $group->updateBalance($payment->payer, (-1)*$payment->amount);
-        $group->updateBalance($payment->taker, $payment->amount);
         $payment->delete();
 
         return response()->json(null, 204);

@@ -13,14 +13,9 @@ class Group extends Model
 
     public function delete(){
         $this->members()->detach($this->members);
-        foreach ($this->transactions as $purchase) {
-            $purchase->buyer->delete();
-            $purchase->receivers()->delete();
-        }
         $this->transactions()->delete();
         $this->payments()->delete();
         $this->requests()->delete();
-        $this->invitations()->delete();
 
         return parent::delete();
     }
@@ -33,7 +28,7 @@ class Group extends Model
         return $this
             ->belongsToMany('App\User', 'group_user')
             ->as('member_data')
-            ->withPivot('nickname', 'is_admin')
+            ->withPivot('nickname', 'is_admin', 'group_id')
             ->withTimestamps();
     }
 
@@ -60,12 +55,5 @@ class Group extends Model
     public function requests()
     {
         return $this->hasMany('App\Request');
-    }
-
-    public function updateBalance(User $member, $amount)
-    {
-        return;
-        //TODO
-        $this->members()->where('user_id', $member->id)->increment('balance', $amount);
     }
 }

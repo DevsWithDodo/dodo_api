@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\CurrencyController;
 
@@ -54,34 +55,18 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    /* Transaction relations */
-
-    public function buyed()
+    public function balance(Group $group)
     {
-        return $this->hasMany('App\Transactions\Purchase', 'buyer_id');
-    }
-
-    public function received()
-    {
-        return $this->hasMany('App\Transactions\PurchaseReceiver', 'receiver_id');
-    }
-
-    /* Payment relations */
-
-    public function payed()
-    {
-        return $this->hasMany('App\Transactions\Payment', 'payer_id');
-    }
-
-    public function taken()
-    {
-        return $this->hasMany('App\Transactions\Payment', 'taker_id');
-    }
-
-    public function balance()
-    {
-        return 0;
-        //TODO
+        $payment_payed = $group->payments->where('payer_id', $this->id)->sum('amount');
+        $payment_taken = $group->payments->where('taker_id', $this->id)->sum('amount');
+        $purchase_buyed = $group->transactions->where('buyer_id', $this->id)->sum('amount');
+        $purchase_received = DB::table('purchase_receivers')
+            ->join('purchases', 'purchase_receivers.purchase_id', '=', 'purchases.id')
+            ->where([
+                ['purchase_receivers.receiver_id', $this->id],
+                ['purchases.group_id', $group->id]
+            ])->sum('purchase_receivers.amount');
+        return $payment_payed - $payment_taken + $purchase_buyed - $purchase_received;
     }
 
     /**
