@@ -8,9 +8,7 @@ class Request extends Model
 {
     protected $table = 'requests';
 
-    protected $fillable = ['name', 'group_id', 'requester_id', 'fulfilled', 'fulfiller_id', 'fulfilled_at'];
-
-    protected $attributes = ['fulfilled' => false];
+    protected $fillable = ['name', 'group_id', 'requester_id', 'fulfiller_id', 'fulfilled_at'];
 
     public function requester()
     {

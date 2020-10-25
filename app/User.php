@@ -50,7 +50,7 @@ class User extends Authenticatable
         return $this
             ->belongsToMany('App\Group', 'group_user')
             ->as('member_data')
-            ->withPivot('balance', 'nickname', 'is_admin')
+            ->withPivot('nickname', 'is_admin')
             ->withTimestamps();
     }
 
@@ -58,12 +58,12 @@ class User extends Authenticatable
 
     public function buyed()
     {
-        return $this->hasMany('App\Transactions\Buyer', 'buyer_id');
+        return $this->hasMany('App\Transactions\Purchase', 'buyer_id');
     }
 
     public function received()
     {
-        return $this->hasMany('App\Transactions\Receiver', 'receiver_id');
+        return $this->hasMany('App\Transactions\PurchaseReceiver', 'receiver_id');
     }
 
     /* Payment relations */
@@ -78,11 +78,16 @@ class User extends Authenticatable
         return $this->hasMany('App\Transactions\Payment', 'taker_id');
     }
 
+    public function balance()
+    {
+        return 0;
+        //TODO
+    }
 
     /**
      * Returns the user's total balance calculated from it's groups and their currencies.
      */
-    public function balance()
+    public function totalBalance()
     {
         $currencies = CurrencyController::currencyRates();
         $base = $currencies['base'];
@@ -91,7 +96,7 @@ class User extends Authenticatable
         
         $result = 0;
         foreach ($this->groups as $group) {
-            $group_balance = $group->member_data->balance;
+            $group_balance = $this->balance($group);
             $group_currency = $group->currency;
             if($group_currency == $result_currency){
                 $result += $group_balance;
@@ -102,7 +107,7 @@ class User extends Authenticatable
                 $result += $in_base         * (($result_currency == $base)  ? 1 : ($rates[$result_currency] ?? abort(500, "Invalid currency.")));
             }
         }
-        return ['amount' => $result, 'currency' => $result_currency];
+        return $result;
     }
 
     public function isGuest()

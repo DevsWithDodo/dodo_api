@@ -17,20 +17,15 @@ class CreateTransactionsTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer('group_id');
+            $table->integer('buyer_id');
+            $table->decimal('amount', 19, 4);
             $table->timestampsTz();
         });
 
-        Schema::create('buyers', function (Blueprint $table) {
+        Schema::create('purchase_receivers', function (Blueprint $table) {
             $table->id();
             $table->integer('purchase_id');
-            $table->string('buyer_id');
-            $table->decimal('amount', 19, 4);
-        });
-
-        Schema::create('receivers', function (Blueprint $table) {
-            $table->id();
-            $table->integer('purchase_id');
-            $table->string('receiver_id');
+            $table->integer('receiver_id');
             $table->decimal('amount', 19, 4);
         });
     }
@@ -42,6 +37,8 @@ class CreateTransactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('purchases');
+        Schema::dropIfExists('buyers');
+        Schema::dropIfExists('receivers');
     }
 }

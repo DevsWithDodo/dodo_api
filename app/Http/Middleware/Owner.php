@@ -19,7 +19,7 @@ class Owner
         $user = Auth::guard('api')->user();
         switch ($type) {
             case 'purchase':
-                if($request->purchase->buyer->user != $user){
+                if($request->purchase->buyer->id != $user->id){
                     return response()->json(["error" => 13], 400);
                 }
                 break;

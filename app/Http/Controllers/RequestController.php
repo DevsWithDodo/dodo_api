@@ -31,7 +31,7 @@ class RequestController extends Controller
 
         $active = RequestResource::collection(
             $group->requests()
-                ->where('fulfilled', false)
+                ->where('fulfilled_at', null)
                 ->get()
             );
 
@@ -65,10 +65,10 @@ class RequestController extends Controller
     {
         $user = Auth::guard('api')->user();
         $group = $shopping_request->group;
-        if($shopping_request->fulfilled){
+        if($shopping_request->fulfilled_at != null){
             return response()->json(['error' => 9], 400);
         }
-        if($user == $shopping_request->requester){
+        if($user->id == $shopping_request->requester->id){
             return response()->json(['error' => 10], 400);
         }
         if(!$group->members->contains($user)){
@@ -77,7 +77,6 @@ class RequestController extends Controller
 
         $shopping_request->update([
             'fulfiller_id' => $user->id,
-            'fulfilled' => true,
             'fulfilled_at' => Carbon::now()
         ]);
 

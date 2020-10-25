@@ -9,7 +9,7 @@ class Group extends Model
 {
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency', 'anyone_can_invite'];
+    protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation'];
 
     public function delete(){
         $this->members()->detach($this->members);
@@ -33,7 +33,7 @@ class Group extends Model
         return $this
             ->belongsToMany('App\User', 'group_user')
             ->as('member_data')
-            ->withPivot('balance', 'nickname', 'is_admin')
+            ->withPivot('nickname', 'is_admin')
             ->withTimestamps();
     }
 
@@ -62,35 +62,10 @@ class Group extends Model
         return $this->hasMany('App\Request');
     }
 
-    public function invitations()
-    {
-        return $this->hasMany('App\Invitation');
-    }
-
     public function updateBalance(User $member, $amount)
     {
+        return;
+        //TODO
         $this->members()->where('user_id', $member->id)->increment('balance', $amount);
-    }
-
-    /**
-     * Recalculate balances in a group.
-     * For testing.
-     */
-    public function refreshBalances()
-    {
-        foreach ($this->members as $member) {
-            $balance = 0;
-            foreach ($member->buyed as $buyer) {
-                if($buyer->purchase->group->id == $this->id){
-                    $balance += $buyer->amount;
-                }
-            }
-            foreach ($member->received as $receiver) {
-                if($receiver->purchase->group->id == $this->id){
-                    $balance -= $receiver->amount;
-                }
-            }
-            $member->member_data->update(['balance' => $balance]);
-        }
     }
 }

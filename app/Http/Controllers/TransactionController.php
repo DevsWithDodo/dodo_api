@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
-use App\Transactions\Receiver;
-use App\Transactions\Buyer;
+use App\Transactions\PurchaseReceiver;
 use App\Http\Resources\Transaction as TransactionResource;
 use App\Http\Controllers\GroupController;
 
@@ -33,13 +32,13 @@ class TransactionController extends Controller
 
         $transactions = [];
         foreach ($group->transactions->sortByDesc('created_at') as $purchase) {
-            if(($purchase->buyer->user == $user) && ($purchase->receivers->contains('receiver_id', $user->id))){
+            if(($purchase->buyer_id == $user->id) && ($purchase->receivers->contains('receiver_id', $user->id))){
                 $transactions[] = [
                     'type' => 'buyed_received',
                     'data' => new TransactionResource($purchase)
                 ];
             } else{
-                if($purchase->buyer->user == $user){
+                if($purchase->buyer_id == $user->id){
                     $transactions[] = [
                         'type' => 'buyed',
                         'data' => new TransactionResource($purchase)
@@ -74,19 +73,16 @@ class TransactionController extends Controller
 
         $purchase = Purchase::create([
             'name' => $request->name,
-            'group_id' => $group->id
+            'group_id' => $group->id,
+            'buyer_id' => $user->id,
+            'amount' => $request->amount
         ]);
 
-        Buyer::create([
-            'amount' => $request->amount,
-            'buyer_id' => $user->id,
-            'purchase_id' => $purchase->id
-        ]);
         $group->updateBalance($user, $request->amount);
 
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
-            $receiver = Receiver::create([
+            $receiver = PurchaseReceiver::create([
                 'amount' => $amount,
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
@@ -114,10 +110,11 @@ class TransactionController extends Controller
             return response()->json(['error' => 0], 400);
         }
 
+        $purchase->update(['amount' => $request->amount]);
+
         //update buyer
-        $group->updateBalance($buyer->user, (-1)*$buyer->amount);
-        $buyer->update(['amount' => $request->amount]);
-        $group->updateBalance($buyer->user, $buyer->amount);
+        $group->updateBalance($buyer, (-1)*$purchase->amount);
+        $group->updateBalance($buyer, $request->amount);
 
         //update receivers
         foreach ($purchase->receivers as $receiver) {
@@ -126,7 +123,7 @@ class TransactionController extends Controller
         }
         foreach ($request->receivers as $receiver_data) {
             $amount = $request->amount/count($request->receivers);
-            Receiver::create([
+            PurchaseReceiver::create([
                 'amount' => $amount,
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
@@ -143,10 +140,7 @@ class TransactionController extends Controller
 
     public function delete(Purchase $purchase)
     { 
-        //delete buyer
-        $buyer = $purchase->buyer;
-        $purchase->group->updateBalance($buyer->user, (-1)*$buyer->amount);
-        $buyer->delete();
+        $purchase->group->updateBalance($purchase->buyer, (-1)*$purchase->amount);
         
         //delete receivers
         foreach ($purchase->receivers as $receiver) {

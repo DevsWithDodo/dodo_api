@@ -19,7 +19,7 @@ class Group extends JsonResource
             'currency' => $this->currency,
             'anyone_can_invite' => $this->anyone_can_invite,
             'members' => Member::collection($this->members->sortBy('member_data.nickname', SORT_LOCALE_STRING)),
-            'invitations' => Invitation::collection($this->invitations)
+            'invitation' => $this->invitation
         ];
         if (Gate::check('edit-group', \App\Group::find($this->id))) {
             $group['guests'] = User::collection($this->guests);

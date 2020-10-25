@@ -22,7 +22,7 @@ class Request extends JsonResource
             'requester_nickname' => $this->group->members->find($this->requester_id)->member_data->nickname,
             'fulfiller_id' => $this->fulfiller_id,
             'fulfiller_nickname' => $this->fulfilled ? ($this->group->members->find($this->fulfiller_id)->member_data->nickname) : null,
-            'fulfilled' => $this->fulfilled,
+            'fulfilled' => $this->fulfilled != null,
             'fulfilled_at' => $this->fulfilled_at,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,

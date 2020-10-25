@@ -8,7 +8,7 @@ class Purchase extends Model
 {
     protected $table = 'purchases';
 
-    protected $fillable = ['name', 'group_id'];
+    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];
 
     public function group()
     {
@@ -17,12 +17,12 @@ class Purchase extends Model
 
     public function buyer()
     {
-        return $this->hasOne('App\Transactions\Buyer');
+        return $this->belongsTo('App\User', 'buyer_id');
     }
 
     public function receivers()
     {
-        return $this->hasMany('App\Transactions\Receiver');
+        return $this->hasMany('App\Transactions\PurchaseReceiver');
     }
 
 

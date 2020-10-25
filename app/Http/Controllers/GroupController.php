@@ -25,7 +25,6 @@ use App\Http\Resources\User as UserResource;
 use App\Transactions\Payment;
 use App\User;
 use App\Group;
-use App\Invitation;
 
 class GroupController extends Controller
 {
@@ -62,18 +61,13 @@ class GroupController extends Controller
 
         $group = Group::create([
             'name' => $request->group_name,
-            'currency' => $request->currency ?? $user->default_currency
+            'currency' => $request->currency ?? $user->default_currency,
+            'invitation' => Str::random(20)
         ]);
 
         $group->members()->attach($user, [
             'nickname' => $request->member_nickname ?? explode("#", $user->id)[0],
             'is_admin' => true //set to true on first member
-        ]);
-        
-        $invitation = Invitation::create([
-            'group_id' => $group->id,
-            'token' => Str::random(20),
-            'usable_once_only' => false
         ]);
 
         return response()->json(new GroupResource($group), 201);
@@ -133,8 +127,7 @@ class GroupController extends Controller
         if($user->password == null){
             return response()->json(['error' => 2], 400);
         }
-        $invitation = Invitation::firstWhere('token', $request->invitation_token);
-        $group = $invitation->group;
+        $group = Group::firstWhere('invitation', $request->invitation_token);
 
         if($group->members->count()==20){
             return response()->json(['error' => 3], 400);
@@ -154,10 +147,6 @@ class GroupController extends Controller
 
         foreach($group->members as $member){
             if($member->id != $user->id) $member->notify(new JoinedGroupNotification($group, $nickname));
-        }
-
-        if($invitation->usable_once_only) {
-            $invitation->delete();
         }
         
         return new GroupResource($group);

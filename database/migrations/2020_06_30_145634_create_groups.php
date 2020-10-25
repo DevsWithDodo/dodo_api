@@ -18,24 +18,16 @@ class CreateGroups extends Migration
             $table->string('name');
             $table->boolean('anyone_can_invite')->default(true);
             $table->char('currency', 3);
+            $table->string('invitation')->unique();
             $table->timestampsTz();
         });
 
         Schema::create('group_user', function(Blueprint $table){
             $table->id();
-            $table->string('user_id');
+            $table->integer('user_id');
             $table->integer('group_id');
             $table->string('nickname');
-            $table->decimal('balance', 19, 4)->default(0);
             $table->boolean('is_admin')->default(0);
-            $table->timestampsTz();
-        });
-
-        Schema::create('invitations', function (Blueprint $table) {
-            $table->id();
-            $table->integer('group_id');
-            $table->string('token');
-            $table->boolean('usable_once_only');
             $table->timestampsTz();
         });
     }
