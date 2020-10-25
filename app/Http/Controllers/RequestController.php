@@ -25,7 +25,7 @@ class RequestController extends Controller
             'group' => 'required|exists:groups,id',
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $group = Group::find($request->group);
 
@@ -46,7 +46,7 @@ class RequestController extends Controller
             'name' => 'required|string|min:2|max:50',
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
@@ -66,13 +66,13 @@ class RequestController extends Controller
         $user = Auth::guard('api')->user();
         $group = $shopping_request->group;
         if($shopping_request->fulfilled){
-            return response()->json(['error' => 'Request already fulfilled'], 400);
+            return response()->json(['error' => 9], 400);
         }
         if($user == $shopping_request->requester){
-            return response()->json(['error' => 'Cannot be fulfilled by requester.'], 400);
+            return response()->json(['error' => 10], 400);
         }
         if(!$group->members->contains($user)){
-            return response()->json(['error' => 'User is not a member of this group'], 400);
+            return response()->json(['error' => 1], 400);
         }
 
         $shopping_request->update([

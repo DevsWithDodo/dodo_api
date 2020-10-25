@@ -13,7 +13,8 @@ class Member extends JsonResource
             'username' => $this->username,
             'nickname' => $this->member_data->nickname,
             'balance' => round(floatval($this->member_data->balance),2),
-            'is_admin' => $this->member_data->is_admin
+            'is_admin' => $this->member_data->is_admin,
+            'is_guest' => $this->isGuest() ? 1 : 0
         ];
     }
 }

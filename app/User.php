@@ -104,4 +104,9 @@ class User extends Authenticatable
         }
         return ['amount' => $result, 'currency' => $result_currency];
     }
+
+    public function isGuest()
+    {
+        return $this->password == null;
+    }
 }

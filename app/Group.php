@@ -37,6 +37,11 @@ class Group extends Model
             ->withTimestamps();
     }
 
+    public function guests()
+    {
+        return $this->members()->where('password', null);
+    }
+
     public function admins()
     {
         return $this->members()->where('is_admin', true);

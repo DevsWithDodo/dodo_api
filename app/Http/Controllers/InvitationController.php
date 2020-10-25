@@ -23,7 +23,7 @@ class InvitationController extends Controller
             'usable_once_only' => 'required|boolean'
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $group = Group::find($request->group);
         

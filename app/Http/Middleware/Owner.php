@@ -20,17 +20,17 @@ class Owner
         switch ($type) {
             case 'purchase':
                 if($request->purchase->buyer->user != $user){
-                    return response()->json(["error" => "You have to be the buyer of the transaction!"]);
+                    return response()->json(["error" => 13], 400);
                 }
                 break;
             case 'payment':
                 if($request->payment->payer != $user){
-                    return response()->json(["error" => "You have to be the payer!"]);
+                    return response()->json(["error" => 14], 400);
                 }
                 break;
             case 'request':
                 if($request->shopping_request->requester != $user){
-                    return response()->json(["error" => "You have to be the requester!"]);
+                    return response()->json(["error" => 15], 400);
                 }
                 break;
         }

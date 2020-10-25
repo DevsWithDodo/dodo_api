@@ -25,7 +25,7 @@ class PaymentController extends Controller
             'group' => 'required|exists:groups,id',
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $group = Group::find($request->group);
 
@@ -48,7 +48,7 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:25'
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
         $group = Group::find($request->group);
         $taker = User::find($request->taker_id);
@@ -79,7 +79,7 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:25'
         ]);
         if($validator->fails()){
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => 0], 400);
         }
 
         $group->updateBalance($payment->payer, (-1)*$payment->amount);

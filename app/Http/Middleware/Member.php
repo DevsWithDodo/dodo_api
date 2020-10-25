@@ -20,7 +20,7 @@ class Member
         $user = Auth::guard('api')->user();
         $group = ($request->group instanceof Group) ? $request->group : Group::find($request->group);
         if(!$group->members->contains($user)){
-            return response()->json(['error' => 'User is not a member of this group']);
+            return response()->json(['error' => 1], 400);
         }
 
         return $next($request);
