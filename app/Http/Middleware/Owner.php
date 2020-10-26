@@ -19,17 +19,17 @@ class Owner
         $user = Auth::guard('api')->user();
         switch ($type) {
             case 'purchase':
-                if($request->purchase->buyer->id != $user->id){
+                if ($request->purchase->buyer->id != $user->id) {
                     return response()->json(["error" => "13"], 400);
                 }
                 break;
             case 'payment':
-                if($request->payment->payer != $user){
+                if ($request->payment->payer != $user) {
                     return response()->json(["error" => "14"], 400);
                 }
                 break;
             case 'request':
-                if($request->shopping_request->requester != $user){
+                if ($request->shopping_request->requester != $user) {
                     return response()->json(["error" => "15"], 400);
                 }
                 break;

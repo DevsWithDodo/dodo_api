@@ -26,11 +26,12 @@ class PurchaseController extends Controller
         $user = Auth::guard('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
-        $ids=$group->purchases()
+        $ids = $group->purchases()
             ->join('purchase_receivers', 'purchase_receivers.purchase_id', '=', 'purchases.id')
             ->where(function ($query) use ($user) {
                 return $query->where('purchases.buyer_id', $user->id)
-                             ->orWhere('purchase_receivers.receiver_id', $user->id);})
+                    ->orWhere('purchase_receivers.receiver_id', $user->id);
+            })
             ->pluck('purchases.id');
         $purchases = Purchase::with('group.members')->whereIn('id', $ids)->orderBy('updated_at', 'desc')->get();
         return PurchaseResource::collection($purchases);
@@ -44,9 +45,9 @@ class PurchaseController extends Controller
             'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group)]
+            'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($request->group)]
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@store']);
             abort(400, "0");
         }
@@ -61,18 +62,18 @@ class PurchaseController extends Controller
         ]);
 
         foreach ($request->receivers as $receiver_data) {
-            $amount = $request->amount/count($request->receivers);
+            $amount = $request->amount / count($request->receivers);
             $receiver = PurchaseReceiver::create([
                 'amount' => $amount,
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
 
-            if(env('NOTIFICATION_ACTIVE'))
-                if($receiver->receiver_id != $user->id)
+            if (env('NOTIFICATION_ACTIVE'))
+                if ($receiver->receiver_id != $user->id)
                     $receiver->user->notify(new ReceiverNotification($receiver));
         }
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);
     }
 
@@ -83,9 +84,9 @@ class PurchaseController extends Controller
             'name' => 'required|string|min:1|max:5',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
+            'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@update']);
             abort(400, "0");
         }
@@ -93,7 +94,7 @@ class PurchaseController extends Controller
         //update receivers
         $purchase->receivers()->delete();
         foreach ($request->receivers as $receiver_data) {
-            $amount = $request->amount/count($request->receivers);
+            $amount = $request->amount / count($request->receivers);
             PurchaseReceiver::create([
                 'amount' => $amount,
                 'receiver_id' => $receiver_data['user_id'],
@@ -107,14 +108,14 @@ class PurchaseController extends Controller
             'amount' => $request->amount
         ]);
         $purchase->touch();
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
         return response()->json(new PurchaseResource($purchase), 200);
     }
 
     public function delete(Purchase $purchase)
     {
-        Cache::forget($purchase->group->id.'_balances');
+        Cache::forget($purchase->group->id . '_balances');
         $purchase->delete();
         return response()->json(null, 204);
     }

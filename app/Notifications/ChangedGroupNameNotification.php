@@ -37,9 +37,9 @@ class ChangedGroupNameNotification extends Notification
     public function toFcm($notifiable)
     {
         $message = $this->group->members->find($this->user)->member_data->nickname .
-             ' set ' . $this->old_name . '\'s name to ' . $this->new_name;
+            ' set ' . $this->old_name . '\'s name to ' . $this->new_name;
         return FcmMessage::create()
-            ->setData(['id' => '0' . rand (0, 100000)])
+            ->setData(['id' => '0' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('Changed group name')
                 ->setBody($message));

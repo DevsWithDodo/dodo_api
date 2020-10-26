@@ -19,7 +19,7 @@ class Payment extends JsonResource
             'taker_id' => $this->taker_id,
             'taker_username' => $this->group->members->find($this->taker_id)->username,
             'taker_nickname' => $this->group->members->find($this->taker_id)->member_data->nickname,
-            'amount' => round(floatval($this->amount),2),
+            'amount' => round(floatval($this->amount), 2),
             'note' => $this->note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

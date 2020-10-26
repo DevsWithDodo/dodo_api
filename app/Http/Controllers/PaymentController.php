@@ -28,7 +28,8 @@ class PaymentController extends Controller
         $payments = $group->payments()
             ->where(function ($query) use ($user) {
                 return $query->where('taker_id', $user->id)
-                            ->orWhere('payer_id', $user->id);})
+                    ->orWhere('payer_id', $user->id);
+            })
             ->orderBy('updated_at', 'desc')
             ->get();
         return PaymentResource::collection($payments);
@@ -40,10 +41,10 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($request->group) ],
+            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($request->group)],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@store']);
             abort(400, "0");
         }
@@ -58,9 +59,9 @@ class PaymentController extends Controller
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
-        if(env('NOTIFICATION_ACTIVE'))
+        if (env('NOTIFICATION_ACTIVE'))
             $taker->notify(new PaymentNotification($payment));
 
         return response()->json(new PaymentResource($payment), 200);
@@ -72,10 +73,10 @@ class PaymentController extends Controller
         $group = $payment->group;
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($group->id)],
+            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($group->id)],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@update']);
             abort(400, "0");
         }
@@ -85,15 +86,15 @@ class PaymentController extends Controller
             'note' => $request->note,
             'taker_id' => $request->taker_id
         ]);
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
         return response()->json(new PaymentResource($payment), 200);
     }
 
     public function delete(Payment $payment)
     {
-        Cache::forget($payment->group->id.'_balances');
-        $payment->delete();        
+        Cache::forget($payment->group->id . '_balances');
+        $payment->delete();
         return response()->json(null, 204);
     }
 }

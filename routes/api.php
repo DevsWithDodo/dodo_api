@@ -20,7 +20,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/groups', 'GroupController@index');
     Route::post('/groups', 'GroupController@store');
     Route::post('/join', 'GroupController@addMember');
-    
+
     Route::middleware(['member'])->group(function () {
         /* Groups */
         Route::get('/groups/{group}', 'GroupController@show');
@@ -29,8 +29,8 @@ Route::middleware(['auth:api'])->group(function () {
 
         /* Members */
         Route::get('/groups/{group}/member', 'GroupController@indexMember');
-        Route::put('/groups/{group}/members', 'GroupController@updateMember'); 
-        Route::put('/groups/{group}/admins', 'GroupController@updateAdmin'); 
+        Route::put('/groups/{group}/members', 'GroupController@updateMember');
+        Route::put('/groups/{group}/admins', 'GroupController@updateAdmin');
         Route::post('/groups/{group}/members/delete', 'GroupController@deleteMember');
 
         /* Guests */
@@ -61,8 +61,8 @@ Route::middleware(['auth:api'])->group(function () {
 /**
  * Bug report to admin's email.
  */
-Route::post('/bug', function(Request $request) {
-    if(env('NOTIFICATION_ACTIVE')) {
+Route::post('/bug', function (Request $request) {
+    if (env('NOTIFICATION_ACTIVE')) {
         Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
         Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
         return response()->json(null, 204);
@@ -72,6 +72,6 @@ Route::post('/bug', function(Request $request) {
 /**
  * Returns if the client app version is supported by the server
  */
-Route::get('/supported', function(Request $request) {
+Route::get('/supported', function (Request $request) {
     return response()->json($request->version >= env('SUPPORTED_APP_VERSION', 17));
 });

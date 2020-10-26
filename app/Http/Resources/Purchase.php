@@ -12,7 +12,7 @@ class Purchase extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request) 
+    public function toArray($request)
     {
         $transaction = [
             'transaction_id' => $this->id,
@@ -24,14 +24,14 @@ class Purchase extends JsonResource
             'buyer_id' => $this->buyer_id,
             'buyer_username' => \App\User::find($this->buyer_id)->username,
             'buyer_nickname' => $this->group->members->find($this->buyer)->member_data->nickname,
-            'total_amount' => round(floatval($this->amount),2),
+            'total_amount' => round(floatval($this->amount), 2),
         ];
         foreach ($this->receivers as $receiver) {
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
                 'username' => $receiver->user->username,
                 'nickname' => $this->group->members->find($receiver->user)->member_data->nickname,
-                'balance' => round(floatval($receiver->amount),2)
+                'balance' => round(floatval($receiver->amount), 2)
             ];
         }
         return $transaction;

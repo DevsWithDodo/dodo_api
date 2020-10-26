@@ -54,10 +54,10 @@ class LoginController extends Controller
 
         if ($this->attemptLogin($request)) {
             $user = $this->guard()->user();
-            if($user->token == null) {
+            if ($user->token == null) {
                 $user->generateToken();
             }
-            if($request->fcm_token){
+            if ($request->fcm_token) {
                 $user->fcm_token = $request->fcm_token;
                 $user->save();
             }
@@ -70,8 +70,8 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $user = Auth::guard('api')->user();
-        
-        if($user) {
+
+        if ($user) {
             $user->api_token = null;
             $user->fcm_token = null;
             $user->save();

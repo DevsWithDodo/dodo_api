@@ -34,7 +34,7 @@ class GroupController extends Controller
         $user = Auth::guard('api')->user();
         return GroupResource::collection($user->groups);
     }
-    
+
     /**
      * Show a group's details.
      * Updates the User's $last_active_group attribute with this group.
@@ -49,13 +49,13 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $user = Auth::guard('api')->user();
-        if($user->isGuest()) abort(400, "1");
+        if ($user->isGuest()) abort(400, "1");
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
-            'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
+            'currency' => ['nullable', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'member_nickname' => 'nullable|string|min:1|max:15'
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@store']);
             abort(400, "0");
         }
@@ -80,31 +80,31 @@ class GroupController extends Controller
         Gate::authorize('edit-group', $group);
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:1|max:20',
-            'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
+            'currency' => ['nullable', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@update']);
             abort(400, "0");
         }
 
         $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
-        
-        if(env('NOTIFICATION_ACTIVE'))
-            foreach($group->members as $member)
-                if($member->id != $user->id) 
+
+        if (env('NOTIFICATION_ACTIVE'))
+            foreach ($group->members as $member)
+                if ($member->id != $user->id)
                     $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
 
-                
+
         return response()->json(new GroupResource($group), 200);
     }
 
     public function delete(Group $group)
     {
         Gate::authorize('edit-group', $group);
-        
+
         $group->delete();
-    
+
         return response()->json(null, 204);
     }
 
@@ -112,7 +112,7 @@ class GroupController extends Controller
      * Member related functions
      */
 
-    public function indexMember(Group $group) 
+    public function indexMember(Group $group)
     {
         $user = Auth::guard('api')->user(); //member
         return new MemberResource($group->members->find($user));
@@ -124,30 +124,30 @@ class GroupController extends Controller
             'invitation_token' => 'required|string|exists:invitations,token',
             'nickname' => 'nullable|string|min:1|max:15',
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@addMember']);
             abort(400, "0");
         }
         $user = Auth::guard('api')->user();
         $group = Group::firstWhere('invitation', $request->invitation_token);
-        
-        if($user->isGuest()) abort(400, "2");
-        if($group->members->count()==20) abort(400, "3");
-        if($group->members->contains($user)) abort(400, "4");
+
+        if ($user->isGuest()) abort(400, "2");
+        if ($group->members->count() == 20) abort(400, "3");
+        if ($group->members->contains($user)) abort(400, "4");
         $nickname = $request->nickname ?? $user->username;
-        if($group->members->firstWhere('member_data.nickname', $nickname) != null) abort(400, "5");
+        if ($group->members->firstWhere('member_data.nickname', $nickname) != null) abort(400, "5");
 
         $group->members()->attach($user, [
             'nickname' => $nickname,
             'is_admin' => false
         ]);
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
-        if(env('NOTIFICATION_ACTIVE'))
-            foreach($group->members as $member)
-                if($member->id != $user->id) 
+        if (env('NOTIFICATION_ACTIVE'))
+            foreach ($group->members as $member)
+                if ($member->id != $user->id)
                     $member->notify(new JoinedGroupNotification($group, $nickname));
-        
+
         return new GroupResource($group);
     }
 
@@ -158,21 +158,21 @@ class GroupController extends Controller
             'member_id' => ['exists:users,id', new IsMember($group->id)],
             'nickname' => 'required|string|min:1|max:15',
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@updateMember']);
             abort(400, "0");
         }
 
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_update, $group]);
-        
-        if($group->members->firstWhere('member_data.nickname', $request->nickname) != null) abort(400, "5");
+
+        if ($group->members->firstWhere('member_data.nickname', $request->nickname) != null) abort(400, "5");
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
-        
-        if(env('NOTIFICATION_ACTIVE'))
-            if($user->id != $member_to_update->id) 
+
+        if (env('NOTIFICATION_ACTIVE'))
+            if ($user->id != $member_to_update->id)
                 $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
-        
+
         return response()->json(null, 204);
     }
 
@@ -185,17 +185,17 @@ class GroupController extends Controller
             'admin' => 'required|boolean',
         ]);
         $member = User::find($request->member_id);
-        
-        if($member->isGuest()) abort(400, "6");
-        
+
+        if ($member->isGuest()) abort(400, "6");
+
         $group->members->find($member)
             ->member_data->update(['is_admin' => $request->admin]);
-        
-        if(env('NOTIFICATION_ACTIVE'))
-            if($request->admin && $member->id != $user->id)
+
+        if (env('NOTIFICATION_ACTIVE'))
+            if ($request->admin && $member->id != $user->id)
                 $member->notify(new PromotedToAdminNotification($group, $user));
-            
-        if($group->admins()->count() == 0)
+
+        if ($group->admins()->count() == 0)
             $group->members()->update(['is_admin' => true]);
 
         return response()->json(null, 204);
@@ -207,7 +207,7 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@deleteMember']);
             abort(400, "0");
         }
@@ -216,11 +216,10 @@ class GroupController extends Controller
         Gate::authorize('edit-member', [$member_to_delete, $group]);
 
         $balance = $member_to_delete->member_data->balance;
-        if($member_to_delete->id == $user->id)
-        {
-            if($balance < 0) abort(400, "7");
+        if ($member_to_delete->id == $user->id) {
+            if ($balance < 0) abort(400, "7");
             if ($balance > 0) {
-                $balance_divided = $balance / ($group->members->count()-1);
+                $balance_divided = $balance / ($group->members->count() - 1);
                 foreach ($group->members->except([$user->id]) as $member) {
                     $payment = Payment::create([
                         'amount' => $balance_divided,
@@ -229,7 +228,7 @@ class GroupController extends Controller
                         'payer_id' => $user->id,
                         'note' => 'Legacy 💰💰💰'
                     ]);
-                    if(env('NOTIFICATION_ACTIVE'))
+                    if (env('NOTIFICATION_ACTIVE'))
                         $member->notify(new PaymentNotification($payment)); //TODO change
                 }
             }
@@ -242,13 +241,13 @@ class GroupController extends Controller
                 'note' => 'Legacy 💰💰💰'
             ]);
         }
-        
-        Cache::forget($group->id.'_balances');
+
+        Cache::forget($group->id . '_balances');
         $group->members()->detach($member_to_delete);
 
-        if($group->members()->count() == 0){
+        if ($group->members()->count() == 0) {
             $group->delete();
-        } else if($group->admins()->count() == 0){
+        } else if ($group->admins()->count() == 0) {
             $group->members()->update(['is_admin' => true]);
         }
         return response()->json(null, 204);
@@ -266,8 +265,8 @@ class GroupController extends Controller
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())]
         ]);
 
-        if($group->members->count()==20) abort(400, "3");
-        if($group->members->firstWhere('member_data.nickname', $request->username) != null) abort(400, "5");
+        if ($group->members->count() == 20) abort(400, "3");
+        if ($group->members->firstWhere('member_data.nickname', $request->username) != null) abort(400, "5");
         $guest = User::create([
             'username' => $request->username,
             'password' => null,
@@ -276,41 +275,41 @@ class GroupController extends Controller
             'fcm_token' => null
         ]);
         $guest->generateToken(); // login 
-        
+
         $group->members()->attach($guest, [
             'nickname' => $request->username,
             'is_admin' => false
         ]);
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
-        if(env('NOTIFICATION_ACTIVE'))
-            foreach($group->members as $member)
-                if($member->id != $guest->id) 
+        if (env('NOTIFICATION_ACTIVE'))
+            foreach ($group->members as $member)
+                if ($member->id != $guest->id)
                     $member->notify(new JoinedGroupNotification($group, $request->username));
-        
+
         return response()->json(new UserResource($guest), 201);
     }
 
     public function mergeGuest(Request $request, Group $group)
     {
         Gate::authorize('edit-group', $group);
-        
+
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
             'guest_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
 
         $guest = User::find($request->guest_id);
-        if(!$guest->isGuest()) abort(400, "8");
+        if (!$guest->isGuest()) abort(400, "8");
 
         $guest_id = $guest->id;
         $guest_balance = $group->members->find($guest)->member_data->balance;
         $member = User::find($request->member_id);
         $member_id = $member->id;
-        
+
         $group->members()->detach($guest);
         $guest->delete();
-        Cache::forget($group->id.'_balances');
+        Cache::forget($group->id . '_balances');
 
         DB::table('buyers')->where('buyer_id', $guest_id)->update(['buyer_id' => $member_id]);
         DB::table('receivers')->where('receiver_id', $guest_id)->update(['receiver_id' => $member_id]);

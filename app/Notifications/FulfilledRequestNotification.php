@@ -30,9 +30,9 @@ class FulfilledRequestNotification extends Notification
     public function toFcm($notifiable)
     {
         $message = "Thanks to " . $this->request->group->members->find($this->request->fulfiller)->member_data->nickname .
-             ', ' . $this->request->name . ' is within reach!';
+            ', ' . $this->request->name . ' is within reach!';
         return FcmMessage::create()
-            ->setData(['id' => '2' . rand (0, 100000)])
+            ->setData(['id' => '2' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle('Request fulfilled in ' . $this->request->group->name)
                 ->setBody($message));
