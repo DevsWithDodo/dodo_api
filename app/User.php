@@ -66,7 +66,7 @@ class User extends Authenticatable
         
         $result = 0;
         foreach ($this->groups as $group) {
-            $group_balance = $this->balance($group);
+            $group_balance = $group->balances()[$this->id];
             $group_currency = $group->currency;
             if($group_currency == $result_currency){
                 $result += $group_balance;

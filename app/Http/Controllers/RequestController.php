@@ -32,9 +32,8 @@ class RequestController extends Controller
             'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:2|max:50',
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
+
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
             "group_id" => $request->group,
@@ -52,9 +51,7 @@ class RequestController extends Controller
     {
         $user = Auth::guard('api')->user();
         $group = $shopping_request->group;
-        if($user->id == $shopping_request->requester->id){
-            return response()->json(['error' => 10], 400);
-        }
+        if($user->id == $shopping_request->requester->id) abort(400, "10");
         $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
         
         $shopping_request->delete();

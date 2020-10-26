@@ -45,9 +45,7 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group)]
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         $group = Group::find($request->group);
 
@@ -84,9 +82,7 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         //update receivers
         $purchase->receivers()->delete();

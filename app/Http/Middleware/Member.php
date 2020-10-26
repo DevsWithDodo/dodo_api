@@ -19,9 +19,7 @@ class Member
     {
         $user = Auth::guard('api')->user();
         $group = ($request->group instanceof Group) ? $request->group : Group::find($request->group);
-        if(!$group->members->contains($user)){
-            return response()->json(['error' => 1], 400);
-        }
+        if(!$group->members->contains($user)) abort(400, "1");
 
         return $next($request);
     }

@@ -48,16 +48,13 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $user = Auth::guard('api')->user();
-        if($user->isGuest())
-            return response()->json(['error' => 1], 400);
+        if($user->isGuest()) abort(400, "1");
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
             'member_nickname' => 'nullable|string|min:1|max:15'
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         $group = Group::create([
             'name' => $request->group_name,
@@ -81,9 +78,7 @@ class GroupController extends Controller
             'name' => 'nullable|string|min:1|max:20',
             'currency' => ['nullable','string','size:3', Rule::in(CurrencyController::currencyList())],
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
@@ -120,25 +115,15 @@ class GroupController extends Controller
             'invitation_token' => 'required|string|exists:invitations,token',
             'nickname' => 'nullable|string|min:1|max:15',
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
         $user = Auth::guard('api')->user();
-        if($user->password == null){
-            return response()->json(['error' => 2], 400);
-        }
         $group = Group::firstWhere('invitation', $request->invitation_token);
-
-        if($group->members->count()==20){
-            return response()->json(['error' => 3], 400);
-        }
-        if($group->members->contains($user)){
-            return response()->json(['error' => 4], 400);
-        } 
+        
+        if($user->isGuest()) abort(400, "2");
+        if($group->members->count()==20) abort(400, "3");
+        if($group->members->contains($user)) abort(400, "4");
         $nickname = $request->nickname ?? $user->username;
-        if($group->members->firstWhere('member_data.nickname', $nickname) != null){
-            return response()->json(['error' => 5], 400);
-        }
+        if($group->members->firstWhere('member_data.nickname', $nickname) != null) abort(400, "5");
 
         $group->members()->attach($user, [
             'nickname' => $nickname,
@@ -160,16 +145,12 @@ class GroupController extends Controller
             'member_id' => ['exists:users,id', new IsMember($group->id)],
             'nickname' => 'required|string|min:1|max:15',
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_update, $group]);
         
-        if($group->members->firstWhere('member_data.nickname', $request->nickname) != null){
-            return response()->json(['error' => 5], 400);
-        }
+        if($group->members->firstWhere('member_data.nickname', $request->nickname) != null) abort(400, "5");
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
         if($user->id != $member_to_update->id) $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
@@ -186,8 +167,7 @@ class GroupController extends Controller
             'admin' => 'required|boolean',
         ]);
         $member = User::find($request->member_id);
-        if($member->isGuest())
-            return response()->json(['error' => 6], 400);
+        if($member->isGuest()) abort(400, "6");
         $group->members->find($member)
             ->member_data->update(['is_admin' => $request->admin]);
                 
@@ -207,19 +187,15 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
         $member_to_delete = $group->members->find($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_delete, $group]);
 
         $balance = $member_to_delete->member_data->balance;
         if($member_to_delete->id == $user->id)
         {
-            if($balance < 0)
-            {
-                return response()->json(['error' => 7], 400);
-            } else if ($balance > 0) {
+            if($balance < 0) abort(400, "7");
+            if ($balance > 0) {
                 $balance_divided = $balance / ($group->members->count()-1);
                 foreach ($group->members->except([$user->id]) as $member) {
                     $payment = Payment::create([
@@ -265,12 +241,8 @@ class GroupController extends Controller
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())]
         ]);
 
-        if($group->members->count()==20){
-            return response()->json(['error' => 3], 400);
-        }
-        if($group->members->firstWhere('member_data.nickname', $request->username) != null){
-            return response()->json(['error' => 5], 400);
-        }
+        if($group->members->count()==20) abort(400, "3");
+        if($group->members->firstWhere('member_data.nickname', $request->username) != null) abort(400, "5");
         $guest = User::create([
             'username' => $request->username,
             'password' => null,
@@ -303,8 +275,7 @@ class GroupController extends Controller
         ]);
 
         $guest = User::find($request->guest_id);
-        if(!$guest->isGuest())
-            return response()->json(['error' => 8], 400);
+        if(!$guest->isGuest()) abort(400, "8");
 
         $guest_id = $guest->id;
         $guest_balance = $group->members->find($guest)->member_data->balance;

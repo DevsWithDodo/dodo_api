@@ -31,9 +31,7 @@ class UserController extends Controller
             'password_reminder' => ['nullable', 'string'],
             'fcm_token' => 'required|string'
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => 0], 400);
-        }
+        if ($validator->fails()) abort(400, "0");
 
         $user = User::create([
             'username' => $request->username,
@@ -53,15 +51,12 @@ class UserController extends Controller
             'old_password' => 'required|string',
             //'new_password' => 'required|string|min:4|confirmed',
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => 0], 400);
-        } 
+        if ($validator->fails()) abort(400, "0");
+
         try {
-            if ((Hash::check($request->old_password, $user->password)) == false) {
-                return response()->json(['error' => 11],400);
-            } else if ((Hash::check(request('new_password'), Auth::user()->password)) == true) {
-                return response()->json(['error' => 12],400);
-            } else {
+            if ((Hash::check($request->old_password, $user->password)) == false) abort(400, "11");
+            else if ((Hash::check(request('new_password'), Auth::user()->password)) == true) abort(400, "12");
+            else {
                 $user->update(['password' => Hash::make($request->new_password)]);
                 return response()->json(null, 204);
             }
@@ -81,9 +76,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'new_username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => 0], 400);
-        } 
+        if ($validator->fails()) abort(400, "0");
 
         $user->update(['username' => $request->new_username]);
         
@@ -95,9 +88,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'string', 'exists:users,id'],
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         return response()->json(['data' => User::find($request->id)->password_reminder]);
     }

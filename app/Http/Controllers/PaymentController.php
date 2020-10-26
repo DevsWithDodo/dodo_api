@@ -42,9 +42,8 @@ class PaymentController extends Controller
             'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($request->group) ],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
+
         $group = Group::find($request->group);
         $taker = User::find($request->taker_id);
 
@@ -71,9 +70,7 @@ class PaymentController extends Controller
             'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($group->id)],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
+        if($validator->fails()) abort(400, "0");
 
         $payment->update([
             'amount' => $request->amount,
