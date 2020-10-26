@@ -36,29 +36,25 @@ Route::middleware(['auth:api'])->group(function () {
         /* Guests */
         Route::post('/groups/{group}/add_guest', 'GroupController@addGuest');
         Route::post('/group/{group}/merge_guest', 'GroupController@mergeGuest');
-
-        /* Invitations */
-        Route::post('/invitations', 'InvitationController@store');
-        Route::delete('/invitations/{invitation}', 'InvitationController@delete');
-
-        /* Purchases */
-        Route::get('/transactions', 'PurchaseController@index');
-        Route::post('/transactions', 'PurchaseController@store');
-        Route::put('/transactions/{purchase}', 'PurchaseController@update')->middleware('owner:purchase');
-        Route::delete('/transactions/{purchase}', 'PurchaseController@delete')->middleware('owner:purchase');
-
-        /* Payments */
-        Route::get('/payments', 'PaymentController@index');
-        Route::post('/payments', 'PaymentController@store');
-        Route::put('/payments/{payment}', 'PaymentController@update')->middleware('owner:payment');
-        Route::delete('/payments/{payment}', 'PaymentController@delete')->middleware('owner:payment');
-
-        /* Requests*/
-        Route::get('/requests', 'RequestController@index');
-        Route::post('/requests', 'RequestController@store');
-        Route::put('/requests/{shopping_request}', 'RequestController@fulfill');
-        Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
     });
+
+    /* Purchases */
+    Route::get('/transactions', 'PurchaseController@index')->middleware('member');
+    Route::post('/transactions', 'PurchaseController@store')->middleware('member');
+    Route::put('/transactions/{purchase}', 'PurchaseController@update')->middleware('owner:purchase');
+    Route::delete('/transactions/{purchase}', 'PurchaseController@delete')->middleware('owner:purchase');
+
+    /* Payments */
+    Route::get('/payments', 'PaymentController@index')->middleware('member');
+    Route::post('/payments', 'PaymentController@store')->middleware('member');
+    Route::put('/payments/{payment}', 'PaymentController@update')->middleware('owner:payment');
+    Route::delete('/payments/{payment}', 'PaymentController@delete')->middleware('owner:payment');
+
+    /* Requests*/
+    Route::get('/requests', 'RequestController@index')->middleware('member');
+    Route::post('/requests', 'RequestController@store')->middleware('member');
+    Route::put('/requests/{shopping_request}', 'RequestController@fulfill');
+    Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
 });
 
 
@@ -66,9 +62,11 @@ Route::middleware(['auth:api'])->group(function () {
  * Bug report to admin's email.
  */
 Route::post('/bug', function(Request $request) {
-    Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
-    Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
-    return response()->json(null, 204);
+    if(env('NOTIFICATION_ACTIVE')) {
+        Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+        Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+        return response()->json(null, 204);
+    }
 });
 
 /**

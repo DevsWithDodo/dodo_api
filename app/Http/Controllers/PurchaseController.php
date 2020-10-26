@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -45,7 +46,10 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($request->group)]
         ]);
-        if($validator->fails()) abort(400, "0");
+        if($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@store']);
+            abort(400, "0");
+        }
 
         $group = Group::find($request->group);
 
@@ -63,9 +67,10 @@ class PurchaseController extends Controller
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            if($receiver->receiver_id != $user->id){
-                $receiver->user->notify(new ReceiverNotification($receiver));
-            }
+
+            if(env('NOTIFICATION_ACTIVE'))
+                if($receiver->receiver_id != $user->id)
+                    $receiver->user->notify(new ReceiverNotification($receiver));
         }
         Cache::forget($group->id.'_balances');
         return response()->json(new PurchaseResource($purchase), 201);
@@ -73,16 +78,17 @@ class PurchaseController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
-        $buyer = $purchase->buyer;
         $group = $purchase->group;
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:1|max:30',
+            'name' => 'required|string|min:1|max:5',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required','exists:users,id', new IsMember($group->id)]
         ]);
-        if($validator->fails()) abort(400, "0");
+        if($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@update']);
+            abort(400, "0");
+        }
 
         //update receivers
         $purchase->receivers()->delete();
@@ -93,7 +99,6 @@ class PurchaseController extends Controller
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-            $group->updateBalance(User::find($receiver_data['user_id']), (-1)*$amount);
         }
 
         //update purchase - with the extortion of updating the timestamps

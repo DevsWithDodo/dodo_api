@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Rules\IsMember;
 
@@ -42,7 +43,10 @@ class PaymentController extends Controller
             'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($request->group) ],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()) abort(400, "0");
+        if($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@store']);
+            abort(400, "0");
+        }
 
         $group = Group::find($request->group);
         $taker = User::find($request->taker_id);
@@ -56,7 +60,8 @@ class PaymentController extends Controller
         ]);
         Cache::forget($group->id.'_balances');
 
-        $taker->notify(new PaymentNotification($payment));
+        if(env('NOTIFICATION_ACTIVE'))
+            $taker->notify(new PaymentNotification($payment));
 
         return response()->json(new PaymentResource($payment), 200);
     }
@@ -70,7 +75,10 @@ class PaymentController extends Controller
             'taker_id' => ['required','exists:users,id', 'not_in:'.$payer->id, new IsMember($group->id)],
             'note' => 'nullable|string|min:1|max:25'
         ]);
-        if($validator->fails()) abort(400, "0");
+        if($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@update']);
+            abort(400, "0");
+        }
 
         $payment->update([
             'amount' => $request->amount,

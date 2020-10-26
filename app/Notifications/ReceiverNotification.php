@@ -29,7 +29,7 @@ class ReceiverNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer->user)->member_data->nickname .
+        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname .
          ' bought you ' . $this->receiver->purchase->name . ' for ' . $this->receiver->amount . ' HUF.'; 
         return FcmMessage::create()
             ->setData(['id' => '6' . rand (0, 100000)])

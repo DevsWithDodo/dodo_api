@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 use App\Http\Resources\Request as RequestResource;
@@ -32,18 +33,22 @@ class RequestController extends Controller
             'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:2|max:50',
         ]);
-        if($validator->fails()) abort(400, "0");
+        if($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'RequestController@store']);
+            abort(400, "0");
+        }
 
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
             "group_id" => $request->group,
             "requester_id" => $user->id,
         ]);
-        foreach ($shopping_request->group->members as $member) {
-            if($member->id != $user->id){
-                $member->notify(new RequestNotification($shopping_request));
-            }
-        }
+
+        if(env('NOTIFICATION_ACTIVE'))
+            foreach ($shopping_request->group->members as $member)
+                if($member->id != $user->id)
+                    $member->notify(new RequestNotification($shopping_request));
+        
         return new RequestResource($shopping_request);
     }
 
@@ -52,7 +57,9 @@ class RequestController extends Controller
         $user = Auth::guard('api')->user();
         $group = $shopping_request->group;
         if($user->id == $shopping_request->requester->id) abort(400, "10");
-        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
+        
+        if(env('NOTIFICATION_ACTIVE'))
+            $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
         
         $shopping_request->delete();
         return response()->json(200);
