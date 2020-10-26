@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use App\Rules\IsMember;
 
 use App\Http\Resources\Payment as PaymentResource;
@@ -54,6 +55,7 @@ class PaymentController extends Controller
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
+        Cache::forget($group->id.'_balances');
 
         $taker->notify(new PaymentNotification($payment));
 
@@ -73,18 +75,20 @@ class PaymentController extends Controller
             return response()->json(['error' => 0], 400);
         }
 
-        $payment->amount = $request->amount;
-        $payment->taker_id = $request->taker_id;
-        $payment->note = $request->note ?? $payment->note;
-        $payment->save();
+        $payment->update([
+            'amount' => $request->amount,
+            'note' => $request->note,
+            'taker_id' => $request->taker_id
+        ]);
+        Cache::forget($group->id.'_balances');
 
         return response()->json(new PaymentResource($payment), 200);
     }
 
     public function delete(Payment $payment)
     {
-        $payment->delete();
-
+        Cache::forget($payment->group->id.'_balances');
+        $payment->delete();        
         return response()->json(null, 204);
     }
 }

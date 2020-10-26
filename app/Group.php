@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use App\User;
 
 class Group extends Model
@@ -30,6 +32,25 @@ class Group extends Model
             ->as('member_data')
             ->withPivot('nickname', 'is_admin', 'group_id')
             ->withTimestamps();
+    }
+
+    public function balances(){
+        return Cache::rememberForever($this->id.'_balances', function () {
+            $data = [];
+            foreach ($this->members as $member) {
+                $payment_payed = $this->payments()->where('payer_id', $member->id)->sum('amount');
+                $payment_taken = $this->payments()->where('taker_id', $member->id)->sum('amount');
+                $purchase_buyed = $this->purchases()->where('buyer_id', $member->id)->sum('amount');
+                $purchase_received = DB::table('purchase_receivers')
+                    ->join('purchases', 'purchase_receivers.purchase_id', '=', 'purchases.id')
+                    ->where([
+                        ['purchase_receivers.receiver_id', $member->id],
+                        ['purchases.group_id', $this->id]
+                    ])->sum('purchase_receivers.amount');
+                $data[$member->id] = $payment_payed - $payment_taken + $purchase_buyed - $purchase_received;
+            }
+            return $data;
+        });
     }
 
     public function guests()

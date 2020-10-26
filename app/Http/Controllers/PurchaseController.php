@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -69,6 +69,7 @@ class PurchaseController extends Controller
                 $receiver->user->notify(new ReceiverNotification($receiver));
             }
         }
+        Cache::forget($group->id.'_balances');
         return response()->json(new PurchaseResource($purchase), 201);
     }
 
@@ -105,14 +106,15 @@ class PurchaseController extends Controller
             'amount' => $request->amount
         ]);
         $purchase->touch();
+        Cache::forget($group->id.'_balances');
 
         return response()->json(new PurchaseResource($purchase), 200);
     }
 
     public function delete(Purchase $purchase)
     {
+        Cache::forget($purchase->group->id.'_balances');
         $purchase->delete();
-
         return response()->json(null, 204);
     }
 }

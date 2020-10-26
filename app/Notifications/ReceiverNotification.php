@@ -11,13 +11,13 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Transactions\Receiver;
+use App\Transactions\PurchaseReceiver;
 
 class ReceiverNotification extends Notification
 {
     public $receiver;
 
-    public function __construct(Receiver $receiver)
+    public function __construct(PurchaseReceiver $receiver)
     {
         $this->receiver = $receiver;
     }

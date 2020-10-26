@@ -144,6 +144,7 @@ class GroupController extends Controller
             'nickname' => $nickname,
             'is_admin' => false
         ]);
+        Cache::forget($group->id.'_balances');
 
         foreach($group->members as $member){
             if($member->id != $user->id) $member->notify(new JoinedGroupNotification($group, $nickname));
@@ -241,6 +242,7 @@ class GroupController extends Controller
             ]);
         }
         
+        Cache::forget($group->id.'_balances');
         $group->members()->detach($member_to_delete);
 
         if($group->members()->count() == 0){
@@ -254,7 +256,6 @@ class GroupController extends Controller
     /**
      * Guests
      */
-
     public function addGuest(Request $request, Group $group)
     {
         Gate::authorize('edit-group', $group);
@@ -283,6 +284,7 @@ class GroupController extends Controller
             'nickname' => $request->username,
             'is_admin' => false
         ]);
+        Cache::forget($group->id.'_balances');
 
         foreach($group->members as $member){
             if($member->id != $guest->id) $member->notify(new JoinedGroupNotification($group, $request->username));
@@ -311,6 +313,7 @@ class GroupController extends Controller
         
         $group->members()->detach($guest);
         $guest->delete();
+        Cache::forget($group->id.'_balances');
 
         DB::table('buyers')->where('buyer_id', $guest_id)->update(['buyer_id' => $member_id]);
         DB::table('receivers')->where('receiver_id', $guest_id)->update(['receiver_id' => $member_id]);
