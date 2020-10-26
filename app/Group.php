@@ -13,7 +13,7 @@ class Group extends Model
 
     public function delete(){
         $this->members()->detach($this->members);
-        $this->transactions()->delete();
+        $this->purchases()->delete();
         $this->payments()->delete();
         $this->requests()->delete();
 
@@ -42,7 +42,7 @@ class Group extends Model
         return $this->members()->where('is_admin', true);
     }
 
-    public function transactions()
+    public function purchases()
     {
         return $this->hasMany('App\Transactions\Purchase');
     }

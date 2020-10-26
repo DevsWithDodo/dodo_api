@@ -27,7 +27,7 @@ class PaymentController extends Controller
             ->where(function ($query) use ($user) {
                 return $query->where('taker_id', $user->id)
                             ->orWhere('payer_id', $user->id);})
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->get();
         return PaymentResource::collection($payments);
     }

@@ -14,52 +14,60 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            ['username' => 'dominik', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'CML'],
-            ['username' => 'samu', 'password' => Hash::make(1234), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'default_currency' => 'EUR']
+        $csocsort = factory(App\Group::class)->create([
+            'name' => 'Csocsort'
         ]);
-        DB::table('groups')->insert([
-            ['name' => 'Csocsort', 'currency' => 'CML', 'invitation' => Str::random(20)],
-            ['name' => 'Sajt', 'currency' => 'EUR', 'invitation' => Str::random(20)]
+        $dominik = factory(App\User::class)->create([
+            'username' => 'dominik'
         ]);
-        DB::table('group_user')->insert([
-            [
-                'user_id' => 1,
-                'group_id' => '1',
-                'is_admin' => 0,
-                'nickname' => 'Dominyik',
-            ],
-            [
-                'user_id' => 1,
-                'group_id' => '2',
-                'is_admin' => 0,
-                'nickname' => 'domi',
-            ],            
-            [
-                'user_id' => 2,
-                'group_id' => '1',
-                'is_admin' => '1',
-                'nickname' => 'samuuuu'
-            ],            
+        $samu = factory(App\User::class)->create([
+            'username' => 'samu'
         ]);
-        DB::table('purchases')->insert([
-            ['name' => 'Sajt','group_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'buyer_id' => 1, 'amount' => 500],
-            ['name' => 'Sok Sajt', 'group_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'buyer_id' => 2, 'amount' => 1200]
-        ]);
-        DB::table('purchase_receivers')->insert([
-            ['purchase_id' => 1, 'receiver_id' => 1, 'amount' => 250],
-            ['purchase_id' => 1, 'receiver_id' => 2, 'amount' => 250],
-            ['purchase_id' => 2, 'receiver_id' => 1, 'amount' => 1200],
-        ]);
-
-        DB::table('payments')->insert([
-            ['group_id' => 1, 'payer_id'=> 1, 'taker_id'=> 2, 'amount' => 500, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 100, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['group_id' => 1, 'payer_id'=> 2, 'taker_id'=> 1, 'amount' => 300, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-        ]);
-
-        DB::table('requests')->insert([
-            ['name' => '1 kilo trapista', 'group_id' => 1, 'requester_id' => 2, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
-        ]);
+        $csocsort->members()->attach($dominik->id, [
+            'nickname' => $dominik->username, 'is_admin' => true]);
+        $csocsort->members()->attach($samu->id, [
+            'nickname' => $samu->username,'is_admin' => true]);
+        
+        $users = collect([$samu, $dominik])->concat(factory(App\User::class, 5)
+            ->create()
+            ->each(function ($user) use ($csocsort) {
+                $csocsort->members()->attach($user->id, [
+                    'nickname' => $user->username
+                ]);
+            }));
+        $users->each(function ($user) use ($csocsort, $users){
+            //purchase
+            factory(App\Transactions\Purchase::class, rand(3,10))
+            ->create([
+                'group_id' => $csocsort->id,
+                'buyer_id' => $user->id
+            ])
+            ->each(function ($purchase) use ($csocsort, $users) {
+                $count = rand(1,3);
+                $receivers = $users->random($count);
+                $receivers->each(function ($receiver) use ($purchase, $count) {
+                    factory(App\Transactions\PurchaseReceiver::class)
+                    ->create([
+                        'purchase_id' => $purchase->id,
+                        'amount' => $purchase->amount/$count,
+                        'receiver_id' => $receiver->id
+                    ]);
+                }); 
+            });
+            //payment
+            factory(App\Transactions\Payment::class, rand(3, 10))
+            ->create([
+                'group_id' => $csocsort->id,
+                'taker_id' => $user->id,
+                'payer_id' => $users->except($user->id)->random()->id
+            ]);
+            //request
+            factory(App\Request::class, rand(2,4))
+            ->create([
+                'group_id' => $csocsort->id,
+                'requester_id' => $user->id
+            ]);
+        });
+        
     }
 }

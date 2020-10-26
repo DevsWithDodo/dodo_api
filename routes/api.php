@@ -41,11 +41,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/invitations', 'InvitationController@store')->middleware('member');
     Route::delete('/invitations/{invitation}', 'InvitationController@delete');
 
-    /* Transactions */
-    Route::get('/transactions', 'TransactionController@index')->middleware('member');
-    Route::post('/transactions', 'TransactionController@store')->middleware('member');
-    Route::put('/transactions/{purchase}', 'TransactionController@update')->middleware('owner:purchase');
-    Route::delete('/transactions/{purchase}', 'TransactionController@delete')->middleware('owner:purchase');
+    /* Purchases */
+    Route::get('/transactions', 'PurchaseController@index')->middleware('member');
+    Route::post('/transactions', 'PurchaseController@store')->middleware('member');
+    Route::put('/transactions/{purchase}', 'PurchaseController@update')->middleware('owner:purchase');
+    Route::delete('/transactions/{purchase}', 'PurchaseController@delete')->middleware('owner:purchase');
 
     /* Payments */
     Route::get('/payments', 'PaymentController@index')->middleware('member');

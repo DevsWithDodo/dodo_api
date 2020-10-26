@@ -57,9 +57,9 @@ class User extends Authenticatable
 
     public function balance(Group $group)
     {
-        $payment_payed = $group->payments->where('payer_id', $this->id)->sum('amount');
-        $payment_taken = $group->payments->where('taker_id', $this->id)->sum('amount');
-        $purchase_buyed = $group->transactions->where('buyer_id', $this->id)->sum('amount');
+        $payment_payed = $group->payments()->where('payer_id', $this->id)->sum('amount');
+        $payment_taken = $group->payments()->where('taker_id', $this->id)->sum('amount');
+        $purchase_buyed = $group->purchases()->where('buyer_id', $this->id)->sum('amount');
         $purchase_received = DB::table('purchase_receivers')
             ->join('purchases', 'purchase_receivers.purchase_id', '=', 'purchases.id')
             ->where([

@@ -11,30 +11,28 @@ use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
 use App\Transactions\PurchaseReceiver;
-use App\Http\Resources\Transaction as TransactionResource;
+use App\Http\Resources\Purchase as PurchaseResource;
 use App\Http\Controllers\GroupController;
 
 use App\Notifications\ReceiverNotification;
 use App\Group;
 use App\User;
 
-class TransactionController extends Controller
+class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
-        $ids=$group->transactions()
+        $ids=$group->purchases()
             ->join('purchase_receivers', 'purchase_receivers.purchase_id', '=', 'purchases.id')
             ->where(function ($query) use ($user) {
                 return $query->where('purchases.buyer_id', $user->id)
                              ->orWhere('purchase_receivers.receiver_id', $user->id);})
-            ->orderBy('purchases.created_at', 'desc')
-            ->groupBy('purchases.id')
             ->pluck('purchases.id');
-        $transactions = Purchase::with('group.members')->whereIn('id', $ids)->get();
-        return TransactionResource::collection($transactions);
+        $purchases = Purchase::with('group.members')->whereIn('id', $ids)->orderBy('updated_at', 'desc')->get();
+        return PurchaseResource::collection($purchases);
     }
 
     public function store(Request $request)
@@ -71,7 +69,7 @@ class TransactionController extends Controller
                 $receiver->user->notify(new ReceiverNotification($receiver));
             }
         }
-        return response()->json(new TransactionResource($purchase), 201);
+        return response()->json(new PurchaseResource($purchase), 201);
     }
 
     public function update(Request $request, Purchase $purchase)
@@ -108,7 +106,7 @@ class TransactionController extends Controller
         ]);
         $purchase->touch();
 
-        return response()->json(new TransactionResource($purchase), 200);
+        return response()->json(new PurchaseResource($purchase), 200);
     }
 
     public function delete(Purchase $purchase)
