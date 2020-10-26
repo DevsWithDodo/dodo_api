@@ -18,8 +18,6 @@ class CreateRequestsTable extends Migration
             $table->string('name');
             $table->integer('group_id');
             $table->integer('requester_id');
-            $table->integer('fulfiller_id')->nullable();
-            $table->timestampTz('fulfilled_at')->nullable();
             $table->timestampsTz();
         });
     }

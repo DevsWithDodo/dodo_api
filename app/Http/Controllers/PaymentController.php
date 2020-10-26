@@ -21,20 +21,14 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
-        $validator = Validator::make($request->all(), [
-            'group' => 'required|exists:groups,id',
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
-        $group = Group::find($request->group);
+        $group = Group::findOrFail($request->group);
 
-        $payments = [];
-        foreach ($group->payments->sortByDesc('created_at') as $payment) {
-            if($payment->taker_id == $user->id || $payment->payer_id == $user->id){
-                $payments[] = $payment;
-            }
-        }
+        $payments = $group->payments()
+            ->where(function ($query) use ($user) {
+                return $query->where('taker_id', $user->id)
+                            ->orWhere('payer_id', $user->id);})
+            ->orderBy('created_at', 'desc')
+            ->get();
         return PaymentResource::collection($payments);
     }
 

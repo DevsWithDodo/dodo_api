@@ -8,16 +8,11 @@ class Request extends Model
 {
     protected $table = 'requests';
 
-    protected $fillable = ['name', 'group_id', 'requester_id', 'fulfiller_id', 'fulfilled_at'];
+    protected $fillable = ['name', 'group_id', 'requester_id'];
 
     public function requester()
     {
         return $this->belongsTo('App\User', 'requester_id');
-    }
-
-    public function fulfiller()
-    {
-        return $this->belongsTo('App\User', 'fulfiller_id');
     }
 
     public function group()

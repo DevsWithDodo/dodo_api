@@ -8,6 +8,7 @@ class Payment extends JsonResource
 {
     public function toArray($request)
     {
+        $this->load('group.members');
         return [
             'payment_id' => $this->id,
             //'group_id' => $this->group_id,

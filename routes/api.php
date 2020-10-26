@@ -56,7 +56,7 @@ Route::middleware(['auth:api'])->group(function () {
     /* Requests*/
     Route::get('/requests', 'RequestController@index')->middleware('member');
     Route::post('/requests', 'RequestController@store')->middleware('member');
-    Route::put('/requests/{shopping_request}', 'RequestController@fulfill');
+    Route::put('/requests/{shopping_request}', 'RequestController@fulfill')->middleware('member');
     Route::delete('/requests/{shopping_request}', 'RequestController@delete')->middleware('owner:request');
 });
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -22,37 +23,18 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
-        $validator = Validator::make($request->all(), [
-            'group' => 'required|exists:groups,id'
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
-        $group = Group::find($request->group);
+        $group = Group::findOrFail($request->group);
 
-        $transactions = [];
-        foreach ($group->transactions->sortByDesc('created_at') as $purchase) {
-            if(($purchase->buyer_id == $user->id) && ($purchase->receivers->contains('receiver_id', $user->id))){
-                $transactions[] = [
-                    'type' => 'buyed_received',
-                    'data' => new TransactionResource($purchase)
-                ];
-            } else{
-                if($purchase->buyer_id == $user->id){
-                    $transactions[] = [
-                        'type' => 'buyed',
-                        'data' => new TransactionResource($purchase)
-                    ];
-                }
-                if($purchase->receivers->contains('receiver_id', $user->id)){
-                    $transactions[] = [
-                        'type' => 'received',
-                        'data' => new TransactionResource($purchase)
-                    ];
-                }
-            }
-        }
-        return new JsonResource($transactions);
+        $ids=$group->transactions()
+            ->join('purchase_receivers', 'purchase_receivers.purchase_id', '=', 'purchases.id')
+            ->where(function ($query) use ($user) {
+                return $query->where('purchases.buyer_id', $user->id)
+                             ->orWhere('purchase_receivers.receiver_id', $user->id);})
+            ->orderBy('purchases.created_at', 'desc')
+            ->groupBy('purchases.id')
+            ->pluck('purchases.id');
+        $transactions = Purchase::with('group.members')->whereIn('id', $ids)->get();
+        return TransactionResource::collection($transactions);
     }
 
     public function store(Request $request)

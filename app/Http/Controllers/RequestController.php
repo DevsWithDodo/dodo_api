@@ -20,22 +20,9 @@ class RequestController extends Controller
     public function index(Request $request)
     {
         $user = Auth::guard('api')->user(); //member
+        $group = Group::findOrFail($request->group);
 
-        $validator = Validator::make($request->all(), [
-            'group' => 'required|exists:groups,id',
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => 0], 400);
-        }
-        $group = Group::find($request->group);
-
-        $active = RequestResource::collection(
-            $group->requests()
-                ->where('fulfilled_at', null)
-                ->get()
-            );
-
-        return new JsonResource(['active' => $active]);
+        return RequestResource::collection($group->requests);
     }
 
     public function store(Request $request)
@@ -65,23 +52,13 @@ class RequestController extends Controller
     {
         $user = Auth::guard('api')->user();
         $group = $shopping_request->group;
-        if($shopping_request->fulfilled_at != null){
-            return response()->json(['error' => 9], 400);
-        }
         if($user->id == $shopping_request->requester->id){
             return response()->json(['error' => 10], 400);
         }
-        if(!$group->members->contains($user)){
-            return response()->json(['error' => 1], 400);
-        }
-
-        $shopping_request->update([
-            'fulfiller_id' => $user->id,
-            'fulfilled_at' => Carbon::now()
-        ]);
-
         $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
-        return new RequestResource($shopping_request);
+        
+        $shopping_request->delete();
+        return response()->json(200);
     }
 
     public function delete(ShoppingRequest $shopping_request)
