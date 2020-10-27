@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Cache;
 use App\Rules\IsMember;
 
 use App\Http\Resources\Payment as PaymentResource;
-use App\Http\Controllers\GroupController;
 
 use App\Notifications\PaymentNotification;
 use App\Transactions\Payment;

@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
-use App\User;
+use Illuminate\Support\Facades\Auth;
 
 Route::post('register', 'UserController@register');
 Route::post('login', 'Auth\LoginController@login');

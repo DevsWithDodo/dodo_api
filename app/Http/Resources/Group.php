@@ -5,7 +5,6 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Member;
 use App\Http\Resources\User;
-use App\Http\Resources\Invitation;
 use Illuminate\Support\Facades\Gate;
 
 class Group extends JsonResource

@@ -13,7 +13,6 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
 
 use App\User;
-use App\Group;
 
 class UserController extends Controller
 {
@@ -32,7 +31,7 @@ class UserController extends Controller
             'password_reminder' => ['nullable', 'string'],
             'fcm_token' => 'required|string'
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@register']);
             abort(400, "0");
         }
@@ -44,7 +43,7 @@ class UserController extends Controller
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token
         ]);
-        $user->generateToken(); // login 
+        $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
     }
 
@@ -55,7 +54,7 @@ class UserController extends Controller
             'old_password' => 'required|string',
             //'new_password' => 'required|string|min:4|confirmed',
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@changePassword']);
             abort(400, "0");
         }
@@ -83,13 +82,13 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'new_username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@changeUsername']);
             abort(400, "0");
         }
 
         $user->update(['username' => $request->new_username]);
-        
+
         return response()->json(null, 204);
     }
 
@@ -98,7 +97,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'string', 'exists:users,id'],
         ]);
-        if($validator->fails()) {
+        if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@passwordReminder']);
             abort(400, "0");
         }
