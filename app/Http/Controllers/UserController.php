@@ -32,7 +32,7 @@ class UserController extends Controller
             'fcm_token' => 'required|string'
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@register']);
+            Log::info($validator->errors(), ['function' => 'UserController@register']);
             abort(400, "0");
         }
 
@@ -95,13 +95,14 @@ class UserController extends Controller
     public function passwordReminder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'string', 'exists:users,id'],
+            'username' => ['required', 'string', 'exists:users,username'],
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@passwordReminder']);
+            Log::info($validator->errors(), ['function' => 'UserController@passwordReminder']);
             abort(400, "0");
         }
+        $user = User::firstWhere('username', $request->username);
 
-        return response()->json(['data' => User::find($request->id)->password_reminder]);
+        return response()->json(['data' => $user->password_reminder]);
     }
 }
