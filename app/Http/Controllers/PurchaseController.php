@@ -81,7 +81,7 @@ class PurchaseController extends Controller
     {
         $group = $purchase->group;
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:1|max:5',
+            'name' => 'required|string|min:1|max:30',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
