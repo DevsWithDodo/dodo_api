@@ -121,7 +121,7 @@ class GroupController extends Controller
     public function addMember(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'invitation_token' => 'required|string|exists:invitations,token',
+            'invitation_token' => 'required|string|exists:groups,invitation',
             'nickname' => 'nullable|string|min:1|max:15',
         ]);
         if ($validator->fails()) {
@@ -274,7 +274,7 @@ class GroupController extends Controller
             'default_currency' => $request->default_currency,
             'fcm_token' => null
         ]);
-        $guest->generateToken(); // login 
+        $guest->generateToken(); // login
 
         $group->members()->attach($guest, [
             'nickname' => $request->username,
