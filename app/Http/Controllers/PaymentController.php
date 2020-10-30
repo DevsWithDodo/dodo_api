@@ -59,8 +59,7 @@ class PaymentController extends Controller
         ]);
         Cache::forget($group->id . '_balances');
 
-        if (env('NOTIFICATION_ACTIVE'))
-            $taker->notify(new PaymentNotification($payment));
+        $taker->notify(new PaymentNotification($payment));
 
         return response()->json(new PaymentResource($payment), 200);
     }

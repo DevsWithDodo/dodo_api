@@ -91,7 +91,7 @@ class GroupController extends Controller
         $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
 
-        if (env('NOTIFICATION_ACTIVE'))
+
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
@@ -144,10 +144,9 @@ class GroupController extends Controller
         ]);
         Cache::forget($group->id . '_balances');
 
-        if (env('NOTIFICATION_ACTIVE'))
-            foreach ($group->members as $member)
-                if ($member->id != $user->id)
-                    $member->notify(new JoinedGroupNotification($group, $nickname));
+        foreach ($group->members as $member)
+            if ($member->id != $user->id)
+                $member->notify(new JoinedGroupNotification($group, $nickname));
 
         return new GroupResource($group);
     }
@@ -170,9 +169,8 @@ class GroupController extends Controller
         if ($group->members->firstWhere('member_data.nickname', $request->nickname) != null) abort(400, "5");
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
-        if (env('NOTIFICATION_ACTIVE'))
-            if ($user->id != $member_to_update->id)
-                $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
+        if ($user->id != $member_to_update->id)
+            $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
 
         return response()->json(null, 204);
     }
@@ -192,9 +190,8 @@ class GroupController extends Controller
         $group->members->find($member)
             ->member_data->update(['is_admin' => $request->admin]);
 
-        if (env('NOTIFICATION_ACTIVE'))
-            if ($request->admin && $member->id != $user->id)
-                $member->notify(new PromotedToAdminNotification($group, $user));
+        if ($request->admin && $member->id != $user->id)
+            $member->notify(new PromotedToAdminNotification($group, $user));
 
         if ($group->admins()->count() == 0)
             $group->members()->update(['is_admin' => true]);
@@ -229,8 +226,7 @@ class GroupController extends Controller
                         'payer_id' => $user->id,
                         'note' => 'Legacy 💰💰💰'
                     ]);
-                    if (env('NOTIFICATION_ACTIVE'))
-                        $member->notify(new PaymentNotification($payment)); //TODO change
+                    $member->notify(new PaymentNotification($payment)); //TODO change
                 }
             }
         } else {
@@ -287,10 +283,9 @@ class GroupController extends Controller
         ]);
         Cache::forget($group->id . '_balances');
 
-        if (env('NOTIFICATION_ACTIVE'))
-            foreach ($group->members as $member)
-                if ($member->id != $guest->id)
-                    $member->notify(new JoinedGroupNotification($group, $request->username));
+        foreach ($group->members as $member)
+            if ($member->id != $guest->id)
+                $member->notify(new JoinedGroupNotification($group, $request->username));
 
         return response()->json(new UserResource($guest), 201);
     }
@@ -342,9 +337,8 @@ class GroupController extends Controller
             abort(400, "0");
         }
 
-        if (env('NOTIFICATION_ACTIVE'))
-            foreach ($group->members->except($user->id) as $member)
-                $member->notify(new ShoppingNotification($group, $user, $request->store));
+        foreach ($group->members->except($user->id) as $member)
+            $member->notify(new ShoppingNotification($group, $user, $request->store));
 
         return response()->json(null, 204);
     }
