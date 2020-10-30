@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-use App\Invitation;
+use App\Group;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +21,7 @@ Route::get('/', function () {
 });
 
 Route::get('/join/{token}', function ($token) {
-    $invitation = Invitation::firstWhere('token', $token);
-    return view('join', ['invitation' => $invitation]);
+    return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
 
 Route::get('/landscape_preview', function(){

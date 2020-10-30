@@ -12,6 +12,7 @@
         <meta property="og:description" content="Money and debt management app designed for groups" />
 
         <title>{{ config('app.name') }}</title>
+        <link rel="shortcut icon" href="/logo_color.png" type="image/png"/>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
@@ -24,14 +25,14 @@
         <div class="flex-center position-ref full-height">
             <div class="top-right">
             <div class="links">
-            <a href="https://github.com/kdmnk/csocsort_api">
+            <a href="https://github.com/machiato32/csocsort_app">
                 <img src="GitHub_Logo.png" alt="GitHub logo" height="25px">
             </a>
             </div>
-            
+
             </div>
             <div class="content">
-                <img src="logo_color.png" alt="Lender logo" height="200px"> 
+                <img src="logo_color.png" alt="Lender logo" height="200px">
                 <div class="title">{{ config('app.name') }}</div>
                 <p class="large uppercase">Money and debt management app designed for groups</p>
             </div>
