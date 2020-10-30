@@ -28,7 +28,7 @@ class UserController extends Controller
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
-            'password_reminder' => ['nullable', 'string'],
+            'password_reminder' => ['required', 'string'],
             'fcm_token' => 'required|string'
         ]);
         if ($validator->fails()) {
@@ -53,7 +53,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
             'new_password' => 'required|string|min:4|confirmed',
-            'password_reminder' => ['nullable', 'string'],
+            'password_reminder' => ['required', 'string'],
         ]);
         if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@changePassword']);
