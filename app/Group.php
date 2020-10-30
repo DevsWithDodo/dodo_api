@@ -21,7 +21,7 @@ class Group extends Model
 
         return parent::delete();
     }
-    
+
     /**
      * The groups that the user in.
      */
@@ -35,7 +35,7 @@ class Group extends Model
     }
 
     public function balances(){
-        return Cache::rememberForever($this->id.'_balances', function () {
+        return Cache::remember($this->id.'_balances', 300, function () {
             $data = [];
             foreach ($this->members as $member) {
                 $payment_payed = $this->payments()->where('payer_id', $member->id)->sum('amount');
