@@ -69,9 +69,8 @@ class PurchaseController extends Controller
                 'purchase_id' => $purchase->id
             ]);
 
-            if (env('NOTIFICATION_ACTIVE'))
-                if ($receiver->receiver_id != $user->id)
-                    $receiver->user->notify(new ReceiverNotification($receiver));
+            if ($receiver->receiver_id != $user->id)
+                $receiver->user->notify(new ReceiverNotification($receiver));
         }
         Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);

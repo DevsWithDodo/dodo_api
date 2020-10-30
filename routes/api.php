@@ -65,11 +65,9 @@ Route::middleware(['auth:api'])->group(function () {
  * Bug report to admin's email.
  */
 Route::post('/bug', function (Request $request) {
-    if (env('NOTIFICATION_ACTIVE')) {
-        Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
-        Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
-        return response()->json(null, 204);
-    }
+    Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+    Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(Auth::guard('api')->user(), $request->description));
+    return response()->json(null, 204);
 });
 
 /**
