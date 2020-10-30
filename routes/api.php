@@ -36,6 +36,9 @@ Route::middleware(['auth:api'])->group(function () {
         /* Guests */
         Route::post('/groups/{group}/add_guest', 'GroupController@addGuest');
         Route::post('/group/{group}/merge_guest', 'GroupController@mergeGuest');
+
+        /* 'I'm shopping' notification */
+        Route::post('/groups/{group}/send_shopping_notification', 'GroupController@sendShoppingNotification');
     });
 
     /* Purchases */

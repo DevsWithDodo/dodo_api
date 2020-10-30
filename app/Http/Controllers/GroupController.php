@@ -19,6 +19,7 @@ use App\Notifications\ChangedGroupNameNotification;
 use App\Notifications\PromotedToAdminNotification;
 use App\Notifications\JoinedGroupNotification;
 use App\Notifications\PaymentNotification;
+use App\Notifications\ShoppingNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\User as UserResource;
@@ -264,6 +265,10 @@ class GroupController extends Controller
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())]
         ]);
+        if ($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@addGuest']);
+            abort(400, "0");
+        }
 
         if ($group->members->count() == 20) abort(400, "3");
         if ($group->members->firstWhere('member_data.nickname', $request->username) != null) abort(400, "5");
@@ -298,6 +303,10 @@ class GroupController extends Controller
             'member_id' => ['exists:users,id', new IsMember($group->id)],
             'guest_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
+        if ($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@mergegroup']);
+            abort(400, "0");
+        }
 
         $guest = User::find($request->guest_id);
         if (!$guest->isGuest()) abort(400, "8");
@@ -317,6 +326,25 @@ class GroupController extends Controller
         DB::table('payments')->where('taker_id', $guest_id)->update(['taker_id' => $member_id]);
         DB::table('requests')->where('requester_id', $guest_id)->update(['requester_id' => $member_id]);
         DB::table('requests')->where('fulfiller_id', $guest_id)->update(['fulfiller_id' => $member_id]);
+
+        return response()->json(null, 204);
+    }
+
+    /* I'm shopping notification */
+    public function sendShoppingNotification(Request $request, Group $group)
+    {
+        $user = Auth::guard('api')->user();
+        $validator = Validator::make($request->all(), [
+            'store' => ['required', 'string', 'max:20'],
+        ]);
+        if ($validator->fails()) {
+            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'GroupController@sendShoppingNotification']);
+            abort(400, "0");
+        }
+
+        if (env('NOTIFICATION_ACTIVE'))
+            foreach ($group->members->except($user->id) as $member)
+                $member->notify(new ShoppingNotification($group, $user));
 
         return response()->json(null, 204);
     }
