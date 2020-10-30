@@ -52,7 +52,8 @@ class UserController extends Controller
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
-            //'new_password' => 'required|string|min:4|confirmed',
+            'new_password' => 'required|string|min:4|confirmed',
+            'password_reminder' => ['nullable', 'string'],
         ]);
         if ($validator->fails()) {
             Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'UserController@changePassword']);
@@ -63,7 +64,10 @@ class UserController extends Controller
             if ((Hash::check($request->old_password, $user->password)) == false) abort(400, "11");
             else if ((Hash::check(request('new_password'), Auth::user()->password)) == true) abort(400, "12");
             else {
-                $user->update(['password' => Hash::make($request->new_password)]);
+                $user->update([
+                    'password' => Hash::make($request->new_password),
+                    'password_reminder' => $request->password_reminder
+                ]);
                 return response()->json(null, 204);
             }
         } catch (\Exception $ex) {
