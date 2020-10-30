@@ -18,13 +18,13 @@ class ShoppingNotification extends Notification
 {
     public $group;
     public $user;
-    public $new_name;
-    public $old_name;
+    public $store;
 
-    public function __construct(Group $group, User $user)
+    public function __construct(Group $group, User $user, $store)
     {
         $this->user = $user;
         $this->group = $group;
+        $this->store = $store;
     }
 
     public function via($notifiable)
@@ -36,7 +36,7 @@ class ShoppingNotification extends Notification
     {
         $message = 'You have been notified that ' .
             $this->group->members->find($this->user)->member_data->nickname .
-            ' is shopping right now. Write something to '. $this->group->name . '\'s shopping list if you need something!';
+            ' is shopping in '. $this->store .' right now. Write something to '. $this->group->name . '\'s shopping list if you need something!';
         return FcmMessage::create()
             ->setData(['id' => '8' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()

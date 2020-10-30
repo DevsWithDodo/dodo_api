@@ -344,7 +344,7 @@ class GroupController extends Controller
 
         if (env('NOTIFICATION_ACTIVE'))
             foreach ($group->members->except($user->id) as $member)
-                $member->notify(new ShoppingNotification($group, $user));
+                $member->notify(new ShoppingNotification($group, $user, $request->store));
 
         return response()->json(null, 204);
     }
