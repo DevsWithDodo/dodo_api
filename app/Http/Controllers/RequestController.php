@@ -41,9 +41,9 @@ class RequestController extends Controller
             "requester_id" => $user->id,
         ]);
 
-        if (env('NOTIFICATION_ACTIVE'))
+        //if (env('NOTIFICATION_ACTIVE'))
             foreach ($shopping_request->group->members as $member)
-                if ($member->id != $user->id)
+                //if ($member->id != $user->id)
                     $member->notify(new RequestNotification($shopping_request));
 
         return new RequestResource($shopping_request);
