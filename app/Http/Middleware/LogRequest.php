@@ -16,7 +16,7 @@ class LogRequest
      */
     public function handle($request, Closure $next)
     {
-        Log::info('incoming request', ['request' => $request->all()]);
+        Log::info('incoming request', ['path' => $request->path(), 'request' => $request->all()]);
         return $next($request);
     }
 }
