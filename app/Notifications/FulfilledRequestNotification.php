@@ -12,14 +12,17 @@ use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Request;
+use App\User;
 
 class FulfilledRequestNotification extends Notification
 {
     public $request;
+    public $fulfiller;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, User $fulfiller)
     {
         $this->request = $request;
+        $this->fulfiller = $fulfiller;
     }
 
     public function via($notifiable)
@@ -29,7 +32,7 @@ class FulfilledRequestNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = "Thanks to " . $this->request->group->members->find($this->request->fulfiller)->member_data->nickname .
+        $message = "Thanks to " . $this->request->group->members->find($this->fulfiller)->member_data->nickname .
             ', ' . $this->request->name . ' is within reach!';
         return FcmMessage::create()
             ->setData(['id' => '2' . rand(0, 100000)])

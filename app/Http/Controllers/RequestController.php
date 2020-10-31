@@ -54,7 +54,7 @@ class RequestController extends Controller
         $group = $shopping_request->group;
         if ($user->id == $shopping_request->requester->id) abort(400, "10");
 
-        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request));
+        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
 
         $shopping_request->delete();
         return response()->json(200);
