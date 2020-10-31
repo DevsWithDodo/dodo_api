@@ -52,24 +52,24 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e)
     {
         if ($e instanceof ModelNotFoundException) {
-            return response()->json(['error' => 'Resource not found'], 404);
+            return response()->json(['error' => '404 Resource Not Found'], 404);
         }
         if ($this->isHttpException($e)) {
             if($e->getStatusCode() == '404'){
                 return response()->json(['error' => '404 Not Found'], 404);
             }
         }
-        
+
         // Define the response
         $response = [
-            'error' => $e->getMessage()
+            'error' => '500 Server Error'
         ];
 
         // If the app is in debug mode
         if (config('app.debug')) {
             // Add the exception class name, message and stack trace to response
             $response['exception'] = get_class($e); // Reflection might be better here
-            //$response['message'] = $e->getMessage();
+            $response['message'] = $e->getMessage();
             $response['trace'] = $e->getTrace();
         }
 
