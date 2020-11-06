@@ -61,8 +61,7 @@ class LoginController extends Controller
             }
             return new UserResource($user);
         }
-
-        return $this->sendFailedLoginResponse($request);
+        abort(400, "0");
     }
 
     public function logout(Request $request)

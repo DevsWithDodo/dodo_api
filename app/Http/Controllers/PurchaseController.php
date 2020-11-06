@@ -7,7 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -48,9 +47,15 @@ class PurchaseController extends Controller
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($request->group)]
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@store']);
+            $errors = $validator->errors();
+            if ($errors->has('name')) abort(400, "26");
+            if ($errors->has('group')) abort(400, "23");
+            if ($errors->has('amount')) abort(400, "24");
+            if ($errors->has('receivers')) abort(400, "20");
             abort(400, "0");
         }
+
+        //the request is valid
 
         $group = Group::find($request->group);
 
@@ -86,9 +91,14 @@ class PurchaseController extends Controller
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PurchaseController@update']);
+            $errors = $validator->errors();
+            if ($errors->has('name')) abort(400, "26");
+            if ($errors->has('amount')) abort(400, "24");
+            if ($errors->has('receivers')) abort(400, "20");
             abort(400, "0");
         }
+
+        //the request is valid
 
         //update receivers
         $purchase->receivers()->delete();
@@ -101,13 +111,15 @@ class PurchaseController extends Controller
             ]);
         }
 
-        //update purchase - with the extortion of updating the timestamps
+        //update purchase
         $purchase->update([
             'name' => $request->name,
             'amount' => $request->amount
         ]);
         $purchase->touch();
         Cache::forget($group->id . '_balances');
+
+        //TODO notify
 
         return response()->json(new PurchaseResource($purchase), 200);
     }
@@ -116,6 +128,7 @@ class PurchaseController extends Controller
     {
         Cache::forget($purchase->group->id . '_balances');
         $purchase->delete();
+        //TODO notify
         return response()->json(null, 204);
     }
 }

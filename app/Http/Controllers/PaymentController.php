@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Rules\IsMember;
 
@@ -43,9 +42,15 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:25'
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@store']);
+            $errors = $validator->errors();
+            if ($errors->has('group')) abort(400, "23");
+            if ($errors->has('amount')) abort(400, "24");
+            if ($errors->has('taker_id')) abort(400, "20");
+            if ($errors->has('note')) abort(400, "25");
             abort(400, "0");
         }
+
+        //The request is valid
 
         $group = Group::find($request->group);
         $taker = User::find($request->taker_id);
@@ -74,9 +79,14 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:25'
         ]);
         if ($validator->fails()) {
-            Log::info($validator->errors(), ['id' => Auth::guard('api')->user()->id, 'function' => 'PaymentController@update']);
+            $errors = $validator->errors();
+            if ($errors->has('amount')) abort(400, "24");
+            if ($errors->has('taker_id')) abort(400, "20");
+            if ($errors->has('note')) abort(400, "25");
             abort(400, "0");
         }
+
+        //the request is valid
 
         $payment->update([
             'amount' => $request->amount,
@@ -85,6 +95,8 @@ class PaymentController extends Controller
         ]);
         Cache::forget($group->id . '_balances');
 
+        //TODO notify
+
         return response()->json(new PaymentResource($payment), 200);
     }
 
@@ -92,6 +104,7 @@ class PaymentController extends Controller
     {
         Cache::forget($payment->group->id . '_balances');
         $payment->delete();
+        //TODO notify
         return response()->json(null, 204);
     }
 }
