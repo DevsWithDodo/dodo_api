@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -12,11 +11,9 @@ use App\Rules\IsMember;
 use App\Transactions\Purchase;
 use App\Transactions\PurchaseReceiver;
 use App\Http\Resources\Purchase as PurchaseResource;
-use App\Http\Controllers\GroupController;
 
 use App\Notifications\ReceiverNotification;
 use App\Group;
-use App\User;
 
 class PurchaseController extends Controller
 {
