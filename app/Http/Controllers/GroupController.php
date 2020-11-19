@@ -269,6 +269,8 @@ class GroupController extends Controller
             ]);
         }
 
+        $group->requests()->where('requester_id', $member_to_delete->id)->delete();
+
         Cache::forget($group->id . '_balances');
         $group->members()->detach($member_to_delete);
 
