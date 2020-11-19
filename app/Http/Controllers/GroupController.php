@@ -238,7 +238,7 @@ class GroupController extends Controller
             abort(400, "0");
         }
 
-        $member_to_delete = $group->members->find($request->member_id ?? $user->id);
+        $member_to_delete = $group->members->findOrFail($request->member_id ?? $user->id);
         Gate::authorize('edit-member', [$member_to_delete, $group]);
 
         //the request is valid
