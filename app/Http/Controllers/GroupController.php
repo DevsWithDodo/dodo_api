@@ -243,7 +243,7 @@ class GroupController extends Controller
 
         //the request is valid
 
-        $balance = $member_to_delete->member_data->balance;
+        $balance = $group->balances()[$member_to_delete->id];
         if ($member_to_delete->id == $user->id) {
             if ($balance < 0) abort(400, "7");
             if ($balance > 0) {
@@ -268,6 +268,8 @@ class GroupController extends Controller
                 'note' => 'Legacy 💰💰💰'
             ]);
         }
+
+        $group->requests()->where('requester_id', $member_to_delete->id)->delete();
 
         Cache::forget($group->id . '_balances');
         $group->members()->detach($member_to_delete);
@@ -347,13 +349,11 @@ class GroupController extends Controller
         //the request is valid
 
         $guest_id = $guest->id;
-        $guest_balance = $group->members->find($guest)->member_data->balance;
         $member = User::find($request->member_id);
         $member_id = $member->id;
 
         $group->members()->detach($guest);
         $guest->delete();
-        Cache::forget($group->id . '_balances');
 
         //change the guest's id to the member's id in the tables
         DB::table('buyers')->where('buyer_id', $guest_id)->update(['buyer_id' => $member_id]);
@@ -362,6 +362,8 @@ class GroupController extends Controller
         DB::table('payments')->where('taker_id', $guest_id)->update(['taker_id' => $member_id]);
         DB::table('requests')->where('requester_id', $guest_id)->update(['requester_id' => $member_id]);
         DB::table('requests')->where('fulfiller_id', $guest_id)->update(['fulfiller_id' => $member_id]);
+
+        Cache::forget($group->id . '_balances');
 
         return response()->json(null, 204);
     }

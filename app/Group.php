@@ -13,7 +13,8 @@ class Group extends Model
 
     protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation'];
 
-    public function delete(){
+    public function delete()
+    {
         $this->members()->detach($this->members);
         $this->purchases()->delete();
         $this->payments()->delete();
@@ -34,8 +35,9 @@ class Group extends Model
             ->withTimestamps();
     }
 
-    public function balances(){
-        return Cache::remember($this->id.'_balances', 300, function () {
+    public function balances()
+    {
+        return Cache::remember($this->id . '_balances', 300, function () {
             $data = [];
             foreach ($this->members as $member) {
                 $payment_payed = $this->payments()->where('payer_id', $member->id)->sum('amount');
