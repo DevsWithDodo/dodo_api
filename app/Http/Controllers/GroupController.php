@@ -274,7 +274,7 @@ class GroupController extends Controller
         Cache::forget($group->id . '_balances');
 
         if ($group->balances()[$member_to_delete->id] != 0) {
-            abort(400, "0");
+            abort(400, "A balancod a végén: " + $group->balances()[$member_to_delete->id]);
         }
 
         $group->members()->detach($member_to_delete);
