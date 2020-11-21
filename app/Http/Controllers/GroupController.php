@@ -274,11 +274,6 @@ class GroupController extends Controller
 
         Cache::forget($group->id . '_balances');
 
-        if ($group->balances()[$member_to_delete->id] != 0) {
-            Log::warning('Member delete: the balance is not null', ["balance" => $group->balances()[$member_to_delete->id]]);
-            abort(500);
-        }
-
         $group->members()->detach($member_to_delete);
 
         //TODO notify
@@ -288,6 +283,9 @@ class GroupController extends Controller
         } else if ($group->admins()->count() == 0) {
             $group->members()->update(['is_admin' => true]);
         }
+
+        //TODO delete group if needed
+
         return response()->json(null, 204);
     }
 
