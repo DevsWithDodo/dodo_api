@@ -22,6 +22,7 @@ use App\Notifications\ShoppingNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\User as UserResource;
+use Illuminate\Support\Facades\Log;
 
 use App\Transactions\Payment;
 use App\User;
@@ -274,7 +275,8 @@ class GroupController extends Controller
         Cache::forget($group->id . '_balances');
 
         if ($group->balances()[$member_to_delete->id] != 0) {
-            abort(400, "A balancod a végén: " + $group->balances()[$member_to_delete->id]);
+            Log::warning('Member delete: the balance is not null', ["balance" => $group->balances()[$member_to_delete->id]]);
+            abort(500);
         }
 
         $group->members()->detach($member_to_delete);
