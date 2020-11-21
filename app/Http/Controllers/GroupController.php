@@ -250,7 +250,7 @@ class GroupController extends Controller
                 $balance_divided = $balance / ($group->members->count() - 1);
                 foreach ($group->members->except([$user->id]) as $member) {
                     $payment = Payment::create([
-                        'amount' => $balance_divided,
+                        'amount' => (-1) * $balance_divided,
                         'group_id' => $group->id,
                         'taker_id' => $member->id,
                         'payer_id' => $user->id,
@@ -261,7 +261,7 @@ class GroupController extends Controller
             }
         } else {
             Payment::create([
-                'amount' => $balance,
+                'amount' => (-1) * $balance,
                 'group_id' => $group->id,
                 'taker_id' => $user->id,
                 'payer_id' => $member_to_delete->id,
@@ -272,6 +272,11 @@ class GroupController extends Controller
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
 
         Cache::forget($group->id . '_balances');
+
+        if ($group->balances()[$member_to_delete->id] != 0) {
+            abort(400, "0");
+        }
+
         $group->members()->detach($member_to_delete);
 
         //TODO notify
