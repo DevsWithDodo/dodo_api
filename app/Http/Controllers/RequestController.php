@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Resources\Request as RequestResource;
 use App\Notifications\FulfilledRequestNotification;
@@ -50,7 +51,7 @@ class RequestController extends Controller
                 if ($member->id != $user->id)
                     $member->notify(new RequestNotification($shopping_request));
         } catch (Throwable $e) {
-            report($e);
+            Log::error('FCM error', ['error' => $e]);
         }
         return new RequestResource($shopping_request);
     }
@@ -65,7 +66,7 @@ class RequestController extends Controller
         try{
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (Throwable $e) {
-            report($e);
+            Log::error('FCM error', ['error' => $e]);
         }
         $shopping_request->delete();
         return response()->json(200);
