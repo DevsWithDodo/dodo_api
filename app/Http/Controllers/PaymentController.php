@@ -67,7 +67,6 @@ class PaymentController extends Controller
             $taker->notify(new PaymentNotification($payment));
         } catch (Throwable $e) {
             report($e);
-            return false;
         }
         return response()->json(new PaymentResource($payment), 200);
     }

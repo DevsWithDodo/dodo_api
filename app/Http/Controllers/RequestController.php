@@ -51,7 +51,6 @@ class RequestController extends Controller
                     $member->notify(new RequestNotification($shopping_request));
         } catch (Throwable $e) {
             report($e);
-            return false;
         }
         return new RequestResource($shopping_request);
     }
@@ -67,7 +66,6 @@ class RequestController extends Controller
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (Throwable $e) {
             report($e);
-            return false;
         }
         $shopping_request->delete();
         return response()->json(200);
