@@ -71,8 +71,12 @@ class PurchaseController extends Controller
                 'purchase_id' => $purchase->id
             ]);
 
-            if ($receiver->receiver_id != $user->id)
-                $receiver->user->notify(new ReceiverNotification($receiver));
+            try{
+                if ($receiver->receiver_id != $user->id)
+                    $receiver->user->notify(new ReceiverNotification($receiver));
+            } catch(Exception e){
+                Log::error('FCM error', ['error' => e]);
+            }
         }
         Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);
