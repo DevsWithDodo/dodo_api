@@ -101,9 +101,14 @@ class GroupController extends Controller
         $group->update($request->only('name', 'currency'));
 
         //notify
-        foreach ($group->members as $member)
-            if ($member->id != $user->id)
-                $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
+        try{
+            foreach ($group->members as $member)
+                if ($member->id != $user->id)
+                    $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
+        
 
         return response()->json(new GroupResource($group), 200);
     }
@@ -158,9 +163,13 @@ class GroupController extends Controller
         Cache::forget($group->id . '_balances');
 
         //notify
-        foreach ($group->members as $member)
-            if ($member->id != $user->id)
-                $member->notify(new JoinedGroupNotification($group, $nickname));
+        try{
+            foreach ($group->members as $member)
+                if ($member->id != $user->id)
+                    $member->notify(new JoinedGroupNotification($group, $nickname));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
 
         return new GroupResource($group);
     }
@@ -188,8 +197,12 @@ class GroupController extends Controller
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
         //notify
-        if ($user->id != $member_to_update->id)
-            $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
+        try{
+            if ($user->id != $member_to_update->id)
+                $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
 
         return response()->json(null, 204);
     }
@@ -217,9 +230,12 @@ class GroupController extends Controller
             ->member_data->update(['is_admin' => $request->admin]);
 
         //notify
-        if ($request->admin && $member->id != $user->id)
-            $member->notify(new PromotedToAdminNotification($group, $user));
-
+        try{
+            if ($request->admin && $member->id != $user->id)
+                $member->notify(new PromotedToAdminNotification($group, $user));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         //make everyone an admin if there is no admin left
         if ($group->admins()->count() == 0)
             $group->members()->update(['is_admin' => true]);
@@ -257,7 +273,11 @@ class GroupController extends Controller
                         'payer_id' => $user->id,
                         'note' => 'Legacy 💰💰💰'
                     ]);
-                    $member->notify(new PaymentNotification($payment)); //TODO change
+                    try{
+                        $member->notify(new PaymentNotification($payment)); //TODO change
+                    } catch(Throwable $e){
+                        Log::error('FCM error', ['error' => $e]);
+                    }
                 }
             }
         } else {
@@ -327,10 +347,13 @@ class GroupController extends Controller
         Cache::forget($group->id . '_balances');
 
         //notify
-        foreach ($group->members as $member)
-            if ($member->id != $guest->id)
-                $member->notify(new JoinedGroupNotification($group, $request->username));
-
+        try{
+            foreach ($group->members as $member)
+                if ($member->id != $guest->id)
+                    $member->notify(new JoinedGroupNotification($group, $request->username));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         return response()->json(new UserResource($guest), 201);
     }
 
@@ -383,10 +406,12 @@ class GroupController extends Controller
         if ($validator->fails()) {
             abort(400, "0");
         }
-
-        foreach ($group->members->except($user->id) as $member)
-            $member->notify(new ShoppingNotification($group, $user, $request->store));
-
+        try{
+            foreach ($group->members->except($user->id) as $member)
+                $member->notify(new ShoppingNotification($group, $user, $request->store));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         return response()->json(null, 204);
     }
 }

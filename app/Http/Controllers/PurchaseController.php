@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -71,8 +72,12 @@ class PurchaseController extends Controller
                 'purchase_id' => $purchase->id
             ]);
 
-            if ($receiver->receiver_id != $user->id)
-                $receiver->user->notify(new ReceiverNotification($receiver));
+            try{
+                if ($receiver->receiver_id != $user->id)
+                    $receiver->user->notify(new ReceiverNotification($receiver));
+            } catch(Throwable $e){
+                Log::error('FCM error', ['error' => $e]);
+            }
         }
         Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);

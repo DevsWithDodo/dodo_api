@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Http\Resources\Payment as PaymentResource;
@@ -63,9 +64,11 @@ class PaymentController extends Controller
             'note' => $request->note ?? null
         ]);
         Cache::forget($group->id . '_balances');
-
-        $taker->notify(new PaymentNotification($payment));
-
+        try{
+            $taker->notify(new PaymentNotification($payment));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         return response()->json(new PaymentResource($payment), 200);
     }
 

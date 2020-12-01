@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Resources\Request as RequestResource;
 use App\Notifications\FulfilledRequestNotification;
@@ -45,10 +46,13 @@ class RequestController extends Controller
         ]);
 
         //notify
-        foreach ($shopping_request->group->members as $member)
-            if ($member->id != $user->id)
-                $member->notify(new RequestNotification($shopping_request));
-
+        try{
+            foreach ($shopping_request->group->members as $member)
+                if ($member->id != $user->id)
+                    $member->notify(new RequestNotification($shopping_request));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         return new RequestResource($shopping_request);
     }
 
@@ -59,8 +63,11 @@ class RequestController extends Controller
         if ($user->id == $shopping_request->requester->id) abort(400, "10");
 
         //notify
-        $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
-
+        try{
+            $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
+        } catch (Throwable $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         $shopping_request->delete();
         return response()->json(200);
     }
