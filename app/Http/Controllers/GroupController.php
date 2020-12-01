@@ -276,7 +276,7 @@ class GroupController extends Controller
                     try{
                         $member->notify(new PaymentNotification($payment)); //TODO change
                     } catch(Throwable $e){
-                        report($e)
+                        report($e);
                     }
                 }
             }
