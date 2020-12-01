@@ -65,8 +65,9 @@ class PaymentController extends Controller
         Cache::forget($group->id . '_balances');
         try{
             $taker->notify(new PaymentNotification($payment));
-        } catch(Exception e){
-            Log::error('FCM error', ['error' => e]);
+        } catch (Throwable $e) {
+            report($e);
+            return false;
         }
         return response()->json(new PaymentResource($payment), 200);
     }
