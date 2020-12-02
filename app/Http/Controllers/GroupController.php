@@ -105,7 +105,7 @@ class GroupController extends Controller
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         
@@ -167,7 +167,7 @@ class GroupController extends Controller
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new JoinedGroupNotification($group, $nickname));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
 
@@ -200,7 +200,7 @@ class GroupController extends Controller
         try{
             if ($user->id != $member_to_update->id)
                 $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
 
@@ -233,7 +233,7 @@ class GroupController extends Controller
         try{
             if ($request->admin && $member->id != $user->id)
                 $member->notify(new PromotedToAdminNotification($group, $user));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         //make everyone an admin if there is no admin left
@@ -275,7 +275,7 @@ class GroupController extends Controller
                     ]);
                     try{
                         $member->notify(new PaymentNotification($payment)); //TODO change
-                    } catch(Throwable $e){
+                    } catch(Exception $e){
                         Log::error('FCM error', ['error' => $e]);
                     }
                 }
@@ -351,7 +351,7 @@ class GroupController extends Controller
             foreach ($group->members as $member)
                 if ($member->id != $guest->id)
                     $member->notify(new JoinedGroupNotification($group, $request->username));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         return response()->json(new UserResource($guest), 201);
@@ -409,7 +409,7 @@ class GroupController extends Controller
         try{
             foreach ($group->members->except($user->id) as $member)
                 $member->notify(new ShoppingNotification($group, $user, $request->store));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         return response()->json(null, 204);

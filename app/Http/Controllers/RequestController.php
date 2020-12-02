@@ -50,7 +50,7 @@ class RequestController extends Controller
             foreach ($shopping_request->group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new RequestNotification($shopping_request));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         return new RequestResource($shopping_request);
@@ -65,7 +65,7 @@ class RequestController extends Controller
         //notify
         try{
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         $shopping_request->delete();
