@@ -16,7 +16,11 @@ class LogRequest
      */
     public function handle($request, Closure $next)
     {
-        Log::info('incoming request', ['path' => $request->path(), 'request' => $request->all()]);
-        return $next($request);
+        if(config('app.log'))
+            Log::channel('requests')->info('request ', ['path' => $request->path(), 'data' => $request->except(['password', 'password_confirmation'])]);
+        $response = $next($request);
+        if(config('app.log'))
+            Log::channel('requests')->info('response', ['path' => $request->path(), 'data' => $response->getContent()]);
+        return $response;
     }
 }
