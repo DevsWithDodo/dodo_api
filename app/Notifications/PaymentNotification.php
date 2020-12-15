@@ -35,7 +35,7 @@ class PaymentNotification extends Notification
             'group' => $this->payment->group->name
         ]);
         if($this->payment->note)
-            $message += ' ' . __('notifications.new_payment_message', [
+            $message .= ' ' . __('notifications.new_payment_message', [
                 'message' => $this->payment->note
             ]);
 
