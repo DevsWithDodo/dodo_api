@@ -2,7 +2,7 @@
 
 return [
     'changed_group_name_title' => 'A csoport neve megváltozott',
-    'changed_group_name_descr' => ':user átnevezte a(z) :old_name csoportot erre: :new_name',
+    'changed_group_name_descr' => ':user átnevezte a(z) :old_name csoportot erre: :new_name.',
     'changed_nickname_title' => 'Az új neved :name!',
     'changed_nickname_descr' => ':user átállította a nevedet ebben a csoportban: :group.',
     'fulfilled_request_title' => 'A kérésedet teljesítették',

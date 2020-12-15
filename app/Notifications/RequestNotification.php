@@ -31,10 +31,10 @@ class RequestNotification extends Notification
     {
         $message = __('notifications.new_request_descr', [
             'user' => $this->request->group->members->find($this->request->requester_id)->member_data->nickname,
-            'purchase' => $this->request->name
+            'request' => $this->request->name
         ]);
         $title = __('notifications.new_request_title', [
-            'group' => $this->request->group
+            'group' => $this->request->group->name
         ]);
         return FcmMessage::create()
             ->setData(['id' => '7' . rand(0, 100000)])

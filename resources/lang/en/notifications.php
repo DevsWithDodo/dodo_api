@@ -2,7 +2,7 @@
 
 return [
     'changed_group_name_title' => 'Changed group name',
-    'changed_group_name_descr' => ':user set :old_name\'s name to :new_name',
+    'changed_group_name_descr' => ':user set :old_name\'s name to :new_name.',
     'changed_nickname_title' => 'Call me :name!',
     'changed_nickname_descr' => ':user set your nickname to :new_name in :group.',
     'fulfilled_request_title' => 'Your request has been fulfilled',
