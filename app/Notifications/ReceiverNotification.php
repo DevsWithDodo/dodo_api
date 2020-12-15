@@ -32,7 +32,7 @@ class ReceiverNotification extends Notification
         $message = __('notifications.receiver_notification_descr', [
             'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
             'purchase' => $this->receiver->purchase->name,
-            'amount' => $this->receiver->amount + " " + $this->receiver->purchase->group->currency,
+            'amount' => $this->receiver->amount . " " . $this->receiver->purchase->group->currency,
             'group' => $this->receiver->purchase->group
         ]);
         $title = __('notifications.receiver_notification_title', [
