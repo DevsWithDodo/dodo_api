@@ -2,14 +2,14 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;
 
@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'username', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency', 'fcm_token'
+        'username', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency', 'fcm_token', 'language'
     ];
 
     protected $hidden = [
@@ -44,6 +44,16 @@ class User extends Authenticatable
         return $this->fcm_token;
     }
 
+    /**
+     * Get the user's preferred locale.
+     *
+     * @return string
+     */
+    public function preferredLocale()
+    {
+        return $this->language;
+    }
+
     //The groups that the user in:
     public function groups()
     {
@@ -63,7 +73,7 @@ class User extends Authenticatable
         $base = $currencies['base'];
         $rates = $currencies['rates'];
         $result_currency = $this->default_currency;
-        
+
         $result = 0;
         foreach ($this->groups as $group) {
             $group_balance = $group->balances()[$this->id];

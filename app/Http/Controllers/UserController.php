@@ -28,7 +28,8 @@ class UserController extends Controller
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'password_reminder' => ['required', 'string'],
-            'fcm_token' => 'required|string'
+            'fcm_token' => 'required|string',
+            'language' => 'required|in:en,hu,it,de',
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
@@ -44,7 +45,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'password_reminder' => $request->password_reminder ?? null,
             'default_currency' => $request->default_currency,
-            'fcm_token' => $request->fcm_token
+            'fcm_token' => $request->fcm_token,
+            'language' => $request->language
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
@@ -91,6 +93,19 @@ class UserController extends Controller
         if ($validator->fails()) abort(400, "11");
 
         $user->update(['username' => $request->new_username]);
+
+        return response()->json(null, 204);
+    }
+
+    public function changeLanguage(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+        $validator = Validator::make($request->all(), [
+            'language' => 'required|string|in:en,hu,it,de',
+        ]);
+        if ($validator->fails()) abort(400, "0");
+
+        $user->update(['language' => $request->language]);
 
         return response()->json(null, 204);
     }

@@ -16,8 +16,8 @@ use App\User;
 
 class ChangedNicknameNotification extends Notification
 {
-    public $group;
-    public $user;
+    public Group $group;
+    public User $user;
     public $new_nickname;
 
     public function __construct(Group $group, User $user, $new_nickname)
@@ -34,12 +34,18 @@ class ChangedNicknameNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->group->members->find($this->user)->member_data->nickname .
-            ' set your nickname to ' . $this->new_nickname . ' in ' . $this->group->name;
+        $message = __('notifications.changed_nickname_descr', [
+            'user' => $this->group->members->find($this->user)->member_data->nickname,
+            'new_name' => $this->new_nickname,
+            'group' => $this->group->name
+        ]);
+        $title = __('notifications.changed_nickname_title', [
+            'name' => $this->new_nickname
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '1' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Call me ' . $this->new_nickname . '!')
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

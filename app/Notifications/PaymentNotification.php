@@ -15,7 +15,7 @@ use App\Transactions\Payment;
 
 class PaymentNotification extends Notification
 {
-    public $payment;
+    public Payment $payment;
 
     public function __construct(Payment $payment)
     {
@@ -29,11 +29,23 @@ class PaymentNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->payment->group->members->find($this->payment->payer_id)->member_data->nickname . ' payed you ' . $this->payment->amount . ' HUF.' . ($this->payment->note ? "\nMessage: " . $this->payment->note : '');
+        $message = __('notifications.new_payment_descr', [
+            'user' =>  $this->payment->group->members->find($this->payment->payer_id)->member_data->nickname,
+            'amount' => $this->payment->amount + " " + $this->payment->group->currency,
+            'group' => $this->payment->group->name
+        ]);
+        if($this->payment->note)
+            $message += ' ' + __('notifications.new_payment_message', [
+                'message' => $this->payment->note
+            ]);
+
+        $title = __('notifications.new_payment_title', [
+            'group' => $this->payment->group->name
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '4' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New payment in ' . $this->payment->group->name)
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

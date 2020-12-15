@@ -15,7 +15,7 @@ use App\Request;
 
 class RequestNotification extends Notification
 {
-    public $request;
+    public Request $request;
 
     public function __construct(Request $request)
     {
@@ -29,12 +29,17 @@ class RequestNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->request->group->members->find($this->request->requester_id)->member_data->nickname .
-            ' added ' . $this->request->name . ' to the shopping list.';
+        $message = __('notifications.new_request_descr', [
+            'user' => $this->request->group->members->find($this->request->requester_id)->member_data->nickname,
+            'purchase' => $this->request->name
+        ]);
+        $title = __('notifications.new_request_title', [
+            'group' => $this->request->group
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '7' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New shopping request in ' . $this->request->group->name)
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

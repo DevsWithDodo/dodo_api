@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
@@ -15,6 +16,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('logout', 'Auth\LoginController@logout');
     Route::post('change_password', 'UserController@changePassword');
     Route::post('change_username', 'UserController@changeUsername');
+    Route::post('change_language', 'UserController@changeLanguage');
 
     /* Groups */
     Route::get('/groups', 'GroupController@index');

@@ -16,8 +16,8 @@ use App\User;
 
 class JoinedGroupNotification extends Notification
 {
-    public $group;
-    public $user;
+    public Group $group;
+    public User $user;
 
     public function __construct(Group $group, $user)
     {
@@ -32,11 +32,15 @@ class JoinedGroupNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->user . ' just landed in ' . $this->group->name . '!';
+        $message = __('notifications.joined_group_descr', [
+            'user' => $this->user,
+            'group' => $this->group->name
+        ]);
+        $title = __('notifications.joined_group_title');
         return FcmMessage::create()
             ->setData(['id' => '3' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New member')
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

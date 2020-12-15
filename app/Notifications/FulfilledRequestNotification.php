@@ -16,8 +16,8 @@ use App\User;
 
 class FulfilledRequestNotification extends Notification
 {
-    public $request;
-    public $fulfiller;
+    public Request $request;
+    public User $fulfiller;
 
     public function __construct(Request $request, User $fulfiller)
     {
@@ -32,12 +32,15 @@ class FulfilledRequestNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = "Thanks to " . $this->request->group->members->find($this->fulfiller)->member_data->nickname .
-            ', ' . $this->request->name . ' is within reach!';
+        $message = __('notifications.fulfilled_request_descr', [
+            'user' => $this->request->group->members->find($this->fulfiller)->member_data->nickname,
+            'request' => $this->request->name
+        ]);
+        $title = __('notifications.fulfilled_request_title');
         return FcmMessage::create()
             ->setData(['id' => '2' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Request fulfilled in ' . $this->request->group->name)
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

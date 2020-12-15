@@ -15,7 +15,7 @@ use App\Transactions\PurchaseReceiver;
 
 class ReceiverNotification extends Notification
 {
-    public $receiver;
+    public PurchaseReceiver $receiver;
 
     public function __construct(PurchaseReceiver $receiver)
     {
@@ -29,12 +29,19 @@ class ReceiverNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname .
-            ' bought you ' . $this->receiver->purchase->name . ' for ' . $this->receiver->amount . ' HUF.';
+        $message = __('notifications.receiver_notification_descr', [
+            'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
+            'purchase' => $this->receiver->purchase->name,
+            'amount' => $this->receiver->amount + " " + $this->receiver->purchase->group->currency,
+            'group' => $this->receiver->purchase->group
+        ]);
+        $title = __('notifications.receiver_notification_title', [
+            'group' => $this->receiver->purchase->group
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '6' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('New purchase in ' . $this->receiver->purchase->group->name)
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

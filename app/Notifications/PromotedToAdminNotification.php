@@ -16,8 +16,8 @@ use App\User;
 
 class PromotedToAdminNotification extends Notification
 {
-    public $group;
-    public $admin;
+    public Group $group;
+    public User $admin;
 
     public function __construct(Group $group, User $admin)
     {
@@ -32,11 +32,17 @@ class PromotedToAdminNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->group->members->find($this->admin)->member_data->nickname . ' promoted you to be an admin.';
+        $message = __('notifications.promoted_to_admin_descr', [
+            'user' => $message = $this->group->members->find($this->admin)->member_data->nickname,
+            'group' => $this->group->name
+        ]);
+        $title = __('notifications.promoted_to_admin_title', [
+            'group' => $this->group->name
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '5' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('You became an admin in ' . $this->group->name)
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

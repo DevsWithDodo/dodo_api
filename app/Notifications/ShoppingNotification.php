@@ -16,8 +16,8 @@ use App\User;
 
 class ShoppingNotification extends Notification
 {
-    public $group;
-    public $user;
+    public Group $group;
+    public User $user;
     public $store;
 
     public function __construct(Group $group, User $user, $store)
@@ -34,13 +34,18 @@ class ShoppingNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = 'You have been notified that ' .
-            $this->group->members->find($this->user)->member_data->nickname .
-            ' is shopping in '. $this->store .' right now. Write something to '. $this->group->name . '\'s shopping list if you need something!';
+        $message = __('notifications.shopping_descr', [
+            'user' => $this->group->members->find($this->user)->member_data->nickname,
+            'store' => $this->store,
+            'group' => $this->group->name
+        ]);
+        $title = __('notifications.shopping_title', [
+            'user' => $this->group->members->find($this->user)->member_data->nickname
+        ]);
         return FcmMessage::create()
             ->setData(['id' => '8' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Ask something from '. $this->group->members->find($this->user)->member_data->nickname .'!')
+                ->setTitle($title)
                 ->setBody($message));
     }
 }

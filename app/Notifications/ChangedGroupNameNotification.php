@@ -16,8 +16,8 @@ use App\User;
 
 class ChangedGroupNameNotification extends Notification
 {
-    public $group;
-    public $user;
+    public Group $group;
+    public User $user;
     public $new_name;
     public $old_name;
 
@@ -36,12 +36,16 @@ class ChangedGroupNameNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = $this->group->members->find($this->user)->member_data->nickname .
-            ' set ' . $this->old_name . '\'s name to ' . $this->new_name;
+        $message = __('notifications.changed_group_name_descr', [
+            'user' => $this->group->members->find($this->user)->member_data->nickname,
+            'old_name' => $this->old_name,
+            'new_name' => $this->new_name
+        ]);
+        $title = __('notifications.changed_group_name_title');
         return FcmMessage::create()
             ->setData(['id' => '0' . rand(0, 100000)])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle('Changed group name')
+                ->setTitle($title)
                 ->setBody($message));
     }
 }
