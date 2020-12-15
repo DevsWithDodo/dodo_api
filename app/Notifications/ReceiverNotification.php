@@ -33,10 +33,10 @@ class ReceiverNotification extends Notification
             'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
             'purchase' => $this->receiver->purchase->name,
             'amount' => $this->receiver->amount . " " . $this->receiver->purchase->group->currency,
-            'group' => $this->receiver->purchase->group
+            'group' => $this->receiver->purchase->group->name
         ]);
         $title = __('notifications.receiver_notification_title', [
-            'group' => $this->receiver->purchase->group
+            'group' => $this->receiver->purchase->group->name
         ]);
         return FcmMessage::create()
             ->setData(['id' => '6' . rand(0, 100000)])
