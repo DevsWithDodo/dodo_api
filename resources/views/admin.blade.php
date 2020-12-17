@@ -55,7 +55,7 @@
     var userdata = [
     @foreach (\App\User::all() as $user)
         {id:{{ $user->id }},
-        @if(config('app.debug'))name:"{{ $user->username }}",@endif
+        name:"{{ $user->username }}",
         registered_at:"{{ $user->created_at->format('Y/m/d') }}",
         is_guest:{{ $user->isGuest() ? 1 : 0 }},
         groups:{{ $user->groups->count() }},
