@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c381b128f953da5916fbf373a8af93cb",
+    "content-hash": "abe5c0cac5ebefdf391581b9b08d56b8",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2325,6 +2325,46 @@
                 }
             ],
             "time": "2020-05-18T15:13:39+00:00"
+        },
+        {
+            "name": "michaelmetz/passwordprotect",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Michael-Metz/PasswordProtect.git",
+                "reference": "bfb3fae3ed892ed2e984275d88c12d909dce51ee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Michael-Metz/PasswordProtect/zipball/bfb3fae3ed892ed2e984275d88c12d909dce51ee",
+                "reference": "bfb3fae3ed892ed2e984275d88c12d909dce51ee",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": ">= 5.0",
+                "illuminate/http": ">= 5.0",
+                "illuminate/support": ">= 5.0",
+                "php": ">= 5.5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Michaelmetz\\Passwordprotect\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Michael Metz",
+                    "email": "michael@hullo.us"
+                }
+            ],
+            "description": "Protect laravel routes with just a password",
+            "support": {
+                "issues": "https://github.com/Michael-Metz/PasswordProtect/issues",
+                "source": "https://github.com/Michael-Metz/PasswordProtect/tree/master"
+            },
+            "time": "2018-05-29T11:49:48+00:00"
         },
         {
             "name": "monolog/monolog",

@@ -19,5 +19,7 @@ return [
     'receiver_notification_title' => 'Új vásárlás',
     'receiver_notification_descr' => ':user vett neked :purchase-t :amount-ért itt: :group.',
     'shopping_title' => ':user boltban van',
-    'shopping_descr' => 'Ha szeretnél valamit innen: :store,  akkor írj :group bevásárlólistájára!'
+    'shopping_descr' => 'Ha szeretnél valamit innen: :store,  akkor írj :group bevásárlólistájára!',
+    'message_from_developers' => 'Üzenet a fejlesztőktől'
+
 ];

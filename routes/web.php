@@ -24,6 +24,9 @@ Route::get('/join/{token}', function ($token) {
     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
 
+Route::get('/admin', 'AdminController@show')->middleware('passwordprotect:1');
+Route::post('admin/send_notification', 'AdminController@send_notification')->middleware('passwordprotect:1');
+
 Route::get('/landscape_preview', function(){
     $path = public_path() . '/lender_preview.png';
 

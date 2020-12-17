@@ -167,6 +167,7 @@ return [
          * Package Service Providers...
          */
         Kreait\Laravel\Firebase\ServiceProvider::class,
+        Michaelmetz\Passwordprotect\PasswordProtectServiceProvider::class,
 
         /*
          * Application Service Providers...

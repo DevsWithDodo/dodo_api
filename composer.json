@@ -18,6 +18,7 @@
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.1",
+        "michaelmetz/passwordprotect": "^1.0",
         "spatie/enum": "2.3",
         "spatie/laravel-backup": "^6.11"
     },

@@ -19,5 +19,6 @@ return [
     'receiver_notification_title' => 'New purchase in :group',
     'receiver_notification_descr' => ':user bought you :purchase for :amount.',
     'shopping_title' => 'Ask something from :user!',
-    'shopping_descr' => 'You have been notified that :user is shopping in :store right now. Write something to :group\'s shopping list if you need something!'
+    'shopping_descr' => 'You have been notified that :user is shopping in :store right now. Write something to :group\'s shopping list if you need something!',
+    'message_from_developers' => 'Message from the developers'
 ];
