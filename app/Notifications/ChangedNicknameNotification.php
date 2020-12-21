@@ -43,7 +43,10 @@ class ChangedNicknameNotification extends Notification
             'name' => $this->new_nickname
         ]);
         return FcmMessage::create()
-            ->setData(['id' => '1' . rand(0, 100000)])
+            ->setData([
+                'id' => '1' . rand(0, 100000),
+                "screen" => $this->group->id.";home",
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

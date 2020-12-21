@@ -38,7 +38,10 @@ class JoinedGroupNotification extends Notification
         ]);
         $title = __('notifications.joined_group_title');
         return FcmMessage::create()
-            ->setData(['id' => '3' . rand(0, 100000)])
+            ->setData([
+                'id' => '3' . rand(0, 100000),
+                "screen" => $this->group->id.";home",
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

@@ -43,7 +43,10 @@ class ShoppingNotification extends Notification
             'user' => $this->group->members->find($this->user)->member_data->nickname
         ]);
         return FcmMessage::create()
-            ->setData(['id' => '8' . rand(0, 100000)])
+            ->setData([
+                'id' => '8' . rand(0, 100000),
+                "screen" => $this->group->id.";shopping",
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

@@ -38,7 +38,10 @@ class FulfilledRequestNotification extends Notification
         ]);
         $title = __('notifications.fulfilled_request_title');
         return FcmMessage::create()
-            ->setData(['id' => '2' . rand(0, 100000)])
+            ->setData([
+                'id' => '2' . rand(0, 100000),
+                "screen" => $this->request->group->id.";shopping",
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));
