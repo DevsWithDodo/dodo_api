@@ -45,7 +45,12 @@ class PaymentNotification extends Notification
         return FcmMessage::create()
             ->setData([
                 'id' => '4' . rand(0, 100000),
-                "screen" => $this->payment->group->id.";home",
+                'payload' => json_encode([
+                    'screen' => 'home',
+                    'group_id' => $this->payment->group->id,
+                    'group_name' => $this->payment->group->name,
+                    'details' => 'payment'
+                ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)

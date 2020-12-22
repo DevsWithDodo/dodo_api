@@ -45,7 +45,12 @@ class ShoppingNotification extends Notification
         return FcmMessage::create()
             ->setData([
                 'id' => '8' . rand(0, 100000),
-                "screen" => $this->group->id.";shopping",
+                'payload' => json_encode([
+                    'screen' => 'shopping',
+                    'group_id' => $this->group->id,
+                    'group_name' => $this->group->name,
+                    'details' => null
+                ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)

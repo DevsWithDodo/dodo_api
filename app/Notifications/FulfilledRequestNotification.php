@@ -40,7 +40,12 @@ class FulfilledRequestNotification extends Notification
         return FcmMessage::create()
             ->setData([
                 'id' => '2' . rand(0, 100000),
-                "screen" => $this->request->group->id.";shopping",
+                'payload' => json_encode([
+                    'screen' => 'shopping',
+                    'group_id' => $this->request->group->id,
+                    'group_name' => $this->request->group->name,
+                    'details' => null
+                ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)

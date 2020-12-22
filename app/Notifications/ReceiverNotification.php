@@ -39,7 +39,15 @@ class ReceiverNotification extends Notification
             'group' => $this->receiver->purchase->group->name
         ]);
         return FcmMessage::create()
-            ->setData(['id' => '6' . rand(0, 100000)])
+            ->setData([
+                'id' => '6' . rand(0, 100000),
+                'payload' => json_encode([
+                    'screen' => 'home',
+                    'group_id' => $this->receiver->purchase->group->id,
+                    'group_name' => $this->receiver->purchase->group->name,
+                    'details' => 'purchase'
+                ]),
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

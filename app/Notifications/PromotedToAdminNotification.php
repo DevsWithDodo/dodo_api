@@ -42,7 +42,12 @@ class PromotedToAdminNotification extends Notification
         return FcmMessage::create()
             ->setData([
                 'id' => '5' . rand(0, 100000),
-                "screen" => $this->group->id.";home",
+                'payload' => json_encode([
+                    'screen' => 'home',
+                    'group_id' => $this->group->id,
+                    'group_name' => $this->group->name,
+                    'details' => null
+                ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
