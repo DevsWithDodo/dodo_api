@@ -15,8 +15,16 @@ class AdminController extends Controller
 
     public function send_notification(Request $request)
     {
-        $user = User::findOrFail($request->id);
-        $user->notify(new CustomNotification($request->message));
-        return response("Message sent to ".$user->username.'.');
+        if($request->everyone)
+        {
+            foreach (User::all() as $user)
+                $user->notify(new CustomNotification($request->message, $request->screen));
+            return response("Message sent to everyone.");
+        } else {
+            $user = User::findOrFail($request->id);
+            $user->notify(new CustomNotification($request->message, $request->screen));
+            return response("Message sent to ".$user->username.'.');
+        }
+
     }
 }

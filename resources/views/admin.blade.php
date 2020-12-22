@@ -12,10 +12,14 @@
     <div id="usertable"></div>
     <form method="POST" action="/admin/send_notification">
         @csrf
-        <h3>Send notification to
-            <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px"/></h3>
-        <textarea id="message" name="message" placeholder="Message" style="width:100%"></textarea>
-        <button type="submit" style="margin-top:10">Send</button>
+        <h2>Send notification</h2>
+        to <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px"/>
+            / <input type="checkbox" name="everyone"> everyone
+        <textarea id="message" name="message" placeholder="Message" style="width:100%;margin-top:10;"></textarea>
+        <div style="margin-top:10;">
+            Click action to <input name="screen" placeholder="screen (optional)">
+            <button type="submit" style="float: right;">Send</button>
+        </div>
     </form>
 </div>
 <script>

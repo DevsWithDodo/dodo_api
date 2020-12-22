@@ -17,10 +17,12 @@ use App\User;
 class CustomNotification extends Notification
 {
     public $message;
+    public $screen;
 
-    public function __construct($message)
+    public function __construct($message, $screen = null)
     {
         $this->message = $message;
+        $this->screen = $screen;
     }
 
     public function via($notifiable)
@@ -33,7 +35,10 @@ class CustomNotification extends Notification
         $title = __('notifications.message_from_developers');
         $message = $this->message;
         return FcmMessage::create()
-            ->setData(['id' => '9' . rand(0, 100000)])
+            ->setData([
+                'id' => '9' . rand(0, 100000),
+                "screen" => $this->screen ?? "",
+                'click_action' => ($this->screen ? 'FLUTTER_NOTIFICATION_CLICK' : '')])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));
