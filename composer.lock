@@ -2642,6 +2642,46 @@
             "time": "2018-05-29T11:49:48+00:00"
         },
         {
+            "name": "michaelmetz/passwordprotect",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Michael-Metz/PasswordProtect.git",
+                "reference": "bfb3fae3ed892ed2e984275d88c12d909dce51ee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Michael-Metz/PasswordProtect/zipball/bfb3fae3ed892ed2e984275d88c12d909dce51ee",
+                "reference": "bfb3fae3ed892ed2e984275d88c12d909dce51ee",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": ">= 5.0",
+                "illuminate/http": ">= 5.0",
+                "illuminate/support": ">= 5.0",
+                "php": ">= 5.5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Michaelmetz\\Passwordprotect\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Michael Metz",
+                    "email": "michael@hullo.us"
+                }
+            ],
+            "description": "Protect laravel routes with just a password",
+            "support": {
+                "issues": "https://github.com/Michael-Metz/PasswordProtect/issues",
+                "source": "https://github.com/Michael-Metz/PasswordProtect/tree/master"
+            },
+            "time": "2018-05-29T11:49:48+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "2.2.0",
             "source": {

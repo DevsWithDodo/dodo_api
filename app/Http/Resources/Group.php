@@ -20,7 +20,7 @@ class Group extends JsonResource
             'members' => Member::collection($this->members->sortBy('member_data.nickname', SORT_LOCALE_STRING)),
             'invitation' => $this->invitation
         ];
-        if (Gate::check('edit-group', \App\Group::find($this->id))) {
+        if (auth('api')->user()->can('edit', \App\Group::find($this->id))) {
             $group['guests'] = User::collection($this->guests);
         }
         return $group;

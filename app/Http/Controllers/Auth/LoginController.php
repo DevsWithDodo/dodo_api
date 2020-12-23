@@ -61,12 +61,12 @@ class LoginController extends Controller
             }
             return new UserResource($user);
         }
-        abort(400, "0");
+        abort(400, '$$incorrect$username_or_password$$');
     }
 
     public function logout(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
 
         if ($user) {
             $user->api_token = null;

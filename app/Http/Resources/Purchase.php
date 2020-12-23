@@ -14,6 +14,7 @@ class Purchase extends JsonResource
      */
     public function toArray($request)
     {
+        $buyer = $this->group->members->find($this->buyer);
         $transaction = [
             'transaction_id' => $this->id,
             'name' => $this->name,
@@ -22,15 +23,16 @@ class Purchase extends JsonResource
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'buyer_id' => $this->buyer_id,
-            'buyer_username' => (\App\User::find($this->buyer_id) != null ? \App\User::find($this->buyer_id)->username : "Deleted member"),
-            'buyer_nickname' => ($this->group->members->find($this->buyer) != null ? $this->group->members->find($this->buyer)->member_data->nickname : "Deleted member"),
+            'buyer_username' => ($buyer ? $buyer->username : '$$deleted_member$$'),
+            'buyer_nickname' => ($buyer ? $buyer->member_data->nickname : '$$deleted_member$$'),
             'total_amount' => round(floatval($this->amount), 2),
         ];
         foreach ($this->receivers as $receiver) {
+            $receiver_user = $this->group->members->find($receiver->user);
             $transaction['receivers'][] = [
                 'user_id' => $receiver->receiver_id,
-                'username' => ($receiver->user != null ? $receiver->user->username : "Deleted member"),
-                'nickname' => ($this->group->members->find($receiver->user) != null ? $this->group->members->find($receiver->user)->member_data->nickname : "Deleted member"),
+                'username' => ($receiver_user ? $receiver_user->username : '$$deleted_member$$'),
+                'nickname' => ($receiver_user ? $receiver_user->member_data->nickname : '$$deleted_member$$'),
                 'balance' => round(floatval($receiver->amount), 2)
             ];
         }

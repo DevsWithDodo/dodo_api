@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 use App\Http\Resources\Request as RequestResource;
@@ -17,7 +16,7 @@ class RequestController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::guard('api')->user(); //member
+        $user = auth('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
         return RequestResource::collection($group->requests);
@@ -25,17 +24,12 @@ class RequestController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:2|max:50',
         ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            if ($errors->has('name')) abort(400, "26");
-            if ($errors->has('group')) abort(400, "23");
-            abort(400, "0");
-        }
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         //the request is valid
 
@@ -50,22 +44,22 @@ class RequestController extends Controller
             foreach ($shopping_request->group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new RequestNotification($shopping_request));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         return new RequestResource($shopping_request);
     }
 
-    public function fulfill(ShoppingRequest $shopping_request)
+    public function update(ShoppingRequest $shopping_request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         $group = $shopping_request->group;
         if ($user->id == $shopping_request->requester->id) abort(400, "10");
 
         //notify
         try{
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
         $shopping_request->delete();

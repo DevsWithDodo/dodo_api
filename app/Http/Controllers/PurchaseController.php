@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
@@ -20,7 +19,7 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::guard('api')->user(); //member
+        $user = auth('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
         $ids = $group->purchases()
@@ -36,7 +35,7 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::guard('api')->user(); //member
+        $user = auth('api')->user(); //member
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:30',
             'group' => 'required|exists:groups,id',
@@ -44,14 +43,7 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($request->group)]
         ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            if ($errors->has('name')) abort(400, "26");
-            if ($errors->has('group')) abort(400, "23");
-            if ($errors->has('amount')) abort(400, "24");
-            if ($errors->has('receivers')) abort(400, "20");
-            abort(400, "0");
-        }
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         //the request is valid
 
@@ -75,7 +67,7 @@ class PurchaseController extends Controller
             try{
                 if ($receiver->receiver_id != $user->id)
                     $receiver->user->notify(new ReceiverNotification($receiver));
-            } catch(Exception $e){
+            } catch(\Exception $e){
                 Log::error('FCM error', ['error' => $e]);
             }
         }
@@ -92,13 +84,7 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
         ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            if ($errors->has('name')) abort(400, "26");
-            if ($errors->has('amount')) abort(400, "24");
-            if ($errors->has('receivers')) abort(400, "20");
-            abort(400, "0");
-        }
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         //the request is valid
 

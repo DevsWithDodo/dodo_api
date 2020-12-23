@@ -9,16 +9,18 @@ class Payment extends JsonResource
     public function toArray($request)
     {
         $this->load('group.members');
+        $payer = $this->group->members->find($this->payer_id);
+        $taker = $this->group->members->find($this->taker_id);
         return [
             'payment_id' => $this->id,
             //'group_id' => $this->group_id,
             //'group_name' => $this->group->name,
             'payer_id' => $this->payer_id,
-            'payer_username' => ($this->group->members->find($this->payer_id) != null ? $this->group->members->find($this->payer_id)->username : "Deleted member"),
-            'payer_nickname' => ($this->group->members->find($this->payer_id) != null ? $this->group->members->find($this->payer_id)->member_data->nickname : "Deleted member"),
+            'payer_username' => ($payer ? $payer->username : '$$deleted_member$$'),
+            'payer_nickname' => ($payer ? $payer->member_data->nickname : '$$deleted_member$$'),
             'taker_id' => $this->taker_id,
-            'taker_username' => ($this->group->members->find($this->taker_id) != null ? $this->group->members->find($this->taker_id)->username : "Deleted member"),
-            'taker_nickname' => ($this->group->members->find($this->taker_id) != null ? $this->group->members->find($this->taker_id)->member_data->nickname : "Deleted member"),
+            'taker_username' => ($taker ? $taker->username : '$$deleted_member$$'),
+            'taker_nickname' => ($taker ? $taker->member_data->nickname : '$$deleted_member$$'),
             'amount' => round(floatval($this->amount), 2),
             'note' => $this->note,
             'created_at' => $this->created_at,

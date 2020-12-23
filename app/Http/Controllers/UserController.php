@@ -17,7 +17,7 @@ class UserController extends Controller
 {
     public function show()
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         return new UserResource($user);
     }
 
@@ -31,12 +31,7 @@ class UserController extends Controller
             'fcm_token' => 'required|string',
             'language' => 'required|in:en,hu,it,de',
         ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            if ($errors->has('username')) abort(400, "21");
-            if ($errors->has('default_currency')) abort(400, "17");
-            abort(400, "0");
-        }
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
@@ -54,13 +49,13 @@ class UserController extends Controller
 
     public function changePassword(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
             'new_password' => 'required|string|min:4|confirmed',
             'password_reminder' => ['required', 'string'],
         ]);
-        if ($validator->fails()) abort(400, "0");
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         //the request is valid
 
@@ -86,11 +81,11 @@ class UserController extends Controller
 
     public function changeUsername(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'new_username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
         ]);
-        if ($validator->fails()) abort(400, "11");
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         $user->update(['username' => $request->new_username]);
 
@@ -103,7 +98,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'language' => 'required|string|in:en,hu,it,de',
         ]);
-        if ($validator->fails()) abort(400, "0");
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         $user->update(['language' => $request->language]);
 
@@ -115,7 +110,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'username' => ['required', 'string', 'exists:users,username'],
         ]);
-        if ($validator->fails()) abort(400, "0");
+        if ($validator->fails()) abort(400, $validator->errors->first());
 
         $user = User::firstWhere('username', $request->username);
 

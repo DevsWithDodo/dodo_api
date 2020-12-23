@@ -31,7 +31,7 @@ class PaymentNotification extends Notification
     {
         $message = __('notifications.new_payment_descr', [
             'user' =>  $this->payment->group->members->find($this->payment->payer_id)->member_data->nickname,
-            'amount' => $this->payment->amount . " " . $this->payment->group->currency,
+            'amount' => round(floatval($this->payment->amount), 2) . " " . $this->payment->group->currency,
             'group' => $this->payment->group->name
         ]);
         if($this->payment->note)

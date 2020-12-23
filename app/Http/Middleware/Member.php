@@ -17,9 +17,9 @@ class Member
      */
     public function handle($request, Closure $next)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
         $group = ($request->group instanceof Group) ? $request->group : Group::findOrFail($request->group);
-        if (!$group->members->contains($user)) abort(400, "1");
+        if (!$group->members->contains($user)) abort(400, '$$not_member$user$$');
 
         return $next($request);
     }

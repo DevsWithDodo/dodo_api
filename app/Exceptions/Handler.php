@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
                 return response()->json(['error' => '404 Not Found'], 404);
             }
         }
-        
+
         // Define the response
         $response = [
             'error' => $e->getMessage()

@@ -5,11 +5,11 @@ namespace App\Rules;
 use Illuminate\Contracts\Validation\Rule;
 use App\Group;
 
-class IsMember implements Rule
+class UniqueNickname implements Rule
 {
     /**
      * Create a new rule instance.
-     *
+     * @param mixed $group_id
      * @return void
      */
     public function __construct($group_id)
@@ -26,7 +26,7 @@ class IsMember implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->group->members->contains($value);
+        $this->group->members->where('member_data.nickname', $value)->doesntExist();
     }
 
     /**
@@ -36,6 +36,6 @@ class IsMember implements Rule
      */
     public function message()
     {
-        return '$$not_member$:attribute$$';
+        return '$$taken$:attribute$$';
     }
 }
