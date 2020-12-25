@@ -18,11 +18,11 @@ class AdminController extends Controller
         if($request->everyone)
         {
             foreach (User::all() as $user)
-                $user->notify(new CustomNotification($request->message, $request->screen));
+                $user->notify(new CustomNotification($request->message));
             return response("Message sent to everyone.");
         } else {
             $user = User::findOrFail($request->id);
-            $user->notify(new CustomNotification($request->message, $request->screen));
+            $user->notify(new CustomNotification($request->message));
             return response("Message sent to ".$user->username.'.');
         }
 
