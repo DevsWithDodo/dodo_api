@@ -37,8 +37,7 @@ class CustomNotification extends Notification
         return FcmMessage::create()
             ->setData([
                 'id' => '9' . rand(0, 100000),
-                "screen" => $this->screen ?? "",
-                'click_action' => ($this->screen ? 'FLUTTER_NOTIFICATION_CLICK' : '')])
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

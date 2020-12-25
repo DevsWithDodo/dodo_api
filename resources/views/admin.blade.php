@@ -16,10 +16,7 @@
         to <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px"/>
             / <input type="checkbox" name="everyone"> everyone
         <textarea id="message" name="message" placeholder="Message" style="width:100%;margin-top:10;"></textarea>
-        <div style="margin-top:10;">
-            Click action to <input name="screen" placeholder="screen (optional)">
-            <button type="submit" style="float: right;">Send</button>
-        </div>
+        <button type="submit" style="float: right;margin-top:10;">Send</button>
     </form>
 </div>
 <script>

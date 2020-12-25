@@ -19,18 +19,12 @@
 
         <!-- Styles -->
         <link href="{{ asset('style.css') }}" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ asset('cookie-consent.css') }}" async />
+        <script src="{{ asset('cookie-consent.js') }}" async></script>
 
     </head>
     <body>
         <div class="flex-center position-ref full-height">
-            <div class="top-right">
-            <div class="links">
-            <a href="https://github.com/machiato32/csocsort_app">
-                <img src="GitHub_Logo.png" alt="GitHub logo" height="25px">
-            </a>
-            </div>
-
-            </div>
             <div class="content">
                 <img src="logo_color.png" alt="Lender logo" height="200px">
                 <div class="title">{{ config('app.name') }}</div>

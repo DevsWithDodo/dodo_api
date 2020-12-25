@@ -22,6 +22,8 @@
 
          <!-- Styles -->
          <link href="{{ asset('style.css') }}" rel="stylesheet">
+         <link rel="stylesheet" type="text/css" href="{{ asset('cookie-consent.css') }}" async />
+         <script src="{{ asset('cookie-consent.js') }}" async></script>
 
         <script>
         function copyToken() {
@@ -45,11 +47,6 @@
         <input type="text" style="position: absolute; left: -999px;" value="{{ $group->invitation }}" id="token">
         @endif
         <div class="flex-center position-ref full-height">
-            <div class="top-right">
-                <a href="https://github.com/kdmnk/csocsort_api" target="_blank">
-                    <img src="/GitHub_Logo.png" alt="GitHub logo" height="25px">
-                </a>
-            </div>
             <div class="content">
                 <img src="/logo_color.png" alt="{{ config('app.name') }} logo" height="200px">
                 <div class="title">{{ config('app.name') }}</div>
