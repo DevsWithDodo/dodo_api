@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -26,5 +28,13 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+        if(env('APP_DEBUG')) {
+            DB::listen(function($query) {
+                File::append(
+                    storage_path('/logs/query.log'),
+                    \Carbon\Carbon::now()->toDateTimeString() . ": " . $query->sql . ' [' . implode(', ', $query->bindings) . '] ('. $query->time .')' . PHP_EOL
+               );
+            });
+        }
     }
 }

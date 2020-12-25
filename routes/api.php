@@ -21,7 +21,7 @@ Route::middleware(['auth:api'])->group(function () {
     /* Groups */
     Route::get('/groups', 'GroupController@index');
     Route::post('/groups', 'GroupController@store');
-    Route::post('/join', 'GroupController@addMember');
+    Route::post('/join', 'MemberController@store');
 
     Route::middleware(['member'])->group(function () {
         /* Groups */
