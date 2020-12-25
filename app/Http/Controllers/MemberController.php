@@ -190,7 +190,6 @@ class MemberController extends Controller
         $this->authorize('join', $group);
         $validator = Validator::make($request->all(), [
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username', new UniqueNickname($group->id)],
-            'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'language' => 'required|in:en,hu,it,de',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -201,7 +200,7 @@ class MemberController extends Controller
             'username' => $request->username,
             'password' => null,
             'password_reminder' => null,
-            'default_currency' => $request->default_currency,
+            'default_currency' => $group->currency,
             'fcm_token' => null,
             'language' => $request->language
         ]);
