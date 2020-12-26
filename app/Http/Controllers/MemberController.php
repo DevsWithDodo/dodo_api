@@ -54,7 +54,7 @@ class MemberController extends Controller
         try{
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
-                    $member->notify(new JoinedGroupNotification($group, $request->nickname));
+                    $member->notify(new JoinedGroupNotification($group, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

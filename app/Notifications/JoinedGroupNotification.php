@@ -19,7 +19,7 @@ class JoinedGroupNotification extends Notification
     public Group $group;
     public User $user;
 
-    public function __construct(Group $group, $user)
+    public function __construct(Group $group, User $user)
     {
         $this->group = $group;
         $this->user = $user;
@@ -33,7 +33,8 @@ class JoinedGroupNotification extends Notification
     public function toFcm($notifiable)
     {
         $message = __('notifications.joined_group_descr', [
-            'user' => $this->user,
+            'user' => $this->user->username,
+            //'nickname' => $this->group->members->find($this->user)->member_data->nickname,
             'group' => $this->group->name
         ]);
         $title = __('notifications.joined_group_title');
