@@ -15,13 +15,13 @@ class GroupPolicy
     public function join(User $user, Group $group)
     {
         if($user->isGuest())
-            Response::deny('$$unauthorized_for_guests$$');
-        if($group->members->count() > 20)
-            Response::deny('$$member_limit_exceeded$$');
+            return Response::deny('$$unauthorized_for_guests$$');
+        if($group->members->count() >= 20)
+            return Response::deny('$$member_limit_exceeded$$');
         if($group->members->contains($user))
-            Response::deny('$$user_already_a_member$$');
+            return Response::deny('$$user_already_a_member$$');
 
-        Response::allow();
+        return Response::allow();
     }
 
     public function edit(User $user, Group $group)
@@ -42,7 +42,7 @@ class GroupPolicy
     public function add_guest(User $user, Group $group)
     {
         if($group->members->count() > 20)
-            Response::deny('$$member_limit_exceeded$$');
+            return Response::deny('$$member_limit_exceeded$$');
         return $group->members->find($user->id)->member_data->is_admin;
     }
 }
