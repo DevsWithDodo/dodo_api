@@ -36,7 +36,13 @@ class GroupPolicy
 
     public function edit_admin(User $user, User $admin, Group $group)
     {
-        Log::info($user->id);
         return $group->members->find($user->id)->member_data->is_admin && !$admin->isGuest();
+    }
+
+    public function add_guest(User $user, Group $group)
+    {
+        if($group->members->count() > 20)
+            Response::deny('$$member_limit_exceeded$$');
+        return $group->members->find($user->id)->member_data->is_admin;
     }
 }

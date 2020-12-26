@@ -187,7 +187,7 @@ class MemberController extends Controller
     public function addGuest(Request $request, Group $group)
     {
         $this->authorize('edit', $group);
-        $this->authorize('join', $group);
+        $this->authorize('add_guest', $group);
         $validator = Validator::make($request->all(), [
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username', new UniqueNickname($group->id)],
             'language' => 'required|in:en,hu,it,de',
@@ -216,7 +216,7 @@ class MemberController extends Controller
         try{
             foreach ($group->members as $member)
                 if ($member->id != $guest->id)
-                    $member->notify(new JoinedGroupNotification($group, $request->username));
+                    $member->notify(new JoinedGroupNotification($group, $guest));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

@@ -26,7 +26,7 @@ class UniqueNickname implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->group->members->where('member_data.nickname', $value)->doesntExist();
+        return $this->group->members->where('member_data.nickname', $value)->count() == 0;
     }
 
     /**
