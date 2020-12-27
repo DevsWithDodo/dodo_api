@@ -68,6 +68,7 @@ class GroupController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors->first());
 
+        $this->authorize('edit', $group);
         //the request is valid
 
         $old_name = $group->name;
@@ -101,9 +102,8 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'store' => ['required', 'string', 'max:20'],
         ]);
-        if ($validator->fails()) {
-            abort(400, "0");
-        }
+        if ($validator->fails()) abort(400, $validator->errors->first());
+
         try{
             foreach ($group->members->except($user->id) as $member)
                 $member->notify(new ShoppingNotification($group, $user, $request->store));

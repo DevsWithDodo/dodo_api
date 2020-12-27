@@ -73,7 +73,7 @@ class MemberController extends Controller
 
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
 
-        $this->authorize('edit_member', $member_to_update, $group);
+        $this->authorize('edit_member', [$group, $member_to_update]);
 
         //the request is valid
 
@@ -100,7 +100,7 @@ class MemberController extends Controller
         if ($validator->fails()) abort(400, $validator->errors->first());
 
         $member = User::find($request->member_id);
-        $this->authorize('edit_admin', $member, $group);
+        $this->authorize('edit_admin', [$group, $member]);
 
         //the request is valid
 
@@ -130,7 +130,7 @@ class MemberController extends Controller
         if ($validator->fails()) abort(400, $validator->errors->first());
 
         $member_to_delete = $group->members->find($request->member_id ?? $user->id);
-        $this->authorize('edit_member', $member_to_delete, $group);
+        $this->authorize('edit_member', [$group, $member_to_delete]);
 
         //the request is valid
 

@@ -29,12 +29,12 @@ class GroupPolicy
         return $group->members->find($user->id)->member_data->is_admin;
     }
 
-    public function edit_member(User $user, User $member, Group $group)
+    public function edit_member(User $user, Group $group, $member)
     {
         return $user->id == $member->id || $group->members->find($user->id)->member_data->is_admin;
     }
 
-    public function edit_admin(User $user, User $admin, Group $group)
+    public function edit_admin(User $user, Group $group, $admin)
     {
         return $group->members->find($user->id)->member_data->is_admin && !$admin->isGuest();
     }
