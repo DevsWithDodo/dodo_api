@@ -37,7 +37,7 @@ Route::middleware(['auth:api'])->group(function () {
 
         /* Guests */
         Route::post('/groups/{group}/add_guest', 'MemberController@addGuest');
-        Route::post('/group/{group}/merge_guest', 'MemberController@mergeGuest');
+        Route::post('/groups/{group}/merge_guest', 'MemberController@mergeGuest');
 
         /* 'I'm shopping' notification */
         Route::post('/groups/{group}/send_shopping_notification', 'GroupController@sendShoppingNotification');
@@ -55,7 +55,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/payments/{payment}', 'PaymentController@update');
     Route::delete('/payments/{payment}', 'PaymentController@delete');
 
-    /* Requests*/
+    /* Requests */
     Route::get('/requests', 'RequestController@index')->middleware('member');
     Route::post('/requests', 'RequestController@store')->middleware('member');
     Route::put('/requests/{shopping_request}', 'RequestController@update');

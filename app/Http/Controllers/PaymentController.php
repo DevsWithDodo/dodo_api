@@ -39,7 +39,7 @@ class PaymentController extends Controller
             'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($request->group)],
-            'note' => 'nullable|string|min:1|max:25'
+            'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors->first());
 
@@ -56,7 +56,7 @@ class PaymentController extends Controller
             'note' => $request->note ?? null
         ]);
         Cache::forget($group->id . '_balances');
-        try{
+        try {
             $taker->notify(new PaymentNotification($payment));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
@@ -71,7 +71,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric|min:0',
             'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($group->id)],
-            'note' => 'nullable|string|min:1|max:25'
+            'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors->first());
 

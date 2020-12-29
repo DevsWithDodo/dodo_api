@@ -51,7 +51,7 @@ class MemberController extends Controller
         Cache::forget($group->id . '_balances');
 
         //notify
-        try{
+        try {
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new JoinedGroupNotification($group, $user));
@@ -80,7 +80,7 @@ class MemberController extends Controller
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
         //notify
-        try{
+        try {
             if ($user->id != $member_to_update->id)
                 $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
         } catch (\Exception $e) {
@@ -108,7 +108,7 @@ class MemberController extends Controller
             ->member_data->update(['is_admin' => $request->admin]);
 
         //notify
-        try{
+        try {
             if ($request->admin && $member->id != $user->id)
                 $member->notify(new PromotedToAdminNotification($group, $user));
         } catch (\Exception $e) {
@@ -147,9 +147,9 @@ class MemberController extends Controller
                         'payer_id' => $user->id,
                         'note' => '$$legacy_money$$'
                     ]);
-                    try{
+                    try {
                         $member->notify(new PaymentNotification($payment)); //TODO change
-                    } catch(\Exception $e){
+                    } catch (\Exception $e) {
                         Log::error('FCM error', ['error' => $e]);
                     }
                 }
@@ -213,7 +213,7 @@ class MemberController extends Controller
         Cache::forget($group->id . '_balances');
 
         //notify
-        try{
+        try {
             foreach ($group->members as $member)
                 if ($member->id != $guest->id)
                     $member->notify(new JoinedGroupNotification($group, $guest));
@@ -233,21 +233,21 @@ class MemberController extends Controller
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'guest_id' => ['required', 'exists:users,id', new IsMember($group->id)],
         ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
         $guest = User::find($request->guest_id);
         $member = User::find($request->member_id);
 
         if (!$guest->isGuest()) abort(400, '$$available_for_guests_only$$');
-        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
         //change the guest's id to the member's id in the tables
-        DB::table('buyers')->where('buyer_id', $guest->id)->update(['buyer_id' => $member->id]);
-        DB::table('receivers')->where('receiver_id', $guest->id)->update(['receiver_id' => $member->id]);
+        DB::table('purchases')->where('buyer_id', $guest->id)->update(['buyer_id' => $member->id]);
+        DB::table('purchase_receivers')->where('receiver_id', $guest->id)->update(['receiver_id' => $member->id]);
         DB::table('payments')->where('payer_id', $guest->id)->update(['payer_id' => $member->id]);
         DB::table('payments')->where('taker_id', $guest->id)->update(['taker_id' => $member->id]);
         DB::table('requests')->where('requester_id', $guest->id)->update(['requester_id' => $member->id]);
-        DB::table('requests')->where('fulfiller_id', $guest->id)->update(['fulfiller_id' => $member->id]);
 
         $group->members()->detach($guest);
         $guest->delete();

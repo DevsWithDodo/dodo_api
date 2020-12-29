@@ -27,7 +27,7 @@ class RequestController extends Controller
         $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
-            'name' => 'required|string|min:2|max:50',
+            'name' => 'required|string|min:2|max:255',
         ]);
         if ($validator->fails()) abort(400, $validator->errors->first());
 
@@ -40,7 +40,7 @@ class RequestController extends Controller
         ]);
 
         //notify
-        try{
+        try {
             foreach ($shopping_request->group->members as $member)
                 if ($member->id != $user->id)
                     $member->notify(new RequestNotification($shopping_request));
@@ -54,10 +54,11 @@ class RequestController extends Controller
     {
         $user = auth('api')->user();
         $group = $shopping_request->group;
+        //TODO
         if ($user->id == $shopping_request->requester->id) abort(400, "10");
 
         //notify
-        try{
+        try {
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
