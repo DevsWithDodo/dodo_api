@@ -8,10 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable implements HasLocalePreference
 {
-    use Notifiable;
+    use Notifiable, HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -78,7 +79,7 @@ class User extends Authenticatable implements HasLocalePreference
         foreach ($this->groups as $group) {
             $group_balance = $group->balances()[$this->id];
             $group_currency = $group->currency;
-            if($group_currency == $result_currency){
+            if ($group_currency == $result_currency) {
                 $result += $group_balance;
             } else {
                 //convert to base currency

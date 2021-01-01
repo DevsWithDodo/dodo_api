@@ -2,12 +2,15 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Group extends Model
 {
+    use HasFactory;
+
     protected $table = 'groups';
 
     protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation'];

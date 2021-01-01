@@ -2,10 +2,13 @@
 
 namespace App\Transactions;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
+    use HasFactory;
+
     protected $table = 'payments';
 
     protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note'];
