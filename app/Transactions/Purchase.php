@@ -2,10 +2,13 @@
 
 namespace App\Transactions;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Purchase extends Model
 {
+    use HasFactory;
+
     protected $table = 'purchases';
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];

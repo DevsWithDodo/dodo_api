@@ -2,10 +2,13 @@
 
 namespace App\Transactions;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseReceiver extends Model
 {
+    use HasFactory;
+
     protected $table = 'purchase_receivers';
 
     protected $fillable = ['amount', 'receiver_id', 'purchase_id'];

@@ -1,9 +1,14 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
+use App\Group;
+use App\User;
+use App\Transactions\Payment;
+use App\Transactions\Purchase;
+use App\Transactions\PurchaseReceiver;
+use App\Request;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,17 +19,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $csocsort = factory(App\Group::class)->create([
+        $csocsort = Group::factory()->create([
             'name' => 'Csocsort'
         ]);
-        $other_group = factory(App\Group::class)->create();
-        $dominik = factory(App\User::class)->create([
+        $other_group = Group::factory()->create();
+        $dominik = User::factory()->create([
             'username' => 'dominik'
         ]);
-        $samu = factory(App\User::class)->create([
+        $samu = User::factory()->create([
             'username' => 'samu'
         ]);
-
         foreach ([$csocsort, $other_group] as $group) {
             $group->members()->attach($dominik->id, [
                 'nickname' => $dominik->username, 'is_admin' => true
@@ -33,16 +37,17 @@ class DatabaseSeeder extends Seeder
                 'nickname' => $samu->username, 'is_admin' => true
             ]);
 
-            $users = collect([$samu, $dominik])->concat(factory(App\User::class, 5)
-                ->create()
-                ->each(function ($user) use ($group) {
-                    $group->members()->attach($user->id, [
-                        'nickname' => $user->username
-                    ]);
-                }));
+            $users = User::factory()->count(5)->create();
+            $users->each(function ($user) use ($group) {
+                $group->members()->attach($user->id, [
+                    'nickname' => $user->username
+                ]);
+            });
+            $users = $users->concat([$samu, $dominik]);
+
             $users->each(function ($user) use ($group, $users) {
                 //purchase
-                factory(App\Transactions\Purchase::class, rand(3, 10))
+                Purchase::factory()->count(rand(3, 10))
                     ->create([
                         'group_id' => $group->id,
                         'buyer_id' => $user->id
@@ -51,7 +56,7 @@ class DatabaseSeeder extends Seeder
                         $count = rand(1, 3);
                         $receivers = $users->random($count);
                         $receivers->each(function ($receiver) use ($purchase, $count) {
-                            factory(App\Transactions\PurchaseReceiver::class)
+                            PurchaseReceiver::factory()
                                 ->create([
                                     'purchase_id' => $purchase->id,
                                     'amount' => $purchase->amount / $count,
@@ -60,14 +65,14 @@ class DatabaseSeeder extends Seeder
                         });
                     });
                 //payment
-                factory(App\Transactions\Payment::class, rand(3, 10))
+                Payment::factory()->count(rand(3, 10))
                     ->create([
                         'group_id' => $group->id,
                         'taker_id' => $user->id,
                         'payer_id' => $users->except($user->id)->random()->id
                     ]);
                 //request
-                factory(App\Request::class, rand(2, 4))
+                Request::factory()->count(rand(2, 4))
                     ->create([
                         'group_id' => $group->id,
                         'requester_id' => $user->id

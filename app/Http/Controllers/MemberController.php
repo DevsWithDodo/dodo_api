@@ -184,6 +184,13 @@ class MemberController extends Controller
     /**
      * Guests
      */
+
+    public function hasGuests(Group $group)
+    {
+        $this->authorize('edit', $group);
+        return response()->json(['data' => ($group->guests->count() > 0 ? 1 : 0)]);
+    }
+
     public function addGuest(Request $request, Group $group)
     {
         $this->authorize('edit', $group);

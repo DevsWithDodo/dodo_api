@@ -1,19 +1,20 @@
 <?php
 
-namespace Database\Factories;
 
-use App\Request;
-use Carbon\Carbon;
+namespace Database\Factories\Transactions;
+
+use App\Transactions\Purchase;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
 
-class RequestFactory extends Factory
+class PurchaseFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Request::class;
+    protected $model = Purchase::class;
 
     /**
      * Define the model's default state.
@@ -23,7 +24,8 @@ class RequestFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->text(100),
+            'amount' => $this->faker->randomFloat($nbMacDecimals = 2, $min = 10, $max = 200),
+            'name' => $this->faker->word,
             'created_at' => Carbon::now()->subMinutes(rand(1, 60)),
             'updated_at' => Carbon::now()->subMinutes(rand(1, 60))
         ];

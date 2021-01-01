@@ -1,18 +1,32 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\User;
-use App\Http\Controllers\CurrencyController;
-
-use Faker\Generator as Faker;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(User::class, function (Faker $faker) {
-    return [
-        'username' => $faker->userName,
-        'password' => Hash::make('1234'),
-        'password_reminder' => $faker->word,
-        'default_currency' => "HUF"
-    ];
-});
+class UserFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = User::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'username' => $this->faker->userName,
+            'password' => Hash::make('1234'),
+            'password_reminder' => $this->faker->word,
+            'default_currency' => "HUF"
+        ];
+    }
+}

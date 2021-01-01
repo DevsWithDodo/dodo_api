@@ -1,65 +1,71 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\MemberController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Auth;
 
-Route::post('register', 'UserController@register');
-Route::post('login', 'Auth\LoginController@login');
-Route::get('password_reminder', 'UserController@passwordReminder');
+Route::post('register',         [UserController::class, 'register']);
+Route::post('login',            [LoginController::class, 'login']);
+Route::get('password_reminder', [UserController::class, 'passwordReminder']);
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
-    Route::get('/user', 'UserController@show');
-    Route::post('logout', 'Auth\LoginController@logout');
-    Route::post('change_password', 'UserController@changePassword');
-    Route::post('change_username', 'UserController@changeUsername');
-    Route::post('change_language', 'UserController@changeLanguage');
+    Route::get('user',              [UserController::class, 'show']);
+    Route::post('logout',           [LoginController::class, 'logout']);
+    Route::post('change_password',  [UserController::class, 'changePassword']);
+    Route::post('change_username',  [UserController::class, 'changeUsername']);
+    Route::post('change_language',  [UserController::class, 'changeLanguage']);
 
     /* Groups */
-    Route::get('/groups', 'GroupController@index');
-    Route::post('/groups', 'GroupController@store');
-    Route::post('/join', 'MemberController@store');
+    Route::get('groups',   [GroupController::class, 'index']);
+    Route::post('groups',  [GroupController::class, 'store']);
+    Route::post('join',    [MemberController::class, 'store']);
 
     Route::middleware(['member'])->group(function () {
         /* Groups */
-        Route::get('/groups/{group}', 'GroupController@show');
-        Route::put('/groups/{group}', 'GroupController@update');
-        Route::delete('/groups/{group}', 'GroupController@delete');
+        Route::get('groups/{group}',    [GroupController::class, 'show']);
+        Route::put('groups/{group}',    [GroupController::class, 'update']);
+        Route::delete('groups/{group}', [GroupController::class, 'delete']);
 
         /* Members */
-        Route::get('/groups/{group}/member', 'MemberController@index');
-        Route::put('/groups/{group}/members', 'MemberController@update');
-        Route::put('/groups/{group}/admins', 'MemberController@updateAdmin');
-        Route::post('/groups/{group}/members/delete', 'MemberController@delete');
+        Route::get('groups/{group}/member',          [MemberController::class, 'index']);
+        Route::put('groups/{group}/members',         [MemberController::class, 'update']);
+        Route::put('groups/{group}/admins',          [MemberController::class, 'updateAdmin']);
+        Route::post('groups/{group}/members/delete', [MemberController::class, 'delete']);
 
         /* Guests */
-        Route::post('/groups/{group}/add_guest', 'MemberController@addGuest');
-        Route::post('/groups/{group}/merge_guest', 'MemberController@mergeGuest');
+        Route::get('/groups/{group}/has_guests',    [MemberController::class, 'hasGuests']);
+        Route::post('/groups/{group}/add_guest',    [MemberController::class, 'addGuest']);
+        Route::post('/groups/{group}/merge_guest',  [MemberController::class, 'mergeGuest']);
 
         /* 'I'm shopping' notification */
-        Route::post('/groups/{group}/send_shopping_notification', 'GroupController@sendShoppingNotification');
+        Route::post('/groups/{group}/send_shopping_notification', [GroupController::class, 'sendShoppingNotification']);
     });
 
     /* Purchases */
-    Route::get('/transactions', 'PurchaseController@index')->middleware('member');
-    Route::post('/transactions', 'PurchaseController@store')->middleware('member');
-    Route::put('/transactions/{purchase}', 'PurchaseController@update');
-    Route::delete('/transactions/{purchase}', 'PurchaseController@delete');
+    Route::get('/transactions',               [PurchaseController::class, 'index'])->middleware('member');
+    Route::post('/transactions',              [PurchaseController::class, 'store'])->middleware('member');
+    Route::put('/transactions/{purchase}',    [PurchaseController::class, 'update']);
+    Route::delete('/transactions/{purchase}', [PurchaseController::class, 'delete']);
 
     /* Payments */
-    Route::get('/payments', 'PaymentController@index')->middleware('member');
-    Route::post('/payments', 'PaymentController@store')->middleware('member');
-    Route::put('/payments/{payment}', 'PaymentController@update');
-    Route::delete('/payments/{payment}', 'PaymentController@delete');
+    Route::get('/payments',              [PaymentController::class, 'index'])->middleware('member');
+    Route::post('/payments',             [PaymentController::class, 'store'])->middleware('member');
+    Route::put('/payments/{payment}',    [PaymentController::class, 'update']);
+    Route::delete('/payments/{payment}', [PaymentController::class, 'delete']);
 
     /* Requests */
-    Route::get('/requests', 'RequestController@index')->middleware('member');
-    Route::post('/requests', 'RequestController@store')->middleware('member');
-    Route::put('/requests/{shopping_request}', 'RequestController@update');
-    Route::delete('/requests/{shopping_request}', 'RequestController@delete');
+    Route::get('/requests',                       [RequestController::class, 'index'])->middleware('member');
+    Route::post('/requests',                      [RequestController::class, 'store'])->middleware('member');
+    Route::put('/requests/{shopping_request}',    [RequestController::class, 'update']);
+    Route::delete('/requests/{shopping_request}', [RequestController::class, 'delete']);
 });
 
 
