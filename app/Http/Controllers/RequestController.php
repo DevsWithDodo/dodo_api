@@ -16,7 +16,7 @@ class RequestController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user(); //member
+        //$user = auth('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
         return RequestResource::collection($group->requests);
@@ -50,25 +50,33 @@ class RequestController extends Controller
         return new RequestResource($shopping_request);
     }
 
-    public function update(ShoppingRequest $shopping_request)
+    public function update(Request $request, ShoppingRequest $shopping_request)
+    {
+        if ($request->has('name')) {
+            //TODO policy
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|min:2|max:255',
+            ]);
+            if ($validator->fails()) abort(400, $validator->errors->first());
+
+            $shopping_request->update(['name' => $request->name]);
+
+            return response()->json(null, 204);
+        } else { //for backward compatibility
+            return $this->delete($shopping_request);
+        }
+    }
+
+    public function delete(ShoppingRequest $shopping_request)
     {
         $user = auth('api')->user();
-        $group = $shopping_request->group;
-        //TODO
-        if ($user->id == $shopping_request->requester->id) abort(400, "10");
-
+        //TODO policy
         //notify
         try {
             $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
-        $shopping_request->delete();
-        return response()->json(200);
-    }
-
-    public function delete(ShoppingRequest $shopping_request)
-    {
         $shopping_request->delete();
         return response()->json(null, 204);
     }
