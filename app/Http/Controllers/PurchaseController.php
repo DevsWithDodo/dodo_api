@@ -22,14 +22,18 @@ class PurchaseController extends Controller
         $user = auth('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
-        $ids = $group->purchases()
-            ->join('purchase_receivers', 'purchase_receivers.purchase_id', '=', 'purchases.id')
+        $purchases = $group->purchases()
             ->where(function ($query) use ($user) {
-                return $query->where('purchases.buyer_id', $user->id)
-                    ->orWhere('purchase_receivers.receiver_id', $user->id);
+                $query
+                    ->whereHas('receivers', function ($query) use ($user) {
+                        $query->where('receiver_id', $user->id);
+                    })
+                    ->orWhere('buyer_id', $user->id);
             })
-            ->pluck('purchases.id');
-        $purchases = Purchase::with('group.members')->whereIn('id', $ids)->orderBy('updated_at', 'desc')->get();
+            ->orderBy('purchases.updated_at', 'desc')
+            ->limit($request->limit)
+            ->get();
+
         return PurchaseResource::collection($purchases);
     }
 

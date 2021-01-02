@@ -14,6 +14,7 @@ class Request extends JsonResource
      */
     public function toArray($request)
     {
+        $this->load('group.members');
         return [
             'request_id' => $this->id,
             'name' => $this->name,

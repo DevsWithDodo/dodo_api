@@ -14,6 +14,7 @@ class Purchase extends JsonResource
      */
     public function toArray($request)
     {
+        $this->load('group.members');
         $buyer = $this->group->members->find($this->buyer);
         $transaction = [
             'transaction_id' => $this->id,

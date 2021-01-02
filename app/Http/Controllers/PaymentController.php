@@ -28,6 +28,7 @@ class PaymentController extends Controller
                     ->orWhere('payer_id', $user->id);
             })
             ->orderBy('updated_at', 'desc')
+            ->limit($request->limit)
             ->get();
         return PaymentResource::collection($payments);
     }
