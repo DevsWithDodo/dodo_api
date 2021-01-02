@@ -29,7 +29,7 @@ class RequestController extends Controller
             'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:2|max:255',
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
@@ -57,7 +57,7 @@ class RequestController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|min:2|max:255',
             ]);
-            if ($validator->fails()) abort(400, $validator->errors->first());
+            if ($validator->fails()) abort(400, $validator->errors()->first());
 
             $shopping_request->update(['name' => $request->name]);
 

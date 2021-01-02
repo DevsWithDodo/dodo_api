@@ -64,10 +64,10 @@ class PurchaseController extends Controller
                 'purchase_id' => $purchase->id
             ]);
 
-            try{
+            try {
                 if ($receiver->receiver_id != $user->id)
                     $receiver->user->notify(new ReceiverNotification($receiver));
-            } catch(\Exception $e){
+            } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }
         }

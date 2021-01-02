@@ -40,7 +40,7 @@ class MemberController extends Controller
             'invitation_token' => 'required|string|exists:groups,invitation',
             'nickname' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $this->authorize('join', $group);
 
@@ -69,7 +69,7 @@ class MemberController extends Controller
             'member_id' => ['exists:users,id', new IsMember($group->id)],
             'nickname' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $member_to_update = $group->members->find($request->member_id ?? $user->id);
 
@@ -97,7 +97,7 @@ class MemberController extends Controller
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'admin' => 'required|boolean',
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $member = User::find($request->member_id);
         $this->authorize('edit_admin', [$group, $member]);
@@ -127,7 +127,7 @@ class MemberController extends Controller
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $member_to_delete = $group->members->find($request->member_id ?? $user->id);
         $this->authorize('edit_member', [$group, $member_to_delete]);

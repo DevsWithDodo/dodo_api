@@ -41,7 +41,7 @@ class PaymentController extends Controller
             'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($request->group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //The request is valid
 
@@ -73,7 +73,7 @@ class PaymentController extends Controller
             'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($group->id)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 

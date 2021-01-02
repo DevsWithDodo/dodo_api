@@ -55,7 +55,7 @@ class UserController extends Controller
             'new_password' => 'required|string|min:4|confirmed',
             'password_reminder' => ['required', 'string'],
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
@@ -85,7 +85,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'new_username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user->update(['username' => $request->new_username]);
 
@@ -98,7 +98,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'language' => 'required|string|in:en,hu,it,de',
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user->update(['language' => $request->language]);
 
@@ -110,7 +110,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'username' => ['required', 'string', 'exists:users,username'],
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = User::firstWhere('username', $request->username);
 
