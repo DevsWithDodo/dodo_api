@@ -23,7 +23,7 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'username' => $this->faker->userName,
+            'username' => $this->faker->unique()->userName,
             'password' => Hash::make('1234'),
             'password_reminder' => $this->faker->word,
             'default_currency' => "HUF"

@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
-use App\Http\Controllers\CurrencyController;
 use App\Rules\IsMember;
 use App\Rules\UniqueNickname;
 use App\Notifications\ChangedNicknameNotification;
@@ -116,6 +114,7 @@ class MemberController extends Controller
         }
         //make everyone an admin if there is no admin left
         if ($group->admins()->count() == 0)
+            //TODO possibly buggy
             $group->members()->update(['is_admin' => true]);
 
         return response()->json(null, 204);
@@ -136,17 +135,19 @@ class MemberController extends Controller
 
         $balance = $group->balances()[$member_to_delete->id];
         if ($member_to_delete->id == $user->id) {
-            if ($balance < 0) abort(400, "7");
+            if ($balance < 0) abort(400, "7"); //TODO response
             if ($balance > 0) {
-                $balance_divided = $balance / ($group->members->count() - 1);
+                $balance_divided = bcdiv($balance, ($group->members->count() - 1));
+                $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
                 foreach ($group->members->except([$user->id]) as $member) {
                     $payment = Payment::create([
-                        'amount' => (-1) * $balance_divided,
+                        'amount' => (-1) * bcadd($balance_divided, $remainder),
                         'group_id' => $group->id,
                         'taker_id' => $member->id,
                         'payer_id' => $user->id,
                         'note' => '$$legacy_money$$'
                     ]);
+                    $remainder = 0;
                     try {
                         $member->notify(new PaymentNotification($payment)); //TODO change
                     } catch (\Exception $e) {
@@ -165,17 +166,16 @@ class MemberController extends Controller
         }
 
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
-
+        $group->members()->detach($member_to_delete->id);
         Cache::forget($group->id . '_balances');
-
-        $group->members()->detach($member_to_delete);
 
         //TODO notify
 
         if ($group->members()->count() == 0) {
             $group->delete();
         } else if ($group->admins()->count() == 0) {
-            $group->members()->update(['is_admin' => true]);
+            //TODO possibly buggy
+            //$group->members()->update(['is_admin' => true]);
         }
 
         return response()->json(null, 204);

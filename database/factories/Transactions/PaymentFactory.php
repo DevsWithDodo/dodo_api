@@ -23,7 +23,7 @@ class PaymentFactory extends Factory
     public function definition()
     {
         return [
-            'amount' => $this->faker->randomFloat($nbMacDecimals = 2, $min = 10, $max = 200),
+            'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200),
             'note' => $this->faker->word,
             'created_at' => Carbon::now()->subMinutes(rand(1, 60)),
             'updated_at' => Carbon::now()->subMinutes(rand(1, 60))

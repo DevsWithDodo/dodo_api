@@ -22,7 +22,7 @@ class PurchaseReceiverFactory extends Factory
     public function definition()
     {
         return [
-            'amount' => $this->faker->randomFloat($nbMacDecimals = 2, $min = 10, $max = 200)
+            'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)
         ];
     }
 }

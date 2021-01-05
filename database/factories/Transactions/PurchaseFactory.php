@@ -24,8 +24,8 @@ class PurchaseFactory extends Factory
     public function definition()
     {
         return [
-            'amount' => $this->faker->randomFloat($nbMacDecimals = 2, $min = 10, $max = 200),
-            'name' => $this->faker->word,
+            'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200),
+            'name' => $this->faker->text(20),
             'created_at' => Carbon::now()->subMinutes(rand(1, 60)),
             'updated_at' => Carbon::now()->subMinutes(rand(1, 60))
         ];

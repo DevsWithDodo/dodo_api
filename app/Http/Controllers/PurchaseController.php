@@ -47,7 +47,7 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($request->group)]
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
@@ -59,15 +59,15 @@ class PurchaseController extends Controller
             'buyer_id' => $user->id,
             'amount' => $request->amount
         ]);
-
+        $amount_divided = bcdiv($request->amount, count($request->receivers));
+        $remainder = bcsub($request->amount, bcmul($amount_divided, count($request->receivers)));
         foreach ($request->receivers as $receiver_data) {
-            $amount = $request->amount / count($request->receivers);
             $receiver = PurchaseReceiver::create([
-                'amount' => $amount,
+                'amount' => bcadd($amount_divided, $remainder),
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
-
+            $remainder = 0;
             try {
                 if ($receiver->receiver_id != $user->id)
                     $receiver->user->notify(new ReceiverNotification($receiver));
@@ -88,19 +88,22 @@ class PurchaseController extends Controller
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
         ]);
-        if ($validator->fails()) abort(400, $validator->errors->first());
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         //the request is valid
 
         //update receivers
         $purchase->receivers()->delete();
+
+        $amount_divided = bcdiv($request->amount, count($request->receivers));
+        $remainder = bcsub($request->amount, bcmul($amount_divided, count($request->receivers)));
         foreach ($request->receivers as $receiver_data) {
-            $amount = $request->amount / count($request->receivers);
             PurchaseReceiver::create([
-                'amount' => $amount,
+                'amount' => bcadd($amount_divided, $remainder),
                 'receiver_id' => $receiver_data['user_id'],
                 'purchase_id' => $purchase->id
             ]);
+            $remainder = 0;
         }
 
         //update purchase

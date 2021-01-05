@@ -43,41 +43,40 @@ class DatabaseSeeder extends Seeder
                     'nickname' => $user->username
                 ]);
             });
-            $users = $users->concat([$samu, $dominik]);
-
-            $users->each(function ($user) use ($group, $users) {
-                //purchase
-                Purchase::factory()->count(rand(3, 10))
-                    ->create([
-                        'group_id' => $group->id,
-                        'buyer_id' => $user->id
-                    ])
-                    ->each(function ($purchase) use ($group, $users) {
-                        $count = rand(1, 3);
-                        $receivers = $users->random($count);
-                        $receivers->each(function ($receiver) use ($purchase, $count) {
-                            PurchaseReceiver::factory()
-                                ->create([
-                                    'purchase_id' => $purchase->id,
-                                    'amount' => $purchase->amount / $count,
-                                    'receiver_id' => $receiver->id
-                                ]);
-                        });
+        }
+        $users = $users->concat([$samu, $dominik]);
+        $users->each(function ($user) use ($csocsort, $users) {
+            //purchase
+            Purchase::factory()->count(rand(3, 10))
+                ->create([
+                    'group_id' => $csocsort->id,
+                    'buyer_id' => $user->id
+                ])
+                ->each(function ($purchase) use ($users) {
+                    $count = rand(1, 3);
+                    $receivers = $users->random($count);
+                    $receivers->each(function ($receiver) use ($purchase, $count) {
+                        PurchaseReceiver::factory()
+                            ->create([
+                                'purchase_id' => $purchase->id,
+                                'amount' => $purchase->amount / $count,
+                                'receiver_id' => $receiver->id
+                            ]);
                     });
-                //payment
-                Payment::factory()->count(rand(3, 10))
-                    ->create([
-                        'group_id' => $group->id,
-                        'taker_id' => $user->id,
-                        'payer_id' => $users->except($user->id)->random()->id
-                    ]);
-                //request
-                Request::factory()->count(rand(2, 4))
-                    ->create([
-                        'group_id' => $group->id,
-                        'requester_id' => $user->id
-                    ]);
-            });
-        };
+                });
+            //payment
+            Payment::factory()->count(rand(3, 10))
+                ->create([
+                    'group_id' => $csocsort->id,
+                    'taker_id' => $user->id,
+                    'payer_id' => $users->except($user->id)->random()->id
+                ]);
+            //request
+            Request::factory()->count(rand(2, 4))
+                ->create([
+                    'group_id' => $csocsort->id,
+                    'requester_id' => $user->id
+                ]);
+        });
     }
 }

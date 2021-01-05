@@ -62,7 +62,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
-        return response()->json(new PaymentResource($payment), 200);
+        return response()->json(new PaymentResource($payment), 201);
     }
 
     public function update(Request $request, Payment $payment)
