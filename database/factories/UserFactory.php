@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Crypt;
 
 class UserFactory extends Factory
 {
@@ -25,7 +26,7 @@ class UserFactory extends Factory
         return [
             'username' => $this->faker->unique()->userName,
             'password' => Hash::make('1234'),
-            'password_reminder' => $this->faker->word,
+            'password_reminder' => Crypt::encryptString($this->faker->word),
             'default_currency' => "HUF"
         ];
     }

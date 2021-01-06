@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
@@ -38,7 +40,7 @@ class UserController extends Controller
         $user = User::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'password_reminder' => $request->password_reminder ?? null,
+            'password_reminder' => Crypt::encryptString($request->password_reminder),
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token,
             'language' => $request->language
@@ -60,12 +62,13 @@ class UserController extends Controller
         //the request is valid
 
         try {
+            //TODO response
             if ((Hash::check($request->old_password, $user->password)) == false) abort(400, "11");
             else if ((Hash::check(request('new_password'), Auth::user()->password)) == true) abort(400, "12");
             else {
                 $user->update([
                     'password' => Hash::make($request->new_password),
-                    'password_reminder' => $request->password_reminder
+                    'password_reminder' => Crypt::encryptString($request->password_reminder)
                 ]);
                 return response()->json(null, 204);
             }
@@ -113,7 +116,11 @@ class UserController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = User::firstWhere('username', $request->username);
-
-        return response()->json(['data' => $user->password_reminder]);
+        try {
+            $reminder = Crypt::decryptString($user->password_reminder);
+            return response()->json(['data' => $reminder]);
+        } catch (DecryptException $e) {
+            return response()->json(['error' => '$$decrypt_error$$'], 500);
+        }
     }
 }
