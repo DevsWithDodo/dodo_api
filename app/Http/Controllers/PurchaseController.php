@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
-use App\Transactions\PurchaseReceiver;
 use App\Http\Resources\Purchase as PurchaseResource;
 
 use App\Notifications\ReceiverNotification;
@@ -49,8 +48,6 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        //the request is valid
-
         $group = Group::find($request->group);
 
         $purchase = Purchase::create([
@@ -59,22 +56,23 @@ class PurchaseController extends Controller
             'buyer_id' => $user->id,
             'amount' => $request->amount
         ]);
-        $amount_divided = bcdiv($request->amount, count($request->receivers));
-        $remainder = bcsub($request->amount, bcmul($amount_divided, count($request->receivers)));
-        foreach ($request->receivers as $receiver_data) {
-            $receiver = PurchaseReceiver::create([
-                'amount' => bcadd($amount_divided, $remainder),
-                'receiver_id' => $receiver_data['user_id'],
-                'purchase_id' => $purchase->id
-            ]);
-            $remainder = 0;
+        $purchase->createReceivers(array_map(
+            function ($i) {
+                return $i['user_id'];
+            },
+            $request->receivers
+        ));
+
+        //notification
+        foreach ($purchase->receivers as $receiver) {
             try {
-                if ($receiver->receiver_id != $user->id)
+                if ($receiver->user->id != $user->id)
                     $receiver->user->notify(new ReceiverNotification($receiver));
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }
         }
+
         Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);
     }
@@ -90,27 +88,18 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        //the request is valid
-
-        //update receivers
         $purchase->receivers()->delete();
-
-        $amount_divided = bcdiv($request->amount, count($request->receivers));
-        $remainder = bcsub($request->amount, bcmul($amount_divided, count($request->receivers)));
-        foreach ($request->receivers as $receiver_data) {
-            PurchaseReceiver::create([
-                'amount' => bcadd($amount_divided, $remainder),
-                'receiver_id' => $receiver_data['user_id'],
-                'purchase_id' => $purchase->id
-            ]);
-            $remainder = 0;
-        }
-
-        //update purchase
         $purchase->update([
             'name' => $request->name,
             'amount' => $request->amount
         ]);
+        $purchase->createReceivers(array_map(
+            function ($i) {
+                return $i['user_id'];
+            },
+            $request->receivers
+        ));
+
         $purchase->touch();
         Cache::forget($group->id . '_balances');
 

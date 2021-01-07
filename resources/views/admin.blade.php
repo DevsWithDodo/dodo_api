@@ -1,28 +1,37 @@
 <html lang="en">
+
 <head>
     {{--<link href="https://unpkg.com/tabulator-tables@4.9.1/dist/css/tabulator.min.css" rel="stylesheet">--}}
-    <link href="https://unpkg.com/tabulator-tables@4.9.1/dist/css/materialize/tabulator_materialize.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/tabulator-tables@4.9.1/dist/css/materialize/tabulator_materialize.min.css"
+        rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.1/dist/js/tabulator.min.js"></script>
 </head>
+
 <body>
-<div style="width:70%;margin-left: auto;margin-right: auto;">
-    <h2>Groups</h2>
-    <div id="grouptable"></div>
-    <h2>Users</h2>
-    <div id="usertable"></div>
-    <form method="POST" action="/admin/send_notification">
-        @csrf
-        <h2>Send notification</h2>
-        to <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px"/>
+    <div style="width:70%;margin-left: auto;margin-right: auto;">
+        <h2>Groups</h2>
+        <div id="grouptable"></div>
+        <h2>Users</h2>
+        <div id="usertable"></div>
+        <form method="POST" action="/admin/send_notification">
+            @csrf
+            <h2>Send notification</h2>
+            to <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px" />
             / <input type="checkbox" name="everyone"> everyone
-        <textarea id="message" name="message" placeholder="Message" style="width:100%;margin-top:10;"></textarea>
-        <button type="submit" style="float: right;margin-top:10;">Send</button>
-    </form>
-</div>
-<script>
-    //groups
+            <textarea id="message" name="message" placeholder="Message" style="width:100%;margin-top:10;"></textarea>
+            <button type="submit" style="float: right;margin-top:10;">Send</button>
+        </form>
+    </div>
+    <script>
+        //groups
     var groupdata = [
     @foreach (\App\Group::all() as $group)
+        @php
+        $balance = 0;
+        foreach($group->balances() as $amount){
+            $balance = bcadd($balance, $amount);
+        }
+        @endphp
         {id:{{ $group->id }},
         @if(config('app.debug'))name:"{{ $group->name}}",@endif
         created_at:"{{ $group->created_at->format('Y/m/d') }}",
@@ -32,7 +41,7 @@
         purchases:{{ $group->purchases->count() }},
         payments:{{ $group->payments->count() }},
         requests:{{ $group->requests->count() }},
-        balance:{{ array_sum($group->balances())}},
+        balance:{{ $balance }},
         currency:"{{ $group->currency }}"
         },
     @endforeach
@@ -72,5 +81,5 @@
         pagination:"local",
         paginationSize:10,
     });
-</script>
+    </script>
 </body>

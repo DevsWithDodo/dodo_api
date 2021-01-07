@@ -88,8 +88,10 @@ class PurchaseTest extends TestCase
 
             $balance = 0;
             foreach ($group->balances() as $value) {
+                echo "adding: " . $value . "\n";
                 $balance = bcadd($balance,  $value);
             }
+            echo "balance:" . $balance . "\n";
             $this->assertTrue(
                 abs($purchase->amount
                     - $group->balances()[$buyer->id]) < 0.01

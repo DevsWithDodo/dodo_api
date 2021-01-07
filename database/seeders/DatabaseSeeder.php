@@ -7,7 +7,6 @@ use App\Group;
 use App\User;
 use App\Transactions\Payment;
 use App\Transactions\Purchase;
-use App\Transactions\PurchaseReceiver;
 use App\Request;
 
 class DatabaseSeeder extends Seeder
@@ -44,32 +43,28 @@ class DatabaseSeeder extends Seeder
                 ]);
             });
         }
-        $users = $users->concat([$samu, $dominik]);
-        $users->each(function ($user) use ($csocsort, $users) {
+        $users = $csocsort->members;
+        $users->each(function ($user) use ($csocsort) {
             //purchase
-            Purchase::factory()->count(rand(3, 10))
+            $purchases = Purchase::factory()->count(rand(3, 10))
                 ->create([
                     'group_id' => $csocsort->id,
                     'buyer_id' => $user->id
-                ])
-                ->each(function ($purchase) use ($users) {
-                    $count = rand(1, 3);
-                    $receivers = $users->random($count);
-                    $receivers->each(function ($receiver) use ($purchase, $count) {
-                        PurchaseReceiver::factory()
-                            ->create([
-                                'purchase_id' => $purchase->id,
-                                'amount' => $purchase->amount / $count,
-                                'receiver_id' => $receiver->id
-                            ]);
-                    });
-                });
+                ]);
+            foreach ($purchases as $purchase) {
+                $ids = [];
+                foreach ($csocsort->members as $member) {
+                    if (rand(0, 1) == 0)
+                        $ids[] = $member->id;
+                }
+                $purchase->createReceivers($ids);
+            }
             //payment
             Payment::factory()->count(rand(3, 10))
                 ->create([
                     'group_id' => $csocsort->id,
                     'taker_id' => $user->id,
-                    'payer_id' => $users->except($user->id)->random()->id
+                    'payer_id' => $csocsort->members->except($user->id)->random()->id
                 ]);
             //request
             Request::factory()->count(rand(2, 4))
