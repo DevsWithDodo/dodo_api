@@ -14,6 +14,12 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];
 
+    protected $dispatchesEvents = [
+        'creating' => \App\Events\Purchases\PurchaseCreatedEvent::class,
+        'updating' => \App\Events\Purchases\PurchaseUpdatedEvent::class,
+        'deleting' => \App\Events\Purchases\PurchaseDeletedEvent::class
+    ];
+
     /**
      * Divide the purchase's amount and creates receivers.
      * @param array $receivers receiver ids
@@ -35,7 +41,9 @@ class Purchase extends Model
 
     public function delete()
     {
-        $this->receivers()->delete();
+        foreach ($this->receivers as $receiver) {
+            $receiver->delete();
+        }
         return parent::delete();
     }
 

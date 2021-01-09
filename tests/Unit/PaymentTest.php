@@ -38,16 +38,16 @@ class PaymentTest extends TestCase
             $response->assertStatus(201);
 
             $balance = 0;
-            foreach ($group->balances() as $value) {
-                $balance = bcadd($balance,  $value);
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance, $member->member_data->balance);
             }
             $this->assertTrue(
                 abs(($payment->amount)
-                    - $group->balances()[$payer->id]) < 0.01
+                    - $group->member($payer->id)->member_data->balance) < 0.01
             );
             $this->assertTrue(
                 abs(0 - ($payment->amount)
-                    - $group->balances()[$taker->id]) < 0.01
+                    - $group->member($taker->id)->member_data->balance) < 0.01
             );
             $this->assertTrue(0 == $balance);
         }
@@ -90,19 +90,19 @@ class PaymentTest extends TestCase
             $response->assertStatus(200);
 
             $balance = 0;
-            foreach ($group->balances() as $value) {
-                $balance = bcadd($balance,  $value);
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance, $member->member_data->balance);
             }
             $this->assertTrue(
                 abs(($payment_2->amount)
-                    - $group->balances()[$payer->id]) < 0.01
+                    - $group->member($payer->id)->member_data->balance) == 0
             );
             $this->assertTrue(
                 abs(0 - ($payment_2->amount)
-                    - $group->balances()[$taker_2->id]) < 0.01
+                    - $group->member($taker_2->id)->member_data->balance) == 0
             );
             if ($taker->id != $taker_2->id)
-                $this->assertTrue(0 == $group->balances()[$taker->id]);
+                $this->assertTrue(0 == $group->member($taker->id)->member_data->balance);
             $this->assertTrue(0 == $balance);
         }
     }

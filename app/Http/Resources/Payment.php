@@ -9,12 +9,10 @@ class Payment extends JsonResource
     public function toArray($request)
     {
         $this->load('group.members');
-        $payer = $this->group->members->find($this->payer_id);
-        $taker = $this->group->members->find($this->taker_id);
+        $payer = $this->group->member($this->payer_id);
+        $taker = $this->group->member($this->taker_id);
         return [
             'payment_id' => $this->id,
-            //'group_id' => $this->group_id,
-            //'group_name' => $this->group->name,
             'payer_id' => $this->payer_id,
             'payer_username' => ($payer ? $payer->username : '$$deleted_member$$'),
             'payer_nickname' => ($payer ? $payer->member_data->nickname : '$$deleted_member$$'),

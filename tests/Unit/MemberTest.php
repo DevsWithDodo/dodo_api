@@ -43,9 +43,10 @@ class MemberTest extends TestCase
                 ]);
             $response->assertStatus(201);
         }
+        $this->group->recalculateBalances();
         $balance = 0;
-        foreach ($this->group->balances() as $value) {
-            bcadd($balance, $value);
+        foreach ($this->group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
         }
         $this->assertTrue(0 == $balance);
     }
@@ -58,21 +59,21 @@ class MemberTest extends TestCase
      */
     public function leaveGroupWithNegativeBalance()
     {
-        foreach ($this->group->balances() as $id => $balance) {
-            if ($balance < 0) {
-                $user = User::findOrFail($id);
+        foreach ($this->group->members as $member) {
+            if ((int)$member->member_data->balance < 0) {
+                $user = $member;
                 break;
             }
         }
+        $this->assertNotEmpty($user);
         $response = $this->actingAs($user, 'api')
             ->postJson(route('member.delete', ['group' => $this->group->id]), [
                 'member_id' => $user->id
             ]);
         $response->assertStatus(400);
-
         $balance = 0;
-        foreach ($this->group->balances() as $value) {
-            $balance = bcadd($balance, $value);
+        foreach ($this->group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
         }
         $this->assertTrue(0 == $balance);
     }
@@ -85,9 +86,9 @@ class MemberTest extends TestCase
      */
     public function leaveGroupWithPositiveBalance()
     {
-        foreach ($this->group->balances() as $id => $balance) {
-            if ($balance > 0) {
-                $user = User::findOrFail($id);
+        foreach ($this->group->members as $member) {
+            if ($member->member_data->balance > 0) {
+                $user = $member;
                 break;
             }
         }
@@ -98,12 +99,13 @@ class MemberTest extends TestCase
         $response->assertStatus(204);
 
         //TODO BUG
+        //the transactions have no effect
+
         //$this->assertFalse($this->group->members->has($user->id));
 
         $balance = 0;
-        foreach ($this->group->balances() as $key => $value) {
-            if ($key != $user->id) //TODO BUG
-                $balance = bcadd($balance, $value);
+        foreach ($this->group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
         }
         $this->assertTrue(0 == $balance);
     }
@@ -125,12 +127,13 @@ class MemberTest extends TestCase
         $response->assertStatus(204);
 
         //TODO BUG
+        //the transactions have no effect
+
         //$this->assertFalse($this->group->members->has($member_to_kick->id));
 
         $balance = 0;
-        foreach ($this->group->balances() as $key => $value) {
-            if ($key != $member_to_kick->id) //TODO BUG
-                $balance = bcadd($balance, $value);
+        foreach ($this->group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
         }
         $this->assertTrue(0 == $balance);
     }

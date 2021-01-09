@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements HasLocalePreference
 {
@@ -62,26 +61,8 @@ class User extends Authenticatable implements HasLocalePreference
         return $this
             ->belongsToMany('App\Group', 'group_user')
             ->as('member_data')
-            ->withPivot('nickname', 'is_admin', 'balance')
+            ->withPivot('nickname', 'is_admin')
             ->withTimestamps();
-    }
-
-    public function memberIn($group_id)
-    {
-        return $this->groups()->where('group_id', $group_id)->first();
-    }
-
-    /**
-     * Change the guest's id to the user id in the database
-     * @param $user_id the id to change
-     */
-    public function mergeDataInto($user_id)
-    {
-        DB::table('purchases')->where('buyer_id', $this->id)->update(['buyer_id' => $user_id]);
-        DB::table('purchase_receivers')->where('receiver_id', $this->id)->update(['receiver_id' => $user_id]);
-        DB::table('payments')->where('payer_id', $this->id)->update(['payer_id' => $user_id]);
-        DB::table('payments')->where('taker_id', $this->id)->update(['taker_id' => $user_id]);
-        DB::table('requests')->where('requester_id', $this->id)->update(['requester_id' => $user_id]);
     }
 
     /**
@@ -89,6 +70,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function totalBalance()
     {
+        //TODO Cache
         $currencies = CurrencyController::currencyRates();
         $base = $currencies['base'];
         $rates = $currencies['rates'];

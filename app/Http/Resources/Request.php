@@ -14,12 +14,11 @@ class Request extends JsonResource
      */
     public function toArray($request)
     {
-        $this->load('group.members');
         return [
             'request_id' => $this->id,
             'name' => $this->name,
             'requester_id' => $this->requester_id,
-            'requester_username' => \App\User::find($this->requester_id)->username,
+            'requester_username' => $this->requester->username,
             'requester_nickname' => $this->group->members->find($this->requester_id)->member_data->nickname,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,

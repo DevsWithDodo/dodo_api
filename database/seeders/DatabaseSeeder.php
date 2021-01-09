@@ -8,6 +8,7 @@ use App\User;
 use App\Transactions\Payment;
 use App\Transactions\Purchase;
 use App\Request;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,10 +24,12 @@ class DatabaseSeeder extends Seeder
         ]);
         $other_group = Group::factory()->create();
         $dominik = User::factory()->create([
-            'username' => 'dominik'
+            'username' => 'dominik',
+            'password' => Hash::make('1234')
         ]);
         $samu = User::factory()->create([
-            'username' => 'samu'
+            'username' => 'samu',
+            'password' => Hash::make('1234')
         ]);
         foreach ([$csocsort, $other_group] as $group) {
             $group->members()->attach($dominik->id, [
@@ -41,6 +44,7 @@ class DatabaseSeeder extends Seeder
                 $group->members()->attach($user->id, [
                     'nickname' => $user->username
                 ]);
+                $user->generateToken();
             });
         }
         $users = $csocsort->members;
@@ -57,6 +61,7 @@ class DatabaseSeeder extends Seeder
                     if (rand(0, 1) == 0)
                         $ids[] = $member->id;
                 }
+                if (count($ids) == 0) $ids[] = $csocsort->members->first()->id;
                 $purchase->createReceivers($ids);
             }
             //payment

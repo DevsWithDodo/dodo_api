@@ -133,8 +133,8 @@ class MemberController extends Controller
 
         //the request is valid
 
-        $balance = $group->balances()[$member_to_delete->id];
-        if ($member_to_delete->id == $user->id) {
+        $balance = $group->member($member_to_delete->id)->member_data->balance;
+        if ($member_to_delete->id == $user->id) { //leaving
             if ($balance < 0) abort(400, "7"); //TODO response
             if ($balance > 0) {
                 $balance_divided = bcdiv($balance, ($group->members->count() - 1));
@@ -155,7 +155,7 @@ class MemberController extends Controller
                     }
                 }
             }
-        } else {
+        } else { //kicking
             Payment::create([
                 'amount' => (-1) * $balance,
                 'group_id' => $group->id,
@@ -167,7 +167,6 @@ class MemberController extends Controller
 
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
         $group->members()->detach($member_to_delete->id);
-        Cache::forget($group->id . '_balances');
 
         //TODO notify
 
@@ -249,17 +248,11 @@ class MemberController extends Controller
 
         //the request is valid
 
-        //change the guest's id to the member's id in the tables
-        DB::table('purchases')->where('buyer_id', $guest->id)->update(['buyer_id' => $member->id]);
-        DB::table('purchase_receivers')->where('receiver_id', $guest->id)->update(['receiver_id' => $member->id]);
-        DB::table('payments')->where('payer_id', $guest->id)->update(['payer_id' => $member->id]);
-        DB::table('payments')->where('taker_id', $guest->id)->update(['taker_id' => $member->id]);
-        DB::table('requests')->where('requester_id', $guest->id)->update(['requester_id' => $member->id]);
-
+        $guest->mergeDataInto($member->id);
         $group->members()->detach($guest);
         $guest->delete();
 
-        Cache::forget($group->id . '_balances');
+        $group->recalculateBalances();
 
         return response()->json(null, 204);
     }

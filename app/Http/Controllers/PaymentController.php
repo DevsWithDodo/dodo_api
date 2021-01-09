@@ -11,6 +11,7 @@ use App\Rules\IsMember;
 use App\Http\Resources\Payment as PaymentResource;
 
 use App\Notifications\PaymentNotification;
+use App\Events\BalanceModified;
 use App\Transactions\Payment;
 use App\Group;
 use App\User;
@@ -56,7 +57,6 @@ class PaymentController extends Controller
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
-        Cache::forget($group->id . '_balances');
         try {
             $taker->notify(new PaymentNotification($payment));
         } catch (\Exception $e) {
@@ -83,7 +83,6 @@ class PaymentController extends Controller
             'note' => $request->note,
             'taker_id' => $request->taker_id
         ]);
-        Cache::forget($group->id . '_balances');
 
         //TODO notify
 

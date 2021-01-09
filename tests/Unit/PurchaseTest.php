@@ -41,17 +41,17 @@ class PurchaseTest extends TestCase
             $response->assertStatus(201);
 
             $balance = 0;
-            foreach ($group->balances() as $value) {
-                $balance = bcadd($balance,  $value);
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance, $member->member_data->balance);
             }
             $this->assertTrue(
                 abs(($purchase->amount - ($purchase->amount / $users->count()))
-                    - $group->balances()[$buyer->id]) < 0.01
+                    - $group->member($buyer->id)->member_data->balance) < 0.01
             );
             foreach ($group->members->except($buyer->id) as $user) {
                 $this->assertTrue(
                     abs((0 - ($purchase->amount / $users->count()))
-                        - $group->balances()[$user->id]) < 0.01
+                        - $group->member($user->id)->member_data->balance) < 0.01
                 );
             }
             $this->assertTrue(0 == $balance);
@@ -87,19 +87,17 @@ class PurchaseTest extends TestCase
             $response->assertStatus(201);
 
             $balance = 0;
-            foreach ($group->balances() as $value) {
-                echo "adding: " . $value . "\n";
-                $balance = bcadd($balance,  $value);
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance,  $member->member_data->balance);
             }
-            echo "balance:" . $balance . "\n";
             $this->assertTrue(
                 abs($purchase->amount
-                    - $group->balances()[$buyer->id]) < 0.01
+                    - $group->member($buyer->id)->member_data->balance) < 0.01
             );
             foreach ($group->members->except($buyer->id) as $user) {
                 $this->assertTrue(
                     abs((0 - ($purchase->amount / ($users->count() - 1)))
-                        - $group->balances()[$user->id]) < 0.01
+                        - $group->member($user->id)->member_data->balance) < 0.01
                 );
             }
             $this->assertTrue(0 == $balance);
@@ -142,7 +140,6 @@ class PurchaseTest extends TestCase
                     'receivers' => $user_ids
                 ]);
             $response->assertStatus(201);
-
             $id = $response->json()["transaction_id"];
             $response = $this->actingAs($buyer, 'api')
                 ->putJson(route('purchases.update', $id),  [
@@ -153,8 +150,8 @@ class PurchaseTest extends TestCase
             $response->assertStatus(200);
 
             $balance = 0;
-            foreach ($group->balances() as $value) {
-                $balance = bcadd($balance,  $value);
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance,  $member->member_data->balance);
             }
             $this->assertTrue(0 == $balance);
         }

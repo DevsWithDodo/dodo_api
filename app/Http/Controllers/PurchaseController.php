@@ -73,7 +73,6 @@ class PurchaseController extends Controller
             }
         }
 
-        Cache::forget($group->id . '_balances');
         return response()->json(new PurchaseResource($purchase), 201);
     }
 
@@ -88,7 +87,9 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $purchase->receivers()->delete();
+        foreach ($purchase->receivers as $receiver) {
+            $receiver->delete();
+        }
         $purchase->update([
             'name' => $request->name,
             'amount' => $request->amount
@@ -101,7 +102,6 @@ class PurchaseController extends Controller
         ));
 
         $purchase->touch();
-        Cache::forget($group->id . '_balances');
 
         //TODO notify
 
