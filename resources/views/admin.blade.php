@@ -28,21 +28,22 @@
     @foreach (\App\Group::all() as $group)
         @php
         $balance = 0;
-        foreach($group->balances() as $amount){
-            $balance = bcadd($balance, $amount);
+        foreach($group->members as $member){
+            $balance = bcadd($balance, $member->member_data->balance);
         }
         @endphp
-        {id:{{ $group->id }},
-        @if(config('app.debug'))name:"{{ $group->name}}",@endif
-        created_at:"{{ $group->created_at->format('Y/m/d') }}",
-        members:{{ $group->members->count() }},
-        guests:{{ $group->guests->count()}},
-        member_limit:{{ $group->member_limit ?? 20}},
-        purchases:{{ $group->purchases->count() }},
-        payments:{{ $group->payments->count() }},
-        requests:{{ $group->requests->count() }},
-        balance:{{ $balance }},
-        currency:"{{ $group->currency }}"
+        {
+            id:{{ $group->id }},
+            @if(config('app.debug'))name:"{{ $group->name}}",@endif
+            created_at:"{{ $group->created_at->format('Y/m/d') }}",
+            members:{{ $group->members->count() }},
+            guests:{{ $group->guests->count()}},
+            member_limit:{{ $group->member_limit ?? 20}},
+            purchases:{{ $group->purchases->count() }},
+            payments:{{ $group->payments->count() }},
+            requests:{{ $group->requests->count() }},
+            balance:{{ $balance }},
+            currency:"{{ $group->currency }}"
         },
     @endforeach
     ];
