@@ -18,6 +18,7 @@ class Reaction extends JsonResource
         return [
             'id' => $this->id,
             'reaction' => $this->reaction,
+            'user_id' => $this->user_id,
             'user_nickname' => $group->members->find($this->user_id)->member_data->nickname
         ];
     }
