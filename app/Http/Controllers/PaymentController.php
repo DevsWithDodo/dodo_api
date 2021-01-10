@@ -11,7 +11,7 @@ use App\Rules\IsMember;
 use App\Http\Resources\Payment as PaymentResource;
 
 use App\Notifications\PaymentNotification;
-use App\Events\BalanceModified;
+use App\Transactions\Reactions\PaymentReaction;
 use App\Transactions\Payment;
 use App\Group;
 use App\User;
@@ -91,9 +91,30 @@ class PaymentController extends Controller
 
     public function delete(Payment $payment)
     {
-        Cache::forget($payment->group->id . '_balances');
         $payment->delete();
         //TODO notify
         return response()->json(null, 204);
+    }
+
+    public function add_reaction(Request $request)
+    {
+        //TODO policy
+        $validator = Validator::make($request->all(), [
+            'payment_id' => 'required|exists:payments,id',
+            'reaction' => 'required|string|min:1|max:1'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        PaymentReaction::create([
+            'reaction' => $request->reaction,
+            'user_id' => auth('api')->user()->id,
+            'payment_id' => $request->payment_id
+        ]);
+    }
+
+    public function remove_reaction(PaymentReaction $reaction)
+    {
+        //TODO policy
+        $reaction->delete();
     }
 }

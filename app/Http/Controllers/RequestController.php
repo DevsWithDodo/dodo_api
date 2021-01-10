@@ -11,6 +11,7 @@ use App\Notifications\FulfilledRequestNotification;
 use App\Notifications\RequestNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
+use App\Transactions\Reactions\RequestReaction;
 
 class RequestController extends Controller
 {
@@ -79,5 +80,27 @@ class RequestController extends Controller
         }
         $shopping_request->delete();
         return response()->json(null, 204);
+    }
+
+    public function add_reaction(Request $request)
+    {
+        //TODO policy
+        $validator = Validator::make($request->all(), [
+            'request_id' => 'required|exists:requests,id',
+            'reaction' => 'required|string|min:1|max:1'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        RequestReaction::create([
+            'reaction' => $request->reaction,
+            'user_id' => auth('api')->user()->id,
+            'request_id' => $request->request_id
+        ]);
+    }
+
+    public function remove_reaction(RequestReaction $reaction)
+    {
+        //TODO policy
+        $reaction->delete();
     }
 }

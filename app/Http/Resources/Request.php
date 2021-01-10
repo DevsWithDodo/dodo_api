@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Reaction;
 
 class Request extends JsonResource
 {
@@ -22,6 +23,7 @@ class Request extends JsonResource
             'requester_nickname' => $this->group->members->find($this->requester_id)->member_data->nickname,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
+            'reactions' => Reaction::collection($this->reactions)
         ];
     }
 }

@@ -4,12 +4,14 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Member;
+use App\Http\Resources\Guest;
 use App\Http\Resources\User;
 
 class Group extends JsonResource
 {
     public function toArray($request)
     {
+        $this->load('members');
         $group = [
             'group_id' => $this->id,
             'group_name' => $this->name,
@@ -19,7 +21,7 @@ class Group extends JsonResource
             'invitation' => $this->invitation
         ];
         if (auth('api')->user()->can('edit', \App\Group::find($this->id))) {
-            $group['guests'] = User::collection($this->guests);
+            $group['guests'] = Guest::collection($this->guests);
         }
         return $group;
     }

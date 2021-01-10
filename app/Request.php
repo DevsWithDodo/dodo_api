@@ -22,4 +22,9 @@ class Request extends Model
     {
         return $this->belongsTo('App\Group', 'group_id');
     }
+
+    public function reactions()
+    {
+        return $this->hasMany('App\Transactions\Reactions\RequestReaction', 'request_id');
+    }
 }

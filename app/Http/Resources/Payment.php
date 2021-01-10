@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Reaction;
 
 class Payment extends JsonResource
 {
@@ -22,7 +23,8 @@ class Payment extends JsonResource
             'amount' => round(floatval($this->amount), 2),
             'note' => $this->note,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
+            'reactions' => Reaction::collection($this->reactions)
         ];
     }
 }

@@ -13,6 +13,7 @@ use App\Http\Resources\Purchase as PurchaseResource;
 
 use App\Notifications\ReceiverNotification;
 use App\Group;
+use App\Transactions\Reactions\PurchaseReaction;
 
 class PurchaseController extends Controller
 {
@@ -32,7 +33,6 @@ class PurchaseController extends Controller
             ->orderBy('purchases.updated_at', 'desc')
             ->limit($request->limit)
             ->get();
-
         return PurchaseResource::collection($purchases);
     }
 
@@ -114,5 +114,27 @@ class PurchaseController extends Controller
         $purchase->delete();
         //TODO notify
         return response()->json(null, 204);
+    }
+
+    public function add_reaction(Request $request)
+    {
+        //TODO policy
+        $validator = Validator::make($request->all(), [
+            'purchase_id' => 'required|exists:purchases,id',
+            'reaction' => 'required|string|min:1|max:1'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        PurchaseReaction::create([
+            'reaction' => $request->reaction,
+            'user_id' => auth('api')->user()->id,
+            'purchase_id' => $request->purchase_id
+        ]);
+    }
+
+    public function remove_reaction(PurchaseReaction $reaction)
+    {
+        //TODO policy
+        $reaction->delete();
     }
 }

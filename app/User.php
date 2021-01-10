@@ -89,6 +89,8 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function totalBalance()
     {
+        return 0;
+        //TODO optimize
         $currencies = CurrencyController::currencyRates();
         $base = $currencies['base'];
         $rates = $currencies['rates'];

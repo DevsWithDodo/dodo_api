@@ -57,6 +57,10 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/purchases',              [PurchaseController::class, 'store'])->middleware('member')->name('purchases.store');
     Route::put('/purchases/{purchase}',    [PurchaseController::class, 'update'])->name('purchases.update');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'delete'])->name('purchases.delete');
+
+    Route::post('/purchases/reaction',              [PurchaseController::class, 'add_reaction'])->name('reactions.purchases.add');
+    Route::delete('/purchases/reaction/{reaction}', [PurchaseController::class, 'remove_reaction'])->name('reactions.purchases.remove');
+
     //for backward compatibility //TODO delete
     Route::get('/transactions',               [PurchaseController::class, 'index'])->middleware('member');
     Route::post('/transactions',              [PurchaseController::class, 'store'])->middleware('member');
@@ -69,11 +73,17 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/payments/{payment}',    [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('/payments/{payment}', [PaymentController::class, 'delete'])->name('payments.delete');
 
+    Route::post('/payments/reaction',              [PaymentController::class, 'add_reaction'])->name('reactions.payments.add');
+    Route::delete('/payments/reaction/{reaction}', [PaymentController::class, 'remove_reaction'])->name('reactions.payments.remove');
+
     /* Requests */
     Route::get('/requests',                       [RequestController::class, 'index'])->middleware('member')->name('requests.index');
     Route::post('/requests',                      [RequestController::class, 'store'])->middleware('member')->name('requests.store');
     Route::put('/requests/{shopping_request}',    [RequestController::class, 'update'])->name('requests.update');
     Route::delete('/requests/{shopping_request}', [RequestController::class, 'delete'])->name('requests.delete');
+
+    Route::post('/requests/reaction',              [RequestController::class, 'add_reaction'])->name('reactions.requests.add');
+    Route::delete('/requests/reaction/{reaction}', [RequestController::class, 'remove_reaction'])->name('reactions.requests.remove');
 });
 
 

@@ -39,7 +39,7 @@ class Group extends Model
 
     public function member($user_id)
     {
-        return $this->members()->where('user_id', $user_id)->first();
+        return $this->members()->find($user_id);
     }
 
     public function addToMemberBalance($user_id, $amount)

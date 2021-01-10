@@ -4,7 +4,6 @@ namespace App\Transactions;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 
 class Purchase extends Model
 {
@@ -60,5 +59,10 @@ class Purchase extends Model
     public function receivers()
     {
         return $this->hasMany('App\Transactions\PurchaseReceiver');
+    }
+
+    public function reactions()
+    {
+        return $this->hasMany('App\Transactions\Reactions\PurchaseReaction', 'purchase_id');
     }
 }
