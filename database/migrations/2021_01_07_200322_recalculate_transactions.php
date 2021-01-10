@@ -14,12 +14,16 @@ class RecalculateTransactions extends Migration
      */
     public function up()
     {
+        echo "recalculate transactions" . "\n";
         foreach (Purchase::all() as $purchase) {
             $receivers = $purchase->receivers->map(function ($item, $key) {
                 return $item->user->id;
             });
             $purchase->receivers()->delete();
-            $purchase->createReceivers($receivers->toArray());
+            echo "create new receivers for purchase id " . $purchase->id . "\n";
+            $purchase->withoutEvents(function () use ($purchase, $receivers) {
+                $purchase->createReceivers($receivers->toArray());
+            });
         }
     }
 
