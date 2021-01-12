@@ -74,7 +74,8 @@ class RequestController extends Controller
         //TODO policy
         //notify
         try {
-            $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
+            if ($shopping_request->requester->id != $user->id)
+                $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -82,7 +83,7 @@ class RequestController extends Controller
         return response()->json(null, 204);
     }
 
-    public function add_reaction(Request $request)
+    public function reaction(Request $request)
     {
         //TODO policy
         $validator = Validator::make($request->all(), [
@@ -91,16 +92,21 @@ class RequestController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        RequestReaction::create([
+        $user = auth('api')->user();
+        $reaction = RequestReaction::where('user_id', $user->id)
+            ->where('request_id', $request->request_id)
+            ->first();
+
+        if ($reaction) {
+            if ($reaction->reaction != $request->reaction)
+                $reaction->update(['reaction' => $request->reaction]);
+            else $reaction->delete();
+        } else RequestReaction::create([
             'reaction' => $request->reaction,
-            'user_id' => auth('api')->user()->id,
+            'user_id' => $user->id,
             'request_id' => $request->request_id
         ]);
-    }
 
-    public function remove_reaction(RequestReaction $reaction)
-    {
-        //TODO policy
-        $reaction->delete();
+        return response()->json(null, 204);
     }
 }

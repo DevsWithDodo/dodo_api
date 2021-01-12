@@ -76,9 +76,10 @@ class GroupController extends Controller
 
         //notify
         try {
-            foreach ($group->members as $member)
-                if ($member->id != $user->id)
+            if ($old_name != $group->name) {
+                foreach ($group->members->except($user->id) as $member)
                     $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
+            }
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

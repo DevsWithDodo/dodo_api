@@ -27,9 +27,14 @@
 
 <body>
     <div class="flex-center position-ref full-height">
+        <div class="top-right">
+            <a href="https://github.com/machiato32/csocsort_app" target="_blank">
+                <img src="/GitHub_Logo.png" alt="GitHub logo" height="25px">
+            </a>
+        </div>
         <div class="content">
             <img src="logo_color.png" alt="Lender logo" height="200px">
-            <div class="title">{{ config('app.name') }}</div>
+            <div class="title">Lender</div>
             <p class="large uppercase">Money and debt management app designed for groups</p>
             <a href="http://bit.ly/3bu0ICa" class="joinBtn"
                 style="background-color: white;opacity:0.8;color:rgb(47, 167, 207);font-weight:bold;padding:10px">

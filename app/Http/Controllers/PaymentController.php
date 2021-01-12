@@ -96,7 +96,7 @@ class PaymentController extends Controller
         return response()->json(null, 204);
     }
 
-    public function add_reaction(Request $request)
+    public function reaction(Request $request)
     {
         //TODO policy
         $validator = Validator::make($request->all(), [
@@ -105,16 +105,21 @@ class PaymentController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        PaymentReaction::create([
+        $user = auth('api')->user();
+        $reaction = PaymentReaction::where('user_id', $user->id)
+            ->where('payment_id', $request->payment_id)
+            ->first();
+
+        if ($reaction) {
+            if ($reaction->reaction != $request->reaction)
+                $reaction->update(['reaction' => $request->reaction]);
+            else $reaction->delete();
+        } else PaymentReaction::create([
             'reaction' => $request->reaction,
             'user_id' => auth('api')->user()->id,
             'payment_id' => $request->payment_id
         ]);
-    }
 
-    public function remove_reaction(PaymentReaction $reaction)
-    {
-        //TODO policy
-        $reaction->delete();
+        return response()->json(null, 204);
     }
 }

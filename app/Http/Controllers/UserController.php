@@ -123,4 +123,14 @@ class UserController extends Controller
             return response()->json(['error' => '$$decrypt_error$$'], 500);
         }
     }
+
+    public function delete()
+    {
+        $user = auth('api')->user();
+
+        $user->groups()->detach();
+        $user->delete();
+
+        return response()->json(null, 204);
+    }
 }

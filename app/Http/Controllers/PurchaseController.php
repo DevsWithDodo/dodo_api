@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Builder;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -116,7 +117,7 @@ class PurchaseController extends Controller
         return response()->json(null, 204);
     }
 
-    public function add_reaction(Request $request)
+    public function reaction(Request $request)
     {
         //TODO policy
         $validator = Validator::make($request->all(), [
@@ -125,16 +126,21 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        PurchaseReaction::create([
+        $user = auth('api')->user();
+        $reaction = PurchaseReaction::where('user_id', $user->id)
+            ->where('purchase_id', $request->purchase_id)
+            ->first();
+
+        if ($reaction) {
+            if ($reaction->reaction != $request->reaction)
+                $reaction->update(['reaction' => $request->reaction]);
+            else $reaction->delete();
+        } else PurchaseReaction::create([
             'reaction' => $request->reaction,
-            'user_id' => auth('api')->user()->id,
+            'user_id' => $user->id,
             'purchase_id' => $request->purchase_id
         ]);
-    }
 
-    public function remove_reaction(PurchaseReaction $reaction)
-    {
-        //TODO policy
-        $reaction->delete();
+        return response()->json(null, 204);
     }
 }
