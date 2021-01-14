@@ -20,6 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/privacy-policy', function () {
+    return view('privacy_policy');
+});
+
 Route::get('/join/{token}', function ($token) {
     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
@@ -27,10 +31,10 @@ Route::get('/join/{token}', function ($token) {
 Route::get('/admin', 'AdminController@show')->middleware('passwordprotect:1');
 Route::post('admin/send_notification', 'AdminController@send_notification')->middleware('passwordprotect:1');
 
-Route::get('/landscape_preview', function(){
+Route::get('/landscape_preview', function () {
     $path = public_path() . '/lender_preview.png';
 
-    if(!File::exists($path)) {
+    if (!File::exists($path)) {
         return response()->json(['message' => 'Image not found.'], 404);
     }
 
@@ -44,4 +48,3 @@ Route::get('/landscape_preview', function(){
 });
 
 Auth::routes();
-
