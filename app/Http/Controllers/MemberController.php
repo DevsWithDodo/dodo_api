@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 use App\Rules\IsMember;
 use App\Rules\UniqueNickname;
@@ -183,7 +182,6 @@ class MemberController extends Controller
     /**
      * Guests
      */
-
     public function hasGuests(Group $group)
     {
         $this->authorize('edit', $group);
@@ -195,7 +193,7 @@ class MemberController extends Controller
         $this->authorize('edit', $group);
         $this->authorize('add_guest', $group);
         $validator = Validator::make($request->all(), [
-            'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username', new UniqueNickname($group->id)],
+            'username' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
             'language' => 'required|in:en,hu,it,de',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -203,7 +201,7 @@ class MemberController extends Controller
         //the request is valid
 
         $guest = User::create([
-            'username' => $request->username,
+            'username' => null,
             'password' => null,
             'password_reminder' => null,
             'default_currency' => $group->currency,

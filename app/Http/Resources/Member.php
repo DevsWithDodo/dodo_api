@@ -10,7 +10,7 @@ class Member extends JsonResource
     {
         return [
             'user_id' => $this->id,
-            'username' => $this->username,
+            'username' => $this->username ?? $this->member_data->nickname,
             'nickname' => $this->member_data->nickname,
             'balance' => floatval($this->member_data->balance),
             'is_admin' => $this->member_data->is_admin,
