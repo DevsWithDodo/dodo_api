@@ -14,7 +14,10 @@ class User extends JsonResource
             'api_token' => $this->api_token,
             'last_active_group' => $this->last_active_group,
             'default_currency' => $this->default_currency,
-            'total_balance' => round(floatval($this->totalBalance()), 2)
+            'total_balance' => round(floatval($this->totalBalance()), 2),
+            'ad_free' => $this->ad_free,
+            'gradients_enables' => $this->gradients_enabled,
+            'available_boosts' => $this->available_boosts
         ];
     }
 }

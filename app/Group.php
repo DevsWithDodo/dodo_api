@@ -13,7 +13,7 @@ class Group extends Model
 
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation'];
+    protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation', 'boosted'];
 
     public function delete()
     {

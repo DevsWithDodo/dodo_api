@@ -21,7 +21,17 @@ class User extends Authenticatable implements HasLocalePreference
      * @var array
      */
     protected $fillable = [
-        'username', 'password', 'api_token', 'password_reminder', 'last_active_group', 'default_currency', 'fcm_token', 'language'
+        'username',
+        'password',
+        'api_token',
+        'password_reminder',
+        'last_active_group',
+        'default_currency',
+        'fcm_token',
+        'language',
+        'ad_free',
+        'gradients_enables',
+        'available_boosts'
     ];
 
     protected $hidden = [
@@ -114,6 +124,6 @@ class User extends Authenticatable implements HasLocalePreference
 
     public function isGuest()
     {
-        return $this->password == null;
+        return $this->username == null;
     }
 }
