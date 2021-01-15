@@ -30,13 +30,25 @@ class User extends Authenticatable implements HasLocalePreference
         'fcm_token',
         'language',
         'ad_free',
-        'gradients_enables',
+        'gradients_enabled',
         'available_boosts'
     ];
 
     protected $hidden = [
         'password', 'password_reminder'
     ];
+
+    public function getAdFreeAttribute($value)
+    {
+        if ($this->created_at->addWeeks(2) < now()) return $value;
+        else return 1;
+    }
+
+    public function getGradientsEnabledAttribute($value)
+    {
+        if ($this->created_at->addWeeks(2) < now()) return $value;
+        else return 1;
+    }
 
     public function generateToken()
     {
