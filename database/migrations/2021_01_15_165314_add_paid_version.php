@@ -19,7 +19,7 @@ class AddPaidVersion extends Migration
             $table->integer('available_boosts')->default(0);
         });
 
-        Schema::table('group', function (Blueprint $table) {
+        Schema::table('groups', function (Blueprint $table) {
             $table->boolean('boosted')->default(false);
         });
     }
