@@ -13,7 +13,6 @@ class CreateReactions extends Migration
      */
     public function up()
     {
-        echo "create purchase_reactions table" . "\n";
         Schema::create('purchase_reactions', function (Blueprint $table) {
             $table->id();
             $table->string('reaction');
@@ -22,7 +21,6 @@ class CreateReactions extends Migration
             $table->timestamps();
         });
 
-        echo "create payment_reactions table" . "\n";
         Schema::create('payment_reactions', function (Blueprint $table) {
             $table->id();
             $table->string('reaction');
@@ -31,7 +29,6 @@ class CreateReactions extends Migration
             $table->timestamps();
         });
 
-        echo "create request_reactions table" . "\n";
         Schema::create('request_reactions', function (Blueprint $table) {
             $table->id();
             $table->string('reaction');
@@ -48,6 +45,8 @@ class CreateReactions extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('reactions');
+        Schema::dropIfExists('request_reactions');
+        Schema::dropIfExists('purchase_reactions');
+        Schema::dropIfExists('payment_reactions');
     }
 }

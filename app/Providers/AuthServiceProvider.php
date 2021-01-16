@@ -5,6 +5,10 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\Response;
+use App\User;
+use App\Group;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,12 +32,21 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-        if(env('APP_DEBUG')) {
-            DB::listen(function($query) {
+
+        Gate::define('is_not_guest', function (User $user) {
+            return $user->isGuest() ? Response::deny('Unauthorized for guest users.') : Response::allow();
+        });
+        Gate::define('member', function (User $user, Group $group) {
+            return $group->members->contains($user);
+        });
+
+        //log queries
+        if (env('APP_DEBUG')) {
+            DB::listen(function ($query) {
                 File::append(
                     storage_path('/logs/query.log'),
-                    \Carbon\Carbon::now()->toDateTimeString() . ": " . $query->sql . ' [' . implode(', ', $query->bindings) . '] ('. $query->time .')' . PHP_EOL
-               );
+                    \Carbon\Carbon::now()->toDateTimeString() . ": " . $query->sql . ' [' . implode(', ', $query->bindings) . '] (' . $query->time . ')' . PHP_EOL
+                );
             });
         }
     }

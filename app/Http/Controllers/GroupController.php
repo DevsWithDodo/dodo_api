@@ -6,13 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\CurrencyController;
 use App\Notifications\ChangedGroupNameNotification;
-use App\Notifications\ShoppingNotification;
 use App\Http\Resources\Group as GroupResource;
-use Illuminate\Support\Facades\Log;
-
 use App\Group;
 
 class GroupController extends Controller
@@ -23,23 +21,21 @@ class GroupController extends Controller
         return GroupResource::collection($user->groups);
     }
 
-    public function show(Group $group)
+    public function show(Request $request, Group $group)
     {
-        $user = auth('api')->user(); //member
+        $this->authorize('view', $group);
+        $user = $request->user();
         $user->update(['last_active_group' => $group->id]);
         return new GroupResource($group);
     }
 
     public function store(Request $request)
     {
-        $user = auth('api')->user();
-        //TODO policy
-        if ($user->isGuest()) abort(400, '$$unavailable_for_guests$$');
-
+        $this->authorize('is_not_guest');
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
-            'currency' => ['nullable', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
-            'member_nickname' => ['nullable', 'string', 'min:1', 'max:15'],
+            'currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
+            'member_nickname' => ['required', 'string', 'min:1', 'max:15'],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -47,12 +43,12 @@ class GroupController extends Controller
 
         $group = Group::create([
             'name' => $request->group_name,
-            'currency' => $request->currency ?? $user->default_currency,
+            'currency' => $request->currency,
             'invitation' => Str::random(20)
         ]);
 
-        $group->members()->attach($user, [
-            'nickname' => $request->member_nickname ?? explode("#", $user->id)[0],
+        $group->members()->attach(auth('api')->user()->id, [
+            'nickname' => $request->member_nickname,
             'is_admin' => true //set to true on first member
         ]);
 
@@ -61,16 +57,14 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
-        $user = auth('api')->user();
+        $this->authorize('edit', $group);
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:1|max:20',
             'currency' => ['nullable', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $this->authorize('edit', $group);
-        //the request is valid
-
+        $user = auth('api')->user();
         $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
 
@@ -93,24 +87,6 @@ class GroupController extends Controller
 
         $group->delete();
 
-        return response()->json(null, 204);
-    }
-
-    /* I'm shopping notification */
-    public function sendShoppingNotification(Request $request, Group $group)
-    {
-        $user = auth('api')->user();
-        $validator = Validator::make($request->all(), [
-            'store' => ['required', 'string', 'max:20'],
-        ]);
-        if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        try {
-            foreach ($group->members->except($user->id) as $member)
-                $member->notify(new ShoppingNotification($group, $user, $request->store));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
         return response()->json(null, 204);
     }
 }

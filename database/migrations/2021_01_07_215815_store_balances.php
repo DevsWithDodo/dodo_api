@@ -15,7 +15,6 @@ class StoreBalances extends Migration
      */
     public function up()
     {
-        echo "create balance field" . "\n";
         Schema::table('group_user', function (Blueprint $table) {
             $table->string('balance')->default("0");
         });

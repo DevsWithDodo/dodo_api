@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Resources\User as UserResource;
 
@@ -51,7 +50,7 @@ class LoginController extends Controller
         $this->validateLogin($request);
 
         if ($this->attemptLogin($request)) {
-            $user = $this->guard()->user();
+            $user = $request->user();
             if ($user->token == null) {
                 $user->generateToken();
             }
@@ -61,12 +60,12 @@ class LoginController extends Controller
             }
             return new UserResource($user);
         }
-        abort(400, __('validaton.incorrect_username_or_password'));
+        abort(400, __('validation.incorrect_username_or_password'));
     }
 
     public function logout(Request $request)
     {
-        $user = auth('api')->user();
+        $user = $request->user();
 
         if ($user) {
             $user->api_token = null;

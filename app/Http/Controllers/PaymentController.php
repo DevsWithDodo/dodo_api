@@ -20,7 +20,7 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user(); //member
+        $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
 
         $payments = $group->payments()
@@ -36,7 +36,7 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-        $payer = auth('api')->user(); //member
+        $payer = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
@@ -44,11 +44,10 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
+        $group = Group::findOrFail($request->group);
+        $taker = User::findOrFail($request->taker_id);
 
-        //The request is valid
-
-        $group = Group::find($request->group);
-        $taker = User::find($request->taker_id);
+        $this->authorize('member', $group);
 
         $payment = Payment::create([
             'amount' => $request->amount,
@@ -67,6 +66,7 @@ class PaymentController extends Controller
 
     public function update(Request $request, Payment $payment)
     {
+        $this->authorize('update', $payment);
         $payer = auth('api')->user();
         $group = $payment->group;
         $validator = Validator::make($request->all(), [
@@ -75,8 +75,6 @@ class PaymentController extends Controller
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        //the request is valid
 
         $payment->update([
             'amount' => $request->amount,
@@ -91,6 +89,7 @@ class PaymentController extends Controller
 
     public function delete(Payment $payment)
     {
+        $this->authorize('delete', $payment);
         $payment->delete();
         //TODO notify
         return response()->json(null, 204);
@@ -98,7 +97,6 @@ class PaymentController extends Controller
 
     public function reaction(Request $request)
     {
-        //TODO policy
         $validator = Validator::make($request->all(), [
             'payment_id' => 'required|exists:payments,id',
             'reaction' => 'required|string|min:1|max:1'

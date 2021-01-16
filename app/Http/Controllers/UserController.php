@@ -50,7 +50,7 @@ class UserController extends Controller
 
     public function changePassword(Request $request)
     {
-        $user = auth('api')->user();
+        $user = $request->user();
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string|password',
             'new_password' => 'required|string|min:4|confirmed',
@@ -68,7 +68,7 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        $user = auth('api')->user();
+        $user = $request->user();
         $validator = Validator::make($request->all(), [
             'username' => 'string|regex:/^[a-z0-9#.]{3,15}$/|unique:users,username',
             'language' => 'string|in:en,hu,it,de',
@@ -107,9 +107,9 @@ class UserController extends Controller
         }
     }
 
-    public function delete()
+    public function delete(Request $request)
     {
-        $user = auth('api')->user();
+        $user = $request->user();
 
         $user->groups()->detach();
         $user->delete();

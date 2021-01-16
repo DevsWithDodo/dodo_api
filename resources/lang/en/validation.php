@@ -54,7 +54,7 @@ return [
     ],
     'not_in'               => 'The selected :attribute is invalid.',
     'numeric'              => 'The :attribute must be a number.',
-    'password'             => 'The password do not mach our records.',
+    'password'             => 'The password do not match our records.',
     'present'              => 'The :attribute field must be present.',
     'regex'                => 'The :attribute format is invalid.',
     'required'             => 'The :attribute field is required.',
@@ -105,7 +105,7 @@ return [
     |
     */
     'incorrect_username_or_password' => 'Incorrect username or password',
-
+    'balance_negative' => 'Your balance must be positive.',
     'attributes' => [
         'username' => 'username',
         'password' => 'password',

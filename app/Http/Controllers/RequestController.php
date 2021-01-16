@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Resources\Request as RequestResource;
 use App\Notifications\FulfilledRequestNotification;
 use App\Notifications\RequestNotification;
+use App\Notifications\ShoppingNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
 use App\Transactions\Reactions\RequestReaction;
@@ -18,7 +19,7 @@ class RequestController extends Controller
     public function index(Request $request)
     {
         $group = Group::findOrFail($request->group);
-
+        $this->authorize('member', $group);
         return RequestResource::collection($group->requests);
     }
 
@@ -31,19 +32,19 @@ class RequestController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        //the request is valid
+        $group = Group::find($request->group);
+        $this->authorize('member', $group);
 
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
-            "group_id" => $request->group,
+            "group_id" => $group->id,
             "requester_id" => $user->id,
         ]);
 
         //notify
         try {
-            foreach ($shopping_request->group->members as $member)
-                if ($member->id != $user->id)
-                    $member->notify(new RequestNotification($shopping_request));
+            foreach ($group->members->except($user->id) as $member)
+                $member->notify(new RequestNotification($shopping_request));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -52,7 +53,7 @@ class RequestController extends Controller
 
     public function update(Request $request, ShoppingRequest $shopping_request)
     {
-        //TODO policy
+        $this->authorize('update', $shopping_request);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2|max:255',
         ]);
@@ -65,22 +66,23 @@ class RequestController extends Controller
 
     public function delete(ShoppingRequest $shopping_request)
     {
+        $this->authorize('delete', $shopping_request);
         $user = auth('api')->user();
-        //TODO policy
-        //notify
+
         try {
             if ($shopping_request->requester->id != $user->id)
                 $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
+
+        //TODO make 'redo' possible
         $shopping_request->delete();
         return response()->json(null, 204);
     }
 
     public function reaction(Request $request)
     {
-        //TODO policy
         $validator = Validator::make($request->all(), [
             'request_id' => 'required|exists:requests,id',
             'reaction' => 'required|string|min:1|max:1'
@@ -102,6 +104,25 @@ class RequestController extends Controller
             'request_id' => $request->request_id
         ]);
 
+        return response()->json(null, 204);
+    }
+
+    /* I'm shopping notification */
+    public function sendShoppingNotification(Request $request, Group $group)
+    {
+        $user = auth('api')->user();
+        $this->authorize('member', $group);
+        $validator = Validator::make($request->all(), [
+            'store' => ['required', 'string', 'max:20'],
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        try {
+            foreach ($group->members->except($user->id) as $member)
+                $member->notify(new ShoppingNotification($group, $user, $request->store));
+        } catch (\Exception $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
         return response()->json(null, 204);
     }
 }

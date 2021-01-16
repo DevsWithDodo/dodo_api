@@ -39,7 +39,7 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-        $user = auth('api')->user(); //member
+        $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:30',
             'group' => 'required|exists:groups,id',
@@ -50,6 +50,7 @@ class PurchaseController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $group = Group::find($request->group);
+        $this->authorize('member', $group);
 
         $purchase = Purchase::create([
             'name' => $request->name,
@@ -79,6 +80,7 @@ class PurchaseController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
+        $this->authorize('update', $purchase);
         $group = $purchase->group;
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:30',
@@ -111,6 +113,7 @@ class PurchaseController extends Controller
 
     public function delete(Purchase $purchase)
     {
+        $this->authorize('delete', $purchase);
         $purchase->delete();
         //TODO notify
         return response()->json(null, 204);
@@ -118,7 +121,6 @@ class PurchaseController extends Controller
 
     public function reaction(Request $request)
     {
-        //TODO policy
         $validator = Validator::make($request->all(), [
             'purchase_id' => 'required|exists:purchases,id',
             'reaction' => 'required|string|min:1|max:1'

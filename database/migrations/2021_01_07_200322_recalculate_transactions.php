@@ -14,7 +14,6 @@ class RecalculateTransactions extends Migration
      */
     public function up()
     {
-        echo "recalculate transactions" . "\n";
         foreach (Purchase::all() as $purchase) {
             $receivers = $purchase->receivers->map(function ($item, $key) {
                 return $item->user->id;

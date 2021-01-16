@@ -10,6 +10,7 @@ class PaymentPolicy
 {
     use HandlesAuthorization;
 
+
     public function update(User $user, Payment $payment)
     {
         return $payment->payer->id == $user->id;

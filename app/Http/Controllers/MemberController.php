@@ -13,8 +13,8 @@ use App\Notifications\PromotedToAdminNotification;
 use App\Notifications\JoinedGroupNotification;
 use App\Notifications\PaymentNotification;
 use App\Http\Resources\Group as GroupResource;
-use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\User as UserResource;
+use App\Http\Resources\Member as MemberResource;
 use Illuminate\Support\Facades\Log;
 
 use App\Transactions\Payment;
@@ -23,9 +23,10 @@ use App\Group;
 
 class MemberController extends Controller
 {
-    public function index(Group $group)
+    public function show(Group $group)
     {
-        $user = auth('api')->user(); //member
+        $user = auth('api')->user();
+        $this->authorize('view', $group);
         return new MemberResource($group->members->find($user));
     }
 
@@ -90,6 +91,7 @@ class MemberController extends Controller
     public function updateAdmin(Group $group, Request $request)
     {
         $user = auth('api')->user();
+        $this->authorize('edit_admins', $group);
         $validator = Validator::make($request->all(), [
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'admin' => 'required|boolean',
@@ -97,11 +99,7 @@ class MemberController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $member = User::find($request->member_id);
-        $this->authorize('edit_admin', [$group, $member]);
-
-        //the request is valid
-
-        $group->members->find($member)
+        $group->member($member->id)
             ->member_data->update(['is_admin' => $request->admin]);
 
         //notify
@@ -169,12 +167,11 @@ class MemberController extends Controller
 
         //TODO notify
 
-        if ($group->members()->count() == 0) {
+        if ($group->members()->count() == 0)
             $group->delete();
-        } else if ($group->admins()->count() == 0) {
-            //TODO possibly buggy
-            //$group->members()->update(['is_admin' => true]);
-        }
+        else if ($group->admins()->count() == 0)
+            foreach ($group->members as $member)
+                $member->member_data->update(['is_admin' => true]);
 
         return response()->json(null, 204);
     }
@@ -190,15 +187,12 @@ class MemberController extends Controller
 
     public function addGuest(Request $request, Group $group)
     {
-        $this->authorize('edit', $group);
         $this->authorize('add_guest', $group);
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
             'language' => 'required|in:en,hu,it,de',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        //the request is valid
 
         $guest = User::create([
             'username' => null,
@@ -231,7 +225,6 @@ class MemberController extends Controller
      **/
     public function mergeGuest(Request $request, Group $group)
     {
-        $this->authorize('edit', $group);
         $validator = Validator::make($request->all(), [
             'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
             'guest_id' => ['required', 'exists:users,id', new IsMember($group->id)],
@@ -240,8 +233,7 @@ class MemberController extends Controller
 
         $guest = User::find($request->guest_id);
         $member = User::find($request->member_id);
-
-        if (!$guest->isGuest()) abort(400, '$$available_for_guests_only$$'); //TODO policy
+        $this->authorize('merge_guest', [$group, $guest]);
 
         //the request is valid
 

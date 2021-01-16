@@ -28,52 +28,48 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('groups',  [GroupController::class, 'store'])->name('group.store');
     Route::post('join',    [MemberController::class, 'store'])->name('member.store');
 
-    //TODO delete middleware
-    Route::middleware(['member'])->group(function () {
-        /* Groups */
-        Route::get('groups/{group}',    [GroupController::class, 'show'])->name('group.show');
-        Route::put('groups/{group}',    [GroupController::class, 'update'])->name('group.update');
-        Route::delete('groups/{group}', [GroupController::class, 'delete'])->name('group.delete');
+    /* Groups */
+    Route::get('groups/{group}',    [GroupController::class, 'show'])->name('group.show');
+    Route::put('groups/{group}',    [GroupController::class, 'update'])->name('group.update');
+    Route::delete('groups/{group}', [GroupController::class, 'delete'])->name('group.delete');
 
-        /* Members */
-        Route::get('groups/{group}/member',          [MemberController::class, 'index'])->name('member.index');
-        Route::put('groups/{group}/members',         [MemberController::class, 'update'])->name('member.update');
-        Route::put('groups/{group}/admins',          [MemberController::class, 'updateAdmin'])->name('member.admin.update');
-        Route::post('groups/{group}/members/delete', [MemberController::class, 'delete'])->name('member.delete');
+    /* Members */
+    Route::get('groups/{group}/member',          [MemberController::class, 'show'])->name('member.show');
+    Route::put('groups/{group}/members',         [MemberController::class, 'update'])->name('member.update');
+    Route::put('groups/{group}/admins',          [MemberController::class, 'updateAdmin'])->name('member.admin.update');
+    Route::post('groups/{group}/members/delete', [MemberController::class, 'delete'])->name('member.delete');
 
-        /* Guests */
-        Route::get('/groups/{group}/has_guests',    [MemberController::class, 'hasGuests'])->name('guests.has_guests');
-        Route::post('/groups/{group}/add_guest',    [MemberController::class, 'addGuest'])->name('guests.store');
-        Route::post('/groups/{group}/merge_guest',  [MemberController::class, 'mergeGuest'])->name('guests.merge');
-
-        /* 'I'm shopping' notification */
-        Route::post('/groups/{group}/send_shopping_notification', [GroupController::class, 'sendShoppingNotification'])->name('notification.shopping');
-    });
+    /* Guests */
+    Route::get('/groups/{group}/has_guests',    [MemberController::class, 'hasGuests'])->name('guests.has_guests');
+    Route::post('/groups/{group}/add_guest',    [MemberController::class, 'addGuest'])->name('guests.store');
+    Route::post('/groups/{group}/merge_guest',  [MemberController::class, 'mergeGuest'])->name('guests.merge');
 
     /* Purchases */
-    //TODO delete middleware
-    Route::get('/purchases',               [PurchaseController::class, 'index'])->middleware('member')->name('purchases.index');
-    Route::post('/purchases',              [PurchaseController::class, 'store'])->middleware('member')->name('purchases.store');
+    Route::get('/purchases',               [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::post('/purchases',              [PurchaseController::class, 'store'])->name('purchases.store');
     Route::put('/purchases/{purchase}',    [PurchaseController::class, 'update'])->name('purchases.update');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'delete'])->name('purchases.delete');
 
     Route::post('/purchases/reaction',     [PurchaseController::class, 'reaction'])->name('reactions.purchases');
 
     /* Payments */
-    Route::get('/payments',              [PaymentController::class, 'index'])->middleware('member')->name('payments.index');
-    Route::post('/payments',             [PaymentController::class, 'store'])->middleware('member')->name('payments.store');
+    Route::get('/payments',              [PaymentController::class, 'index'])->name('payments.index');
+    Route::post('/payments',             [PaymentController::class, 'store'])->name('payments.store');
     Route::put('/payments/{payment}',    [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('/payments/{payment}', [PaymentController::class, 'delete'])->name('payments.delete');
 
     Route::post('/payments/reaction',    [PaymentController::class, 'reaction'])->name('reactions.payments');
 
     /* Requests */
-    Route::get('/requests',                       [RequestController::class, 'index'])->middleware('member')->name('requests.index');
-    Route::post('/requests',                      [RequestController::class, 'store'])->middleware('member')->name('requests.store');
+    Route::get('/requests',                       [RequestController::class, 'index'])->name('requests.index');
+    Route::post('/requests',                      [RequestController::class, 'store'])->name('requests.store');
     Route::put('/requests/{shopping_request}',    [RequestController::class, 'update'])->name('requests.update');
     Route::delete('/requests/{shopping_request}', [RequestController::class, 'delete'])->name('requests.delete');
 
     Route::post('/requests/reaction',             [RequestController::class, 'reaction'])->name('reactions.requests');
+
+    /* 'I'm shopping' notification */
+    Route::post('/groups/{group}/send_shopping_notification', [RequestController::class, 'sendShoppingNotification'])->name('notification.shopping');
 });
 
 

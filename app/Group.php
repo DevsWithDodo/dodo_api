@@ -39,7 +39,7 @@ class Group extends Model
 
     public function member($user_id)
     {
-        return $this->members()->find($user_id);
+        return $this->members()->findOrFail($user_id);
     }
 
     public function addToMemberBalance($user_id, $amount)
