@@ -48,46 +48,34 @@ class UserController extends Controller
         return response()->json(new UserResource($user), 201);
     }
 
-    public function changePassword(Request $request)
-    {
-        $user = $request->user();
-        $validator = Validator::make($request->all(), [
-            'old_password' => 'required|string|password',
-            'new_password' => 'required|string|min:4|confirmed',
-            'password_reminder' => ['required', 'string'],
-        ]);
-        if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        //the request is valid
-        $user->update([
-            'password' => Hash::make($request->new_password),
-            'password_reminder' => Crypt::encryptString($request->password_reminder)
-        ]);
-        return response()->json(null, 204);
-    }
-
     public function update(Request $request)
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'username' => 'string|regex:/^[a-z0-9#.]{3,15}$/|unique:users,username',
             'language' => 'string|in:en,hu,it,de',
-            'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
+            'default_currency' => ['string', 'size:3', Rule::in(CurrencyController::currencyList())],
+            'old_password' => 'required_with:new_password|string|password',
+            'new_password' => 'string|min:4|confirmed',
+            'password_reminder' => 'required_with:new_password|string',
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        $user->update([
+        $data = collect([
             'username' => $request->username,
             'language' => $request->language,
             'default_currency' => $request->default_currency,
+            'password' => $request->new_password ? Hash::make($request->new_password) : null,
+            'password_reminder' => $request->new_password ? Crypt::encryptString($request->password_reminder) : null,
             'ad_free' => $request->ad_free,
             'gradients_enabled' => $request->gradients_enabled,
-            'available_boosts' => $user->available_boosts + $request->boosts
-        ]);
+            'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
+        ])->filter()->all();
+        if (count($data) == 0) abort(400, "The given data to update is empty.");
 
+        $user->update($data);
         return response()->json(null, 204);
     }
 

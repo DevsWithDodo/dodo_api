@@ -15,6 +15,11 @@ class Group extends Model
 
     protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation', 'boosted'];
 
+    public function getMemberLimitAttribute()
+    {
+        return $this->boosted ? 30 : 8;
+    }
+
     public function delete()
     {
         $this->members()->detach($this->members);

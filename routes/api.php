@@ -17,23 +17,21 @@ Route::get('password_reminder', [UserController::class, 'passwordReminder'])->na
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
-    Route::get('user',              [UserController::class, 'show'])->name('user.show');
-    Route::post('logout',           [LoginController::class, 'logout'])->name('user.logout');
-    Route::post('update',           [UserController::class, 'update'])->name('user.update');
-    Route::post('change_password',  [UserController::class, 'changePassword'])->name('user.update_password');
-    Route::delete('delete_user',    [UserController::class, 'delete'])->name('user.delete');
+    Route::get('user',     [UserController::class, 'show'])->name('user.show');
+    Route::put('user',     [UserController::class, 'update'])->name('user.update');
+    Route::post('logout',  [LoginController::class, 'logout'])->name('user.logout');
+    Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
 
     /* Groups */
-    Route::get('groups',   [GroupController::class, 'index'])->name('group.index');
-    Route::post('groups',  [GroupController::class, 'store'])->name('group.store');
-    Route::post('join',    [MemberController::class, 'store'])->name('member.store');
-
-    /* Groups */
-    Route::get('groups/{group}',    [GroupController::class, 'show'])->name('group.show');
-    Route::put('groups/{group}',    [GroupController::class, 'update'])->name('group.update');
-    Route::delete('groups/{group}', [GroupController::class, 'delete'])->name('group.delete');
+    Route::post('groups',               [GroupController::class, 'store'])->name('group.store');
+    Route::get('groups',                [GroupController::class, 'index'])->name('group.index');
+    Route::get('groups/{group}',        [GroupController::class, 'show'])->name('group.show');
+    Route::put('groups/{group}',        [GroupController::class, 'update'])->name('group.update');
+    Route::post('groups/{group}/boost', [GroupController::class, 'boost'])->name('group.boost');
+    Route::delete('groups/{group}',     [GroupController::class, 'delete'])->name('group.delete');
 
     /* Members */
+    Route::post('join',                          [MemberController::class, 'store'])->name('member.store');
     Route::get('groups/{group}/member',          [MemberController::class, 'show'])->name('member.show');
     Route::put('groups/{group}/members',         [MemberController::class, 'update'])->name('member.update');
     Route::put('groups/{group}/admins',          [MemberController::class, 'updateAdmin'])->name('member.admin.update');

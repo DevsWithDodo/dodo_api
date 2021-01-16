@@ -39,8 +39,6 @@ class GroupController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        //the request is valid
-
         $group = Group::create([
             'name' => $request->group_name,
             'currency' => $request->currency,
@@ -53,6 +51,17 @@ class GroupController extends Controller
         ]);
 
         return response()->json(new GroupResource($group), 201);
+    }
+
+    public function boost(Request $request, Group $group)
+    {
+        $this->authorize('boost', $group);
+        $user = $request->user();
+        $user->decrement('available_boosts');
+        $group->update(['boosted' => true]);
+
+        //TODO notification
+        return response()->json(null, 204);
     }
 
     public function update(Request $request, Group $group)
@@ -68,7 +77,6 @@ class GroupController extends Controller
         $old_name = $group->name;
         $group->update($request->only('name', 'currency'));
 
-        //notify
         try {
             if ($old_name != $group->name) {
                 foreach ($group->members->except($user->id) as $member)
