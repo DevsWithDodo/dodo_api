@@ -20,7 +20,7 @@ class RequestController extends Controller
     {
         $group = Group::findOrFail($request->group);
         $this->authorize('member', $group);
-        return RequestResource::collection($group->requests);
+        return RequestResource::collection($group->requests()->with('reactions')->get());
     }
 
     public function store(Request $request)
@@ -101,7 +101,8 @@ class RequestController extends Controller
         } else RequestReaction::create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'request_id' => $request->request_id
+            'request_id' => $request->request_id,
+            'group_id' => ShoppingRequest::find($request->request_id)->group_id
         ]);
 
         return response()->json(null, 204);

@@ -29,6 +29,7 @@ class PaymentController extends Controller
                     ->orWhere('payer_id', $user->id);
             })
             ->orderBy('updated_at', 'desc')
+            ->with('reactions')
             ->limit($request->limit)
             ->get();
         return PaymentResource::collection($payments);
@@ -115,7 +116,8 @@ class PaymentController extends Controller
         } else PaymentReaction::create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'payment_id' => $request->payment_id
+            'payment_id' => $request->payment_id,
+            'group_id' => Payment::find($request->payment_id)->group_id
         ]);
 
         return response()->json(null, 204);

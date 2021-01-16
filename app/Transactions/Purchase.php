@@ -32,7 +32,8 @@ class Purchase extends Model
             PurchaseReceiver::create([
                 'amount' => bcadd($amount_divided, $remainder),
                 'receiver_id' => $receiver,
-                'purchase_id' => $this->id
+                'purchase_id' => $this->id,
+                'group_id' => $this->group_id
             ]);
             $remainder = 0;
         }

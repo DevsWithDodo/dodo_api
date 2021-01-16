@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Group;
 
 class PurchaseReceiver extends JsonResource
 {
@@ -14,11 +15,10 @@ class PurchaseReceiver extends JsonResource
      */
     public function toArray($request)
     {
-        $receiver_user = $this->purchase->group->members->find($this->user);
         return [
             'user_id' => $this->receiver_id,
-            'username' => $this->receiver->username ?? '$$deleted_member$$',
-            'nickname' => $receiver_user?->member_data->nickname ?? '$$deleted_member$$',
+            //'username' => $this->receiver->username ?? '$$deleted_member$$',
+            'nickname' => Group::nicknameOf($this->group_id, $this->receiver_id) ?? '$$deleted_member$$',
             'balance' => round(floatval($this->amount), 2)
         ];
     }

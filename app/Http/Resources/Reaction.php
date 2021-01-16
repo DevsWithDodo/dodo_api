@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Group;
 
 class Reaction extends JsonResource
 {
@@ -14,12 +15,11 @@ class Reaction extends JsonResource
      */
     public function toArray($request)
     {
-        $group = $this->purchase?->group ?? $this->request?->group ?? $this->payment?->group;
         return [
             'id' => $this->id,
             'reaction' => $this->reaction,
             'user_id' => $this->user_id,
-            'user_nickname' => $group->members->find($this->user_id)->member_data->nickname
+            'user_nickname' => Group::nicknameOf($this->group_id, $this->user_id)
         ];
     }
 }

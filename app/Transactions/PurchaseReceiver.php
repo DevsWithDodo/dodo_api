@@ -11,7 +11,7 @@ class PurchaseReceiver extends Model
 
     protected $table = 'purchase_receivers';
 
-    protected $fillable = ['amount', 'receiver_id', 'purchase_id'];
+    protected $fillable = ['amount', 'receiver_id', 'purchase_id', 'group_id'];
 
     public $timestamps = false;
 

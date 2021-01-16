@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,6 +19,18 @@ class Group extends Model
     public function getMemberLimitAttribute()
     {
         return $this->boosted ? 30 : 8;
+    }
+
+    public static function nicknameOf($group_id, $user_id)
+    {
+        return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
+            $nicknames = [];
+            $group = Group::with('members')->findOrFail($group_id);
+            foreach ($group->members as $member) {
+                $nicknames[$member->id] = $member->member_data->nickname;
+            }
+            return $nicknames;
+        })[$user_id];
     }
 
     public function delete()

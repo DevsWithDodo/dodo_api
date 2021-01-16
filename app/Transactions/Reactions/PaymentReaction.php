@@ -9,7 +9,7 @@ class PaymentReaction extends Model
 {
     //use HasFactory;
     protected $table = 'payment_reactions';
-    protected $fillable = ['reaction', 'user_id', 'payment_id'];
+    protected $fillable = ['reaction', 'user_id', 'payment_id', 'group_id'];
 
     public function Payment()
     {

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Reaction;
+use App\Group;
 
 class Request extends JsonResource
 {
@@ -19,8 +20,8 @@ class Request extends JsonResource
             'request_id' => $this->id,
             'name' => $this->name,
             'requester_id' => $this->requester_id,
-            'requester_username' => $this->requester->username,
-            'requester_nickname' => $this->group->members->find($this->requester_id)->member_data->nickname,
+            //'requester_username' => $this->requester->username,
+            'requester_nickname' => Group::nicknameOf($this->group_id, $this->requester_id),
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'reactions' => Reaction::collection($this->reactions)

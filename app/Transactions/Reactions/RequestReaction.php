@@ -9,7 +9,7 @@ class RequestReaction extends Model
 {
     //use HasFactory;
     protected $table = 'request_reactions';
-    protected $fillable = ['reaction', 'user_id', 'request_id'];
+    protected $fillable = ['reaction', 'user_id', 'request_id', 'group_id'];
 
     public function Request()
     {

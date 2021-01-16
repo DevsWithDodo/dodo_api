@@ -31,6 +31,8 @@ class PurchaseController extends Controller
             })
             ->orderBy('purchases.updated_at', 'desc')
             ->limit($request->limit)
+            ->with('receivers')
+            ->with('reactions')
             ->get();
         return PurchaseResource::collection($purchases);
     }
@@ -137,7 +139,8 @@ class PurchaseController extends Controller
         } else PurchaseReaction::create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'purchase_id' => $request->purchase_id
+            'purchase_id' => $request->purchase_id,
+            'group_id' => Purchase::find($request->purchase_id)->group_id
         ]);
 
         return response()->json(null, 204);
