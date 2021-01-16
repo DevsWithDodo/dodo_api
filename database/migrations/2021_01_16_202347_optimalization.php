@@ -17,21 +17,23 @@ class Optimalization extends Migration
      */
     public function up()
     {
-        Schema::table('purchase_receivers', function (Blueprint $table) {
-            $table->integer('group_id');
-        });
+        if (!Schema::hasColumn('purchase_receivers', 'group_id')) {
+            Schema::table('purchase_receivers', function (Blueprint $table) {
+                $table->integer('group_id');
+            });
 
-        Schema::table('purchase_reactions', function (Blueprint $table) {
-            $table->integer('group_id');
-        });
+            Schema::table('purchase_reactions', function (Blueprint $table) {
+                $table->integer('group_id');
+            });
 
-        Schema::table('payment_reactions', function (Blueprint $table) {
-            $table->integer('group_id');
-        });
+            Schema::table('payment_reactions', function (Blueprint $table) {
+                $table->integer('group_id');
+            });
 
-        Schema::table('request_reactions', function (Blueprint $table) {
-            $table->integer('group_id');
-        });
+            Schema::table('request_reactions', function (Blueprint $table) {
+                $table->integer('group_id');
+            });
+        }
 
         foreach (PurchaseReceiver::all() as $receiver) {
             $receiver->update(['group_id' => $receiver->purchase->group_id]);

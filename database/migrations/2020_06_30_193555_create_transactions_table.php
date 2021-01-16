@@ -27,6 +27,7 @@ class CreateTransactionsTable extends Migration
             $table->integer('purchase_id');
             $table->integer('receiver_id');
             $table->decimal('amount', 19, 4);
+            $table->integer('group_id');
         });
     }
 

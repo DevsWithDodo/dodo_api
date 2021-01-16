@@ -18,6 +18,7 @@ class CreateReactions extends Migration
             $table->string('reaction');
             $table->integer('user_id');
             $table->integer('purchase_id');
+            $table->integer('group_id');
             $table->timestamps();
         });
 
@@ -26,6 +27,7 @@ class CreateReactions extends Migration
             $table->string('reaction');
             $table->integer('user_id');
             $table->integer('payment_id');
+            $table->integer('group_id');
             $table->timestamps();
         });
 
@@ -34,6 +36,7 @@ class CreateReactions extends Migration
             $table->string('reaction');
             $table->integer('user_id');
             $table->integer('request_id');
+            $table->integer('group_id');
             $table->timestamps();
         });
     }
