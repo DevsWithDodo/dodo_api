@@ -25,7 +25,8 @@ class PurchaseUpdatedListener
      */
     public function handle(PurchaseUpdatedEvent $event)
     {
-        Log::info('purchase updated', ["purchase" => $event->purchase]);
+        if (config('app.debug'))
+            Log::info('purchase updated', ["purchase" => $event->purchase]);
         $old_purchase = $event->purchase->getOriginal();
         $new_purchase = $event->purchase;
         $group = $event->purchase->group;

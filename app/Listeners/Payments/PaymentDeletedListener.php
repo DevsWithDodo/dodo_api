@@ -25,7 +25,8 @@ class PaymentDeletedListener
      */
     public function handle(PaymentDeletedEvent $event)
     {
-        Log::info('payment deleted', ["payment" => $event->payment]);
+        if (config('app.debug'))
+            Log::info('payment deleted', ["payment" => $event->payment]);
         $event->payment->group->addToMemberBalance($event->payment->payer_id, (-1) * $event->payment->amount);
         $event->payment->group->addToMemberBalance($event->payment->taker_id, $event->payment->amount);
     }

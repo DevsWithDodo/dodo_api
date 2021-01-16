@@ -31,7 +31,8 @@ class RequestNotification extends Notification
     {
         $message = __('notifications.new_request_descr', [
             'user' => $this->request->group->members->find($this->request->requester_id)->member_data->nickname,
-            'request' => $this->request->name
+            'request' => $this->request->name,
+            'group' => $this->request->group->name,
         ]);
         $title = __('notifications.new_request_title', [
             'group' => $this->request->group->name
@@ -45,7 +46,8 @@ class RequestNotification extends Notification
                     'group_name' => $this->request->group->name,
                     'details' => null
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

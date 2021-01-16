@@ -25,7 +25,8 @@ class PaymentCreatedListener
      */
     public function handle(PaymentCreatedEvent $event)
     {
-        Log::info('payment created', ["payment" => $event->payment]);
+        if (config('app.debug'))
+            Log::info('payment created', ["payment" => $event->payment]);
         $event->payment->group->addToMemberBalance($event->payment->payer_id, $event->payment->amount);
         $event->payment->group->addToMemberBalance($event->payment->taker_id, (-1) * $event->payment->amount);
     }

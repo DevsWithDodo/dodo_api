@@ -25,7 +25,8 @@ class PaymentUpdatedListener
      */
     public function handle(PaymentUpdatedEvent $event)
     {
-        Log::info('payment updated', ["payment" => $event->payment]);
+        if (config('app.debug'))
+            Log::info('payment updated', ["payment" => $event->payment]);
         $old_payment = $event->payment->getOriginal();
         $new_payment = $event->payment;
         $group = $event->payment->group;

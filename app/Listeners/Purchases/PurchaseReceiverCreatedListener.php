@@ -26,7 +26,8 @@ class PurchaseReceiverCreatedListener
      */
     public function handle(PurchaseReceiverCreatedEvent $event)
     {
-        Log::info('purchase receiver created', ["purchase receiver" => $event->receiver]);
+        if (config('app.debug'))
+            Log::info('purchase receiver created', ["purchase receiver" => $event->receiver]);
         $event->receiver->purchase->group->addToMemberBalance($event->receiver->receiver_id, (-1) * $event->receiver->amount);
     }
 }

@@ -25,7 +25,8 @@ class PurchaseDeletedListener
      */
     public function handle(PurchaseDeletedEvent $event)
     {
-        Log::info('purchase deleted', ["purchase" => $event->purchase]);
+        if (config('app.debug'))
+            Log::info('purchase deleted', ["purchase" => $event->purchase]);
         $event->purchase->group->addToMemberBalance($event->purchase->buyer_id, (-1) * $event->purchase->amount);
     }
 }

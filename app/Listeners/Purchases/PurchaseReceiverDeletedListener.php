@@ -25,7 +25,8 @@ class PurchaseReceiverDeletedListener
      */
     public function handle(PurchaseReceiverDeletedEvent $event)
     {
-        Log::info('purchase receiver deleted', ["purchase receiver" => $event->receiver]);
+        if (config('app.debug'))
+            Log::info('purchase receiver deleted', ["purchase receiver" => $event->receiver]);
         $event->receiver->purchase->group->addToMemberBalance($event->receiver->receiver_id, $event->receiver->amount);
     }
 }

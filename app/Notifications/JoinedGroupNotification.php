@@ -32,12 +32,20 @@ class JoinedGroupNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.joined_group_descr', [
-            'user' => $this->user->username,
-            //'nickname' => $this->group->members->find($this->user)->member_data->nickname,
-            'group' => $this->group->name
-        ]);
-        $title = __('notifications.joined_group_title');
+        $message = __(
+            'notifications.joined_group_descr',
+            [
+                'user' => $this->user->username,
+                //'nickname' => $this->group->members->find($this->user)->member_data->nickname,
+                'group' => $this->group->name
+            ]
+        );
+        $title = __(
+            'notifications.joined_group_title',
+            [
+                'group' => $this->group->name
+            ]
+        );
         return FcmMessage::create()
             ->setData([
                 'id' => '3' . rand(0, 100000),
@@ -47,7 +55,8 @@ class JoinedGroupNotification extends Notification
                     'group_name' => $this->group->name,
                     'details' => null
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));
