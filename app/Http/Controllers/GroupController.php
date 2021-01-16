@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
@@ -33,7 +32,8 @@ class GroupController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $user = auth('api')->user();
+        //TODO policy
         if ($user->isGuest()) abort(400, '$$unavailable_for_guests$$');
 
         $validator = Validator::make($request->all(), [

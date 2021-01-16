@@ -116,7 +116,7 @@ class PaymentController extends Controller
             else $reaction->delete();
         } else PaymentReaction::create([
             'reaction' => $request->reaction,
-            'user_id' => auth('api')->user()->id,
+            'user_id' => $user->id,
             'payment_id' => $request->payment_id
         ]);
 

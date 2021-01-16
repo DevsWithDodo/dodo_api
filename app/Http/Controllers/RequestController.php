@@ -17,7 +17,6 @@ class RequestController extends Controller
 {
     public function index(Request $request)
     {
-        //$user = auth('api')->user(); //member
         $group = Group::findOrFail($request->group);
 
         return RequestResource::collection($group->requests);
@@ -53,19 +52,15 @@ class RequestController extends Controller
 
     public function update(Request $request, ShoppingRequest $shopping_request)
     {
-        if ($request->has('name')) {
-            //TODO policy
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|min:2|max:255',
-            ]);
-            if ($validator->fails()) abort(400, $validator->errors()->first());
+        //TODO policy
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|min:2|max:255',
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
-            $shopping_request->update(['name' => $request->name]);
+        $shopping_request->update(['name' => $request->name]);
 
-            return response()->json(null, 204);
-        } else { //for backward compatibility
-            return $this->delete($shopping_request);
-        }
+        return response()->json(null, 204);
     }
 
     public function delete(ShoppingRequest $shopping_request)

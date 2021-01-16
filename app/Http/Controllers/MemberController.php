@@ -134,7 +134,7 @@ class MemberController extends Controller
 
         $balance = $group->member($member_to_delete->id)->member_data->balance;
         if ($member_to_delete->id == $user->id) { //leaving
-            if ($balance < 0) abort(400, "7"); //TODO response
+            if ($balance < 0) abort(400, __('validation.balance_negative'));
             if ($balance > 0) {
                 $balance_divided = bcdiv($balance, ($group->members->count() - 1));
                 $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
@@ -214,7 +214,6 @@ class MemberController extends Controller
             'nickname' => $request->username,
             'is_admin' => false
         ]);
-        Cache::forget($group->id . '_balances');
 
         //notify
         try {
@@ -242,7 +241,7 @@ class MemberController extends Controller
         $guest = User::find($request->guest_id);
         $member = User::find($request->member_id);
 
-        if (!$guest->isGuest()) abort(400, '$$available_for_guests_only$$');
+        if (!$guest->isGuest()) abort(400, '$$available_for_guests_only$$'); //TODO policy
 
         //the request is valid
 

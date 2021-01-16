@@ -12,7 +12,7 @@ class CurrencyController extends Controller
      * The values will expire on every midnight. After midnight, the first request will get and store the latest values from exchangeratesapi.io.
      * The currency rates are based on the European Central Bank.
      */
-    public static function currencyRates()
+    public static function currencyRates(): array
     {
         return Cache::remember('currencies', Carbon::tomorrow(), function () {
             $ch = curl_init('https://api.exchangeratesapi.io/latest');
@@ -26,7 +26,7 @@ class CurrencyController extends Controller
             return $result;
         });
     }
-    public static function currencyList()
+    public static function currencyList(): array
     {
         return array_keys(CurrencyController::currencyRates()['rates']);
     }

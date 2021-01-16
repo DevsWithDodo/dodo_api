@@ -61,7 +61,7 @@ class LoginController extends Controller
             }
             return new UserResource($user);
         }
-        abort(400, '$$incorrect$username_or_password$$');
+        abort(400, __('validaton.incorrect_username_or_password'));
     }
 
     public function logout(Request $request)

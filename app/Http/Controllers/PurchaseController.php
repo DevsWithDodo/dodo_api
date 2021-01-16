@@ -111,7 +111,6 @@ class PurchaseController extends Controller
 
     public function delete(Purchase $purchase)
     {
-        Cache::forget($purchase->group->id . '_balances');
         $purchase->delete();
         //TODO notify
         return response()->json(null, 204);

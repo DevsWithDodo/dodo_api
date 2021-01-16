@@ -19,11 +19,9 @@ Route::middleware(['auth:api'])->group(function () {
     /* Auth */
     Route::get('user',              [UserController::class, 'show'])->name('user.show');
     Route::post('logout',           [LoginController::class, 'logout'])->name('user.logout');
+    Route::post('update',           [UserController::class, 'update'])->name('user.update');
+    Route::post('change_password',  [UserController::class, 'changePassword'])->name('user.update_password');
     Route::delete('delete_user',    [UserController::class, 'delete'])->name('user.delete');
-    //TODO merge update routes
-    Route::post('change_password',  [UserController::class, 'changePassword']);
-    Route::post('change_username',  [UserController::class, 'changeUsername']);
-    Route::post('change_language',  [UserController::class, 'changeLanguage']);
 
     /* Groups */
     Route::get('groups',   [GroupController::class, 'index'])->name('group.index');
@@ -59,13 +57,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/purchases/{purchase}',    [PurchaseController::class, 'update'])->name('purchases.update');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'delete'])->name('purchases.delete');
 
-    Route::post('/purchases/reaction',              [PurchaseController::class, 'reaction'])->name('reactions.purchases');
-
-    //for backward compatibility //TODO delete
-    Route::get('/transactions',               [PurchaseController::class, 'index'])->middleware('member');
-    Route::post('/transactions',              [PurchaseController::class, 'store'])->middleware('member');
-    Route::put('/transactions/{purchase}',    [PurchaseController::class, 'update']);
-    Route::delete('/transactions/{purchase}', [PurchaseController::class, 'delete']);
+    Route::post('/purchases/reaction',     [PurchaseController::class, 'reaction'])->name('reactions.purchases');
 
     /* Payments */
     Route::get('/payments',              [PaymentController::class, 'index'])->middleware('member')->name('payments.index');
@@ -73,7 +65,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/payments/{payment}',    [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('/payments/{payment}', [PaymentController::class, 'delete'])->name('payments.delete');
 
-    Route::post('/payments/reaction',              [PaymentController::class, 'reaction'])->name('reactions.payments');
+    Route::post('/payments/reaction',    [PaymentController::class, 'reaction'])->name('reactions.payments');
 
     /* Requests */
     Route::get('/requests',                       [RequestController::class, 'index'])->middleware('member')->name('requests.index');
@@ -81,7 +73,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/requests/{shopping_request}',    [RequestController::class, 'update'])->name('requests.update');
     Route::delete('/requests/{shopping_request}', [RequestController::class, 'delete'])->name('requests.delete');
 
-    Route::post('/requests/reaction',              [RequestController::class, 'reaction'])->name('reactions.requests');
+    Route::post('/requests/reaction',             [RequestController::class, 'reaction'])->name('reactions.requests');
 });
 
 

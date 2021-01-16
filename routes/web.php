@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Notifications\CustomNotification;
 
 use App\Group;
 
@@ -28,8 +29,21 @@ Route::get('/join/{token}', function ($token) {
     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
 
-Route::get('/admin', 'AdminController@show')->middleware('passwordprotect:1');
-Route::post('admin/send_notification', 'AdminController@send_notification')->middleware('passwordprotect:1');
+Route::get('/admin', function () {
+    return view('admin');
+})->middleware('passwordprotect:1');
+
+Route::post('admin/send_notification', function (Request $request) {
+    if ($request->everyone) {
+        foreach (\App\User::all() as $user)
+            $user->notify(new CustomNotification($request->message));
+        return response("Message sent to everyone.");
+    } else {
+        $user = \App\User::findOrFail($request->id);
+        $user->notify(new CustomNotification($request->message));
+        return response("Message sent to " . $user->username . '.');
+    }
+})->middleware('passwordprotect:1');
 
 Route::get('/landscape_preview', function () {
     $path = public_path() . '/lender_preview.png';
