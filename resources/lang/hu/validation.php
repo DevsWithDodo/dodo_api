@@ -136,7 +136,8 @@ return [
     */
 
     'incorrect_username_or_password' => 'Hibás felhasználónév vagy jelszó',
-    'balance_negative' => 'Az egyenleged nem lehet negatív.',
+    'balance_negative' => 'Ne hagyd cserben barátaidat! Az egyenleged nem lehet negatív.',
+    'leave_groups' => 'Lépj ki az összes csoportodból, mielőtt búcsút intesz nekünk.',
     'attributes' => [
         'user_id' => 'user',
         'name' => 'név',

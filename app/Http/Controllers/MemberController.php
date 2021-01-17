@@ -128,8 +128,6 @@ class MemberController extends Controller
         $member_to_delete = $group->members->find($request->member_id ?? $user->id);
         $this->authorize('edit_member', [$group, $member_to_delete]);
 
-        //the request is valid
-
         $balance = $group->member($member_to_delete->id)->member_data->balance;
         if ($member_to_delete->id == $user->id) { //leaving
             if ($balance < 0) abort(400, __('validation.balance_negative'));

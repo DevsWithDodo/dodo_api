@@ -98,9 +98,9 @@
                 <b>We do not send / sell any of the mentioned data above to any third party.</b>
                 <br><br>
                 We keep your information for as long as you have a registered account with us.
-                If you want to delete your data, please contact us (see our contact information below).
-                {{--You can delete your account and all your personal data in the Lender app's profile settings.
-                Your transactions will remain visible without your name/nickname attached to them.--}}
+                You can delete your account and all your personal data in the Lender app's profile settings.
+                Note that if you leave a group, your transactions will remain visible without your name/nickname
+                attached to them.
                 <hr>
                 If, as determined by us, the lawful basis upon which we process your personal
                 information changes, we will notify you about the change and any new lawful basis
@@ -197,7 +197,7 @@
                 Sámuel Szajbély, <a href="mailto:developer@lenderapp.net" target="__blank"
                     style="color: black">developer@lenderapp.net</a>,<br>
             </div>
-            <p>Updated: 2020.01.14.</p>
+            <p>Updated: 2020.01.17.</p>
         </div>
     </div>
 </body>

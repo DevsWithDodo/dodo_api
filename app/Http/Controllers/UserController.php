@@ -98,8 +98,7 @@ class UserController extends Controller
     public function delete(Request $request)
     {
         $user = $request->user();
-
-        $user->groups()->detach();
+        if ($user->groups->count() > 0) abort(400, __('validation.leave_groups'));
         $user->delete();
 
         return response()->json(null, 204);
