@@ -17,8 +17,8 @@ class PurchaseReceiver extends JsonResource
     {
         return [
             'user_id' => $this->receiver_id,
-            //'username' => $this->receiver->username ?? '$$deleted_member$$',
-            'nickname' => Group::nicknameOf($this->group_id, $this->receiver_id) ?? '$$deleted_member$$',
+            //'username' => $this->receiver->username,
+            'nickname' => Group::nicknameOf($this->group_id, $this->receiver_id),
             'balance' => round(floatval($this->amount), 2)
         ];
     }

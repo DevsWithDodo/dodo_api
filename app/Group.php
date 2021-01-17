@@ -30,7 +30,7 @@ class Group extends Model
                 $nicknames[$member->id] = $member->member_data->nickname;
             }
             return $nicknames;
-        })[$user_id];
+        })[$user_id] ?? '$$deleted_member$$';
     }
 
     public function delete()
