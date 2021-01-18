@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Transactions;
 
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -11,18 +11,15 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Group;
-use App\User;
+use App\Transactions\PurchaseReceiver;
 
-class JoinedGroupNotification extends Notification
+class ReceiverDeletedNotification extends Notification
 {
-    public Group $group;
-    public User $user;
+    public PurchaseReceiver $receiver;
 
-    public function __construct(Group $group, User $user)
+    public function __construct(PurchaseReceiver $receiver)
     {
-        $this->group = $group;
-        $this->user = $user;
+        $this->receiver = $receiver;
     }
 
     public function via($notifiable)
@@ -32,28 +29,19 @@ class JoinedGroupNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = __(
-            'notifications.joined_group_descr',
-            [
-                'user' => $this->user->username,
-                //'nickname' => $this->group->members->find($this->user)->member_data->nickname,
-                'group' => $this->group->name
-            ]
-        );
-        $title = __(
-            'notifications.joined_group_title',
-            [
-                'group' => $this->group->name
-            ]
-        );
+        $message = __('notifications.receiver_deleted_descr', [
+            'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
+            'purchase' => $this->receiver->purchase->name
+        ]);
+        $title = __('notifications.receiver_deleted_title');
         return FcmMessage::create()
             ->setData([
-                'id' => '3' . rand(0, 100000),
+                'id' => '6' . rand(0, 100000),
                 'payload' => json_encode([
                     'screen' => 'home',
-                    'group_id' => $this->group->id,
-                    'group_name' => $this->group->name,
-                    'details' => null
+                    'group_id' => $this->receiver->purchase->group->id,
+                    'group_name' => $this->receiver->purchase->group->name,
+                    'details' => 'purchase'
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
             ])

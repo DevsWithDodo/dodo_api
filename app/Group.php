@@ -66,7 +66,7 @@ class Group extends Model
         $old_balance = $member->member_data->balance;
         $member->member_data->update(['balance' => bcadd($old_balance, $amount)]);
         if (config('app.debug'))
-            Log::info('updated member balance', ['user id' => $user_id, 'old balance' => $old_balance, 'amount' => $amount]);
+            Log::info('updated member balance', ['user id' => $user_id, 'amount' => $amount, 'old balance' => $old_balance, 'new balance' => $member->member_data->balance]);
     }
 
     public function guests()

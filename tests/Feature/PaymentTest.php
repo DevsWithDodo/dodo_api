@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -94,12 +94,15 @@ class PaymentTest extends TestCase
                 $balance = bcadd($balance, $member->member_data->balance);
             }
             $this->assertTrue(
-                abs(($payment_2->amount)
-                    - $group->member($payer->id)->member_data->balance) == 0
+                bcsub(($payment_2->amount),
+                    $group->member($payer->id)->member_data->balance
+                ) == 0
             );
             $this->assertTrue(
-                abs(0 - ($payment_2->amount)
-                    - $group->member($taker_2->id)->member_data->balance) == 0
+                bcsub(
+                    (-1) * $payment_2->amount,
+                    $group->member($taker_2->id)->member_data->balance
+                ) == 0
             );
             if ($taker->id != $taker_2->id)
                 $this->assertTrue(0 == $group->member($taker->id)->member_data->balance);

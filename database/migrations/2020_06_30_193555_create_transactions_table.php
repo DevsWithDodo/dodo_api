@@ -39,7 +39,6 @@ class CreateTransactionsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('purchases');
-        Schema::dropIfExists('buyers');
-        Schema::dropIfExists('receivers');
+        Schema::dropIfExists('purchase_receivers');
     }
 }

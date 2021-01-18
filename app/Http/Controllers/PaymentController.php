@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Http\Resources\Payment as PaymentResource;
 
-use App\Notifications\PaymentNotification;
 use App\Transactions\Reactions\PaymentReaction;
 use App\Transactions\Payment;
 use App\Group;
@@ -56,11 +54,6 @@ class PaymentController extends Controller
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
-        try {
-            $taker->notify(new PaymentNotification($payment));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
         return response()->json(new PaymentResource($payment), 201);
     }
 
@@ -68,21 +61,14 @@ class PaymentController extends Controller
     {
         $this->authorize('update', $payment);
         $payer = auth('api')->user();
-        $group = $payment->group;
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($group->id)],
+            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($payment->group->id)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $payment->update([
-            'amount' => $request->amount,
-            'note' => $request->note,
-            'taker_id' => $request->taker_id
-        ]);
-
-        //TODO notify
+        $payment->update($request->only('amount', 'taker_id', 'note'));
 
         return response()->json(new PaymentResource($payment), 200);
     }
@@ -91,7 +77,6 @@ class PaymentController extends Controller
     {
         $this->authorize('delete', $payment);
         $payment->delete();
-        //TODO notify
         return response()->json(null, 204);
     }
 

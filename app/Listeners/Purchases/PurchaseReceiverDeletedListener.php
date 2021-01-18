@@ -3,6 +3,7 @@
 namespace App\Listeners\Purchases;
 
 use App\Events\Purchases\PurchaseReceiverDeletedEvent;
+use App\Notifications\Transactions\ReceiverDeletedNotification;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseReceiverDeletedListener
@@ -25,8 +26,17 @@ class PurchaseReceiverDeletedListener
      */
     public function handle(PurchaseReceiverDeletedEvent $event)
     {
+        $receiver = $event->receiver;
         if (config('app.debug'))
-            Log::info('purchase receiver deleted', ["purchase receiver" => $event->receiver]);
-        $event->receiver->purchase->group->addToMemberBalance($event->receiver->receiver_id, $event->receiver->amount);
+            Log::info('purchase receiver deleted', ["purchase receiver" => $receiver]);
+        $receiver->group->addToMemberBalance($receiver->receiver_id, $receiver->amount);
+
+        $user = $receiver->user;
+        if (auth('api')->user() && $user->id != auth('api')->user()->id)
+            try {
+                $user->notify(new ReceiverDeletedNotification($receiver));
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'guest' => "A guest",
     'changed_group_name_title' => 'Changed group name',
     'changed_group_name_descr' => ':user set :old_name\'s name to :new_name.',
     'changed_nickname_title' => 'Call me :name!',
@@ -12,13 +13,23 @@ return [
     'new_payment_title' => 'New payment in :group',
     'new_payment_descr' => ':user payed you :amount.',
     'new_payment_message' => 'Message: :message.',
+    'updated_payment_title' => 'One of your payments has been updated',
+    'updated_payment_descr' => ':user changed their payment from :old_amount to :new_amount',
+    'deleted_payment_title' => 'One of your payments has been revoked',
+    'deleted_payment_descr' => ':user deleted a(n) :amount transaction.',
     'new_request_title' => 'New shopping request in :group',
     'new_request_descr' => ':user added :request to the shopping list.',
     'promoted_to_admin_title' => 'You bacame an admin in :group',
     'promoted_to_admin_descr' => ':user promoted you to be an admin! From now on, you can edit the group\'s details and other members and guests in the group.',
     'receiver_notification_title' => 'New purchase in :group',
     'receiver_notification_descr' => ':user bought you :purchase for :amount.',
+    'receiver_updated_title' => 'A purchase has been modified',
+    'receiver_updated_descr' => ':user thinks that :purchase is worth :amount for you from now on.',
+    'receiver_deleted_title' => 'One of your purchases has been revoked.',
+    'receiver_deleted_descr' => ':user deleted the transaction of :purchase.',
     'shopping_title' => 'Ask something from :user!',
     'shopping_descr' => 'You have been notified that :user is shopping in :store right now. Write something to :group\'s shopping list if you need something!',
-    'message_from_developers' => 'Message from the developers'
+    'message_from_developers' => 'Message from the developers',
+    'group_boosted_title' => ':group just got a new boost!',
+    'group_boosted_descr' => ':user offered one boost for the group. The member limit lifted to 30! Also, you can see the statistics of the group!'
 ];

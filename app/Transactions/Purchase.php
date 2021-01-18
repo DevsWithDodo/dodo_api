@@ -20,21 +20,44 @@ class Purchase extends Model
     ];
 
     /**
-     * Divide the purchase's amount and creates receivers.
-     * @param array $receivers receiver ids
+     * Divides the purchase's amount without residue.
+     * Deletes/updates existing receivers, and creates new ones according to the arguments.
+     * @param array $receivers receiver user ids
      * @return void
      * */
     public function createReceivers(array $receivers)
     {
+        $this->load('receivers');
+
+        //delete old receivers
+        $old_receivers = [];
+        $old_receiver_users = [];
+        foreach ($this->receivers as $receiver) {
+            if (!(in_array($receiver->receiver_id, $receivers))) {
+                $receiver->delete();
+            } else {
+                $old_receivers[$receiver->receiver_id] = $receiver;
+                $old_receiver_users[] = $receiver->receiver_id;
+            }
+        }
+
         $amount_divided = bcdiv($this->amount, count($receivers));
         $remainder = bcsub($this->amount, bcmul($amount_divided, count($receivers)));
-        foreach ($receivers as $receiver) {
-            PurchaseReceiver::create([
-                'amount' => bcadd($amount_divided, $remainder),
-                'receiver_id' => $receiver,
-                'purchase_id' => $this->id,
-                'group_id' => $this->group_id
-            ]);
+        foreach ($receivers as $receiver_user) {
+            if (in_array($receiver_user, $old_receiver_users)) {
+                //update receiver
+                $old_receivers[$receiver_user]->update([
+                    'amount' => bcadd($amount_divided, $remainder)
+                ]);
+            } else {
+                //create receiver
+                PurchaseReceiver::create([
+                    'amount' => bcadd($amount_divided, $remainder),
+                    'receiver_id' => $receiver_user,
+                    'purchase_id' => $this->id,
+                    'group_id' => $this->group_id
+                ]);
+            }
             $remainder = 0;
         }
     }

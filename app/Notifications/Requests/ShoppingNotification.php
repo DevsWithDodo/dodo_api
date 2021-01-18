@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Requests;
 
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -14,19 +14,17 @@ use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 use App\Group;
 use App\User;
 
-class ChangedGroupNameNotification extends Notification
+class ShoppingNotification extends Notification
 {
     public Group $group;
     public User $user;
-    public $new_name;
-    public $old_name;
+    public $store;
 
-    public function __construct(Group $group, User $user, $old_name, $new_name)
+    public function __construct(Group $group, User $user, $store)
     {
         $this->user = $user;
         $this->group = $group;
-        $this->new_name = $new_name;
-        $this->old_name = $old_name;
+        $this->store = $store;
     }
 
     public function via($notifiable)
@@ -36,22 +34,25 @@ class ChangedGroupNameNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.changed_group_name_descr', [
+        $message = __('notifications.shopping_descr', [
             'user' => $this->group->members->find($this->user)->member_data->nickname,
-            'old_name' => $this->old_name,
-            'new_name' => $this->new_name
+            'store' => $this->store,
+            'group' => $this->group->name
         ]);
-        $title = __('notifications.changed_group_name_title');
+        $title = __('notifications.shopping_title', [
+            'user' => $this->group->members->find($this->user)->member_data->nickname
+        ]);
         return FcmMessage::create()
             ->setData([
-                'id' => '0' . rand(0, 100000),
+                'id' => '8' . rand(0, 100000),
                 'payload' => json_encode([
-                    'screen' => 'home',
+                    'screen' => 'shopping',
                     'group_id' => $this->group->id,
                     'group_name' => $this->group->name,
                     'details' => null
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

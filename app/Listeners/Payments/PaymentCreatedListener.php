@@ -3,6 +3,7 @@
 namespace App\Listeners\Payments;
 
 use App\Events\Payments\PaymentCreatedEvent;
+use App\Notifications\Transactions\PaymentNotification;
 use Illuminate\Support\Facades\Log;
 
 class PaymentCreatedListener
@@ -25,9 +26,19 @@ class PaymentCreatedListener
      */
     public function handle(PaymentCreatedEvent $event)
     {
+        $payment = $event->payment;
         if (config('app.debug'))
             Log::info('payment created', ["payment" => $event->payment]);
-        $event->payment->group->addToMemberBalance($event->payment->payer_id, $event->payment->amount);
-        $event->payment->group->addToMemberBalance($event->payment->taker_id, (-1) * $event->payment->amount);
+        $payment->group->addToMemberBalance($payment->payer_id, $payment->amount);
+        $payment->group->addToMemberBalance($payment->taker_id, (-1) * $payment->amount);
+
+        $user = $payment->taker;
+        if (auth('api')->user() && $user->id != auth('api')->user()->id) {
+            try {
+                $user->notify(new PaymentNotification($payment));
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
+        }
     }
 }

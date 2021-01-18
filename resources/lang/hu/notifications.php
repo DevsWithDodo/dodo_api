@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'guest' => "Egy vendég",
     'changed_group_name_title' => 'A csoport neve megváltozott',
     'changed_group_name_descr' => 'A(z) :old_name nevű csoportodat :user átnevezte erre: :new_name.',
     'changed_nickname_title' => ':name lettél!',
@@ -10,15 +11,27 @@ return [
     'joined_group_title' => ':group új taggal bővült',
     'joined_group_descr' => ':user még új nálatok, legyetek hozzá kedvesek!',
     'new_payment_title' => 'Fizettek neked!',
-    'new_payment_descr' => 'A kedvenc, :group nevű csoportodban :user fizetett :amount-t.',
+    'new_payment_descr' => 'A kedvenc, :group nevű csoportodban :user fizetett neked :amount-t.',
     'new_payment_message' => 'Ezt írta hozzá: :message.',
+    'updated_payment_title' => 'Az egyik fizetésedet módosították',
+    'updated_payment_descr' => ':user a(z) :old_amount-os fizetését megváltoztatta :new_amount-ra',
+    'deleted_payment_title' => 'Az egyik fizetéséedet törölték.',
+    'deleted_payment_descr' => ':user visszavonta a(z) :amount-os fizetését.',
     'new_request_title' => 'Új kérés érkezett!',
     'new_request_descr' => ':user felírt :request-t a(z) :group bevásárlólistájára.',
     'promoted_to_admin_title' => 'Előléptettek!',
     'promoted_to_admin_descr' => ':user adminná tett! Mostantól tudod szerkeszteni a(z) :group különböző adatait.',
     'receiver_notification_title' => 'Vásároltak neked!',
     'receiver_notification_descr' => ':user: vett neked :purchase-t :amount-ért itt: :group.',
+    'receiver_updated_title' => 'Egy vásárlást módosítottak',
+    'receiver_updated_descr' => ':user módosította :purchase árát :amount-ra.',
+    'receiver_deleted_title' => 'Egy vásárlást töröltek.',
+    'receiver_deleted_descr' => ':user visszavonta a :purchase megvásárlását.',
     'shopping_title' => ':user boltban van',
     'shopping_descr' => 'Ha szeretnél valamit innen: :store,  akkor írj a(z) :group bevásárlólistájára!',
-    'message_from_developers' => 'Üzenet a fejlesztőktől'
+    'message_from_developers' => 'Üzenet a fejlesztőktől',
+    'group_boosted_title' => ':group fejlesztve lett',
+    'group_boosted_descr' => ':user felhasználta egy csoportfejlesztő Dodóját. Mostantól a csoport létszáma akár 30 is lehet, és használhatjátok a statisztikákat is!',
+
+
 ];

@@ -24,6 +24,12 @@
     </div>
     <script>
         //groups
+        var recalculateGroupFormatter = function(cell, formatterParams, onRendered) {
+            console.log(cell.getRow().getData()['id']);
+            return `<form method='POST' action='/admin/recalculate'>@csrf
+                <input type='hidden' name='group' value=` + cell.getRow().getData()['id'] + `>
+                <input type='submit'></input>`;
+        }
     var groupdata = [
     @foreach (\App\Group::all() as $group)
         @php
@@ -62,6 +68,8 @@
         paginationSize:10,
 
     });
+    grouptable.addColumn({title:"Recalculate balance",formatter:recalculateGroupFormatter});
+
     //users
     var userdata = [
     @foreach (\App\User::all() as $user)

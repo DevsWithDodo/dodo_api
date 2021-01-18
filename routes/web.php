@@ -33,6 +33,11 @@ Route::get('/admin', function () {
     return view('admin');
 })->middleware('passwordprotect:1');
 
+Route::post('/admin/recalculate', function (Request $request) {
+    Group::findOrFail($request->group)->recalculateBalances();
+    return redirect()->back();
+})->middleware('passwordprotect:1');
+
 Route::post('admin/send_notification', function (Request $request) {
     if ($request->everyone) {
         foreach (\App\User::all() as $user)

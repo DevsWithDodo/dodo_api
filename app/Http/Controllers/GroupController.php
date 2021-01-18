@@ -9,9 +9,11 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\CurrencyController;
-use App\Notifications\ChangedGroupNameNotification;
+use App\Notifications\Groups\ChangedGroupNameNotification;
+use App\Notifications\Groups\GroupBoostedNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Group;
+
 
 class GroupController extends Controller
 {
@@ -53,6 +55,15 @@ class GroupController extends Controller
         return response()->json(new GroupResource($group), 201);
     }
 
+    public function isBoosted(Request $request, Group $group)
+    {
+        $this->authorize('view', $group);
+        $user = $request->user();
+        return response()->json(['data' => [
+            'is_boosted' => $group->boosted,
+            'available_boosts' => $user->available_boosts
+        ]]);
+    }
     public function boost(Request $request, Group $group)
     {
         $this->authorize('boost', $group);
@@ -60,7 +71,13 @@ class GroupController extends Controller
         $user->decrement('available_boosts');
         $group->update(['boosted' => true]);
 
-        //TODO notification
+        try {
+            foreach ($group->members->except($user->id) as $member)
+                $member->notify(new GroupBoostedNotification($group, $user));
+        } catch (\Exception $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
+
         return response()->json(null, 204);
     }
 
@@ -78,10 +95,9 @@ class GroupController extends Controller
         $group->update($request->only('name', 'currency'));
 
         try {
-            if ($old_name != $group->name) {
+            if ($old_name != $group->name)
                 foreach ($group->members->except($user->id) as $member)
                     $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
-            }
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

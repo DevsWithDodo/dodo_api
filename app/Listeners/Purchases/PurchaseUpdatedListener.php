@@ -25,12 +25,14 @@ class PurchaseUpdatedListener
      */
     public function handle(PurchaseUpdatedEvent $event)
     {
-        if (config('app.debug'))
-            Log::info('purchase updated', ["purchase" => $event->purchase]);
         $old_purchase = $event->purchase->getOriginal();
         $new_purchase = $event->purchase;
         $group = $event->purchase->group;
         $diff = bcsub($new_purchase->amount, $old_purchase['amount']);
-        $group->addToMemberBalance($new_purchase->buyer_id, $diff);
+        if ($diff != 0) {
+            if (config('app.debug'))
+                Log::info('purchase updated', ["purchase" => $event->purchase]);
+            $group->addToMemberBalance($new_purchase->buyer_id, $diff);
+        }
     }
 }

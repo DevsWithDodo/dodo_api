@@ -17,6 +17,7 @@ class PurchaseReceiver extends Model
 
     protected $dispatchesEvents = [
         'creating' => \App\Events\Purchases\PurchaseReceiverCreatedEvent::class,
+        'updating' => \App\Events\Purchases\PurchaseReceiverUpdatedEvent::class,
         'deleting' => \App\Events\Purchases\PurchaseReceiverDeletedEvent::class
     ];
 
@@ -28,5 +29,10 @@ class PurchaseReceiver extends Model
     public function purchase()
     {
         return $this->belongsTo('App\Transactions\Purchase');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo('App\Group');
     }
 }

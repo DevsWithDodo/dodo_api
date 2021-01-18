@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Transactions;
 
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -47,7 +47,8 @@ class ReceiverNotification extends Notification
                     'group_name' => $this->receiver->purchase->group->name,
                     'details' => 'purchase'
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));
