@@ -78,8 +78,8 @@ Route::middleware(['auth:api'])->group(function () {
  * Bug report to admin's email.
  */
 Route::post('/bug', function (Request $request) {
-    Mail::to(env('ADMIN_EMAIL'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
-    Mail::to(env('DEVELOPER_EMAIL'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
+    Mail::to(config('app.admin_email'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
+    Mail::to(config('app.developer_email'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
     return response()->json(null, 204);
 });
 
@@ -87,5 +87,5 @@ Route::post('/bug', function (Request $request) {
  * Returns if the client app version is supported by the server
  */
 Route::get('/supported', function (Request $request) {
-    return response()->json($request->version >= env('SUPPORTED_APP_VERSION', 17));
+    return response()->json($request->version >= config('app.supported_version', 17));
 });

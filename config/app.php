@@ -124,6 +124,12 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'supported_version' => env('SUPPORTED_APP_VERSION'),
+
+    'admin_email' => env('ADMIN_EMAIL'),
+
+    'developer_email' => env('DEVELOPER_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
