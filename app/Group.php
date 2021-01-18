@@ -119,8 +119,7 @@ class Group extends Model
             foreach ($purchases_received as $purchase_received) {
                 $balance = bcsub($balance, $purchase_received->amount);
             }
-            $member->member_data->balance = $balance;
-            $member->member_data->save();
+            $member->member_data->update(['balance' => $balance]);
         }
     }
 }

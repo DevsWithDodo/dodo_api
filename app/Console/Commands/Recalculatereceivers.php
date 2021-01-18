@@ -3,23 +3,22 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
-class RestoreDB extends Command
+class RecalculateReceivers extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'restore:db';
+    protected $signature = 'recalculate:receivers {group}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Restore database from backups.';
+    protected $description = 'Recalculate the receivers of the purchases in a group.';
 
     /**
      * Create a new command instance.
@@ -38,6 +37,10 @@ class RestoreDB extends Command
      */
     public function handle()
     {
-        DB::unprepared(file_get_contents(storage_path('app/Csocsort/mysql-homestead.sql')));
+        $group = \App\Group::findOrFail($this->argument('group'));
+        $this->withProgressBar($group->purchases, function ($purchase) {
+            $purchase->recalculateReceivers();
+        });
+        $group->recalculateBalances();
     }
 }

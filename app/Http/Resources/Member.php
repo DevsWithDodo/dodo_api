@@ -14,7 +14,7 @@ class Member extends JsonResource
             'nickname' => $this->member_data->nickname,
             'balance' => floatval($this->member_data->balance),
             'is_admin' => $this->member_data->is_admin,
-            'is_guest' => $this->isGuest() ? 1 : 0
+            'is_guest' => $this->is_guest ? 1 : 0
         ];
     }
 }

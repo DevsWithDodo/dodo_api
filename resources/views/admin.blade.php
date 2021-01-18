@@ -68,7 +68,7 @@
         {id:{{ $user->id }},
         name:"{{ $user->username }}",
         registered_at:"{{ $user->created_at->format('Y/m/d') }}",
-        is_guest:{{ $user->isGuest() ? 1 : 0 }},
+        is_guest:{{ $user->is_guest ? 1 : 0 }},
         groups:{{ $user->groups->count() }},
         default_currency:"{{ $user->default_currency }}",
         language:"{{ $user->language }}",

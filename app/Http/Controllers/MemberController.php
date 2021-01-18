@@ -235,11 +235,13 @@ class MemberController extends Controller
 
         //the request is valid
 
+        $balance = $group->member($guest->id)->member_data->balance;
+
         $guest->mergeDataInto($member->id);
         $group->members()->detach($guest);
         $guest->delete();
 
-        $group->recalculateBalances();
+        $group->addToMemberBalance($member->id, $balance);
 
         return response()->json(null, 204);
     }

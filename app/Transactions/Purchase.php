@@ -38,6 +38,16 @@ class Purchase extends Model
             $remainder = 0;
         }
     }
+    public function recalculateReceivers()
+    {
+        $receivers = $this->receivers->map(function ($item, $key) {
+            return $item->user->id;
+        });
+        $this->receivers()->delete();
+        $this->withoutEvents(function () use ($receivers) {
+            $this->createReceivers($receivers->toArray());
+        });
+    }
 
     public function delete()
     {
