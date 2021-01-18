@@ -10,7 +10,6 @@ use App\Rules\IsMember;
 use App\Transactions\Purchase;
 use App\Http\Resources\Purchase as PurchaseResource;
 
-use App\Notifications\ReceiverNotification;
 use App\Group;
 use App\Transactions\Reactions\PurchaseReaction;
 
@@ -65,16 +64,6 @@ class PurchaseController extends Controller
             $request->receivers
         ));
 
-        //notification
-        foreach ($purchase->receivers as $receiver) {
-            try {
-                if ($receiver->user->id != $user->id)
-                    $receiver->user->notify(new ReceiverNotification($receiver));
-            } catch (\Exception $e) {
-                Log::error('FCM error', ['error' => $e]);
-            }
-        }
-
         return response()->json(new PurchaseResource($purchase), 201);
     }
 
@@ -90,23 +79,17 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        foreach ($purchase->receivers as $receiver) {
-            $receiver->delete();
-        }
         $purchase->update([
             'name' => $request->name,
             'amount' => $request->amount
         ]);
-        $purchase->createReceivers(array_map(
-            function ($i) {
-                return $i['user_id'];
-            },
-            $request->receivers
-        ));
 
+        $new_receivers = array_map(function ($i) {
+            return $i['user_id'];
+        }, $request->receivers);
+
+        $purchase->createReceivers($new_receivers);
         $purchase->touch();
-
-        //TODO notify
 
         return response()->json(new PurchaseResource($purchase), 200);
     }
@@ -115,7 +98,6 @@ class PurchaseController extends Controller
     {
         $this->authorize('delete', $purchase);
         $purchase->delete();
-        //TODO notify
         return response()->json(null, 204);
     }
 

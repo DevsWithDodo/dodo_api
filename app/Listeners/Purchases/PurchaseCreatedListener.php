@@ -26,8 +26,9 @@ class PurchaseCreatedListener
      */
     public function handle(PurchaseCreatedEvent $event)
     {
+        $purchase = $event->purchase;
         if (config('app.debug'))
-            Log::info('purchase created', ["purchase" => $event->purchase]);
-        $event->purchase->group->addToMemberBalance($event->purchase->buyer_id, $event->purchase->amount);
+            Log::info('purchase created', ["purchase" => $purchase]);
+        $purchase->group->addToMemberBalance($purchase->buyer_id, $purchase->amount);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -97,6 +97,7 @@ class MemberTest extends TestCase
                 'member_id' => $user->id
             ]);
         $response->assertStatus(204);
+
 
         //TODO BUG
         //the transactions have no effect

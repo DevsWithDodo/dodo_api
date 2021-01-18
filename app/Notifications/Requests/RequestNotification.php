@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Requests;
 
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -11,18 +11,15 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-use App\Group;
-use App\User;
+use App\Request;
 
-class PromotedToAdminNotification extends Notification
+class RequestNotification extends Notification
 {
-    public Group $group;
-    public User $admin;
+    public Request $request;
 
-    public function __construct(Group $group, User $admin)
+    public function __construct(Request $request)
     {
-        $this->group = $group;
-        $this->admin = $admin;
+        $this->request = $request;
     }
 
     public function via($notifiable)
@@ -32,23 +29,25 @@ class PromotedToAdminNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.promoted_to_admin_descr', [
-            'user' => $message = $this->group->members->find($this->admin)->member_data->nickname,
-            'group' => $this->group->name
+        $message = __('notifications.new_request_descr', [
+            'user' => $this->request->group->members->find($this->request->requester_id)->member_data->nickname,
+            'request' => $this->request->name,
+            'group' => $this->request->group->name,
         ]);
-        $title = __('notifications.promoted_to_admin_title', [
-            'group' => $this->group->name
+        $title = __('notifications.new_request_title', [
+            'group' => $this->request->group->name
         ]);
         return FcmMessage::create()
             ->setData([
-                'id' => '5' . rand(0, 100000),
+                'id' => '7' . rand(0, 100000),
                 'payload' => json_encode([
-                    'screen' => 'home',
-                    'group_id' => $this->group->id,
-                    'group_name' => $this->group->name,
+                    'screen' => 'shopping',
+                    'group_id' => $this->request->group->id,
+                    'group_name' => $this->request->group->name,
                     'details' => null
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

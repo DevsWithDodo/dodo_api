@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Transactions;
 
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -34,7 +34,7 @@ class PaymentNotification extends Notification
             'amount' => round(floatval($this->payment->amount), 2) . " " . $this->payment->group->currency,
             'group' => $this->payment->group->name
         ]);
-        if($this->payment->note)
+        if ($this->payment->note)
             $message .= ' ' . __('notifications.new_payment_message', [
                 'message' => $this->payment->note
             ]);
@@ -51,7 +51,8 @@ class PaymentNotification extends Notification
                     'group_name' => $this->payment->group->name,
                     'details' => 'payment'
                 ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'])
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
+            ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
                 ->setBody($message));

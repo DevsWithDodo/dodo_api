@@ -36,6 +36,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\Purchases\PurchaseReceiverCreatedEvent::class => [
             \App\Listeners\Purchases\PurchaseReceiverCreatedListener::class
         ],
+        \App\Events\Purchases\PurchaseReceiverUpdatedEvent::class => [
+            \App\Listeners\Purchases\PurchaseReceiverUpdatedListener::class
+        ],
         \App\Events\Purchases\PurchaseReceiverDeletedEvent::class => [
             \App\Listeners\Purchases\PurchaseReceiverDeletedListener::class
         ],

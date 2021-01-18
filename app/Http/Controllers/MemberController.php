@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Cache;
 
 use App\Rules\IsMember;
 use App\Rules\UniqueNickname;
-use App\Notifications\ChangedNicknameNotification;
-use App\Notifications\PromotedToAdminNotification;
-use App\Notifications\JoinedGroupNotification;
-use App\Notifications\PaymentNotification;
+use App\Notifications\Members\ChangedNicknameNotification;
+use App\Notifications\Members\PromotedToAdminNotification;
+use App\Notifications\Groups\JoinedGroupNotification;
+use App\Notifications\Transactions\PaymentNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Member as MemberResource;

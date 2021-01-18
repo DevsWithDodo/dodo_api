@@ -39,6 +39,12 @@ class User extends Authenticatable implements HasLocalePreference
         'password', 'password_reminder'
     ];
 
+
+    public function getUsernameAttribute($value)
+    {
+        return $value ?? __('notifications.guest');
+    }
+
     public function getAdFreeAttribute($value)
     {
         if ($this->created_at->addWeeks(2) < now()) return $value;
@@ -76,7 +82,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function preferredLocale()
     {
-        return $this->language;
+        return 'hu'; //$this->language;
     }
 
     //The groups that the user in:

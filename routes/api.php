@@ -27,8 +27,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('groups',                [GroupController::class, 'index'])->name('group.index');
     Route::get('groups/{group}',        [GroupController::class, 'show'])->name('group.show');
     Route::put('groups/{group}',        [GroupController::class, 'update'])->name('group.update');
-    Route::post('groups/{group}/boost', [GroupController::class, 'boost'])->name('group.boost');
     Route::delete('groups/{group}',     [GroupController::class, 'delete'])->name('group.delete');
+
+    /* Boosts */
+    Route::get('groups/{group}/boost', [GroupController::class, 'isBoosted'])->name('group.is_boosted');
+    Route::post('groups/{group}/boost', [GroupController::class, 'boost'])->name('group.boost');
 
     /* Members */
     Route::post('join',                          [MemberController::class, 'store'])->name('member.store');
