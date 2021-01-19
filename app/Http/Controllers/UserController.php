@@ -95,6 +95,11 @@ class UserController extends Controller
         }
     }
 
+    public function balance(Request $request)
+    {
+        return response()->json($request->user->totalBalance());
+    }
+
     public function delete(Request $request)
     {
         $user = $request->user();

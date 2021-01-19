@@ -127,14 +127,13 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function totalBalance()
     {
-        return 0;
-        //TODO optimize
         $currencies = CurrencyController::currencyRates();
         $base = $currencies['base'];
         $rates = $currencies['rates'];
         $result_currency = $this->default_currency;
 
         $result = 0;
+        $this->load('groups');
         foreach ($this->groups as $group) {
             $group_balance = $group->member($this->id)->balance;
             $group_currency = $group->currency;
@@ -142,9 +141,15 @@ class User extends Authenticatable implements HasLocalePreference
                 $result += $group_balance;
             } else {
                 //convert to base currency
-                $in_base = $group_balance   / (($group_currency == $base)   ? 1 : ($rates[$group_currency]  ?? abort(500, "Invalid currency.")));
+                $in_base = $group_balance
+                    / (($group_currency == $base)
+                        ? 1
+                        : ($rates[$group_currency]  ?? abort(500, "Server Error. Invalid currency.")));
                 //convert to result currency
-                $result += $in_base         * (($result_currency == $base)  ? 1 : ($rates[$result_currency] ?? abort(500, "Invalid currency.")));
+                $result += $in_base
+                    * (($result_currency == $base)
+                        ? 1
+                        : ($rates[$result_currency] ?? abort(500, "Server Error. Invalid currency.")));
             }
         }
         return $result;

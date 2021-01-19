@@ -22,6 +22,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('logout',  [LoginController::class, 'logout'])->name('user.logout');
     Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
 
+    Route::get('balance',  [UserController::class, 'balance'])->name('user.balance');
+
     /* Groups */
     Route::post('groups',               [GroupController::class, 'store'])->name('group.store');
     Route::get('groups',                [GroupController::class, 'index'])->name('group.index');
