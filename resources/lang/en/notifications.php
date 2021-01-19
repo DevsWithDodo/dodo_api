@@ -31,5 +31,7 @@ return [
     'shopping_descr' => 'You have been notified that :user is shopping in :store right now. Write something to :group\'s shopping list if you need something!',
     'message_from_developers' => 'Message from the developers',
     'group_boosted_title' => ':group just got a new boost!',
-    'group_boosted_descr' => ':user offered one boost for the group. The member limit lifted to 30! Also, you can see the statistics of the group!'
+    'group_boosted_descr' => ':user offered one boost for the group. The member limit lifted to 30! Also, you can see the statistics of the group!',
+    'trial_ended_title' => 'Trial version ended',
+    'trial_ended_descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Lender are still yours! 😉'
 ];

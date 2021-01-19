@@ -8,13 +8,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
+use App\Notifications\TrialEndedNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements HasLocalePreference
 {
     use Notifiable, HasFactory;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -31,7 +31,8 @@ class User extends Authenticatable implements HasLocalePreference
         'language',
         'ad_free',
         'gradients_enabled',
-        'available_boosts'
+        'available_boosts',
+        'trial'
     ];
 
     protected $hidden = [
@@ -44,16 +45,25 @@ class User extends Authenticatable implements HasLocalePreference
         return $value ?? __('notifications.guest');
     }
 
+    public function getTrialAttribute($value)
+    {
+        if (!($value)) return false;
+        if ($this->created_at->addWeeks(2) < now()) {
+            $this->update(['trial' => 0]);
+            $this->notify(new TrialEndedNotification());
+            return false;
+        }
+        return true;
+    }
+
     public function getAdFreeAttribute($value)
     {
-        if ($this->created_at->addWeeks(2) < now()) return $value;
-        else return 1;
+        return $this->trial ? 1 : $value;
     }
 
     public function getGradientsEnabledAttribute($value)
     {
-        if ($this->created_at->addWeeks(2) < now()) return $value;
-        else return 1;
+        return $this->trial ? 1 : $value;
     }
 
     public function generateToken()

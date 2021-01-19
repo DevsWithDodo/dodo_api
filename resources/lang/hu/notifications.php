@@ -32,6 +32,6 @@ return [
     'message_from_developers' => 'Üzenet a fejlesztőktől',
     'group_boosted_title' => ':group fejlesztve lett',
     'group_boosted_descr' => ':user felhasználta egy csoportfejlesztő Dodóját. Mostantól a csoport létszáma akár 30 is lehet, és használhatjátok a statisztikákat is!',
-
-
+    'trial_ended_title' => 'A két hetes próbaidőd véget ért',
+    'trial_ended_descr' => 'Vegyél reklámmentességet, színeket és egyéb szuper dodóságokat a Dodó boltban! Ne aggódj, minden hasznos funkciója a Lendernek megmaradt 😉',
 ];
