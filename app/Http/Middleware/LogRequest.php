@@ -18,10 +18,10 @@ class LogRequest
     public function handle($request, Closure $next)
     {
         if (config('app.log'))
-            Log::channel('requests')->info('request ', ['path' => $request->path(), 'data' => $request->except(['password', 'password_confirmation', 'old_password', 'new_password', 'new_password_confirmation', 'password_reminder'])]);
+            Log::channel('requests')->info('request ', [$request->method() => $request->path(), 'data' => $request->except(['password', 'password_confirmation', 'old_password', 'new_password', 'new_password_confirmation', 'password_reminder'])]);
         $response = $next($request);
         if (config('app.log'))
-            Log::channel('requests')->info('response', ['path' => $request->path(), 'data' => $response->getContent()]);
+            Log::channel('requests')->info('response', [$request->method() => $request->path(), 'data' => $response->getContent()]);
         return $response;
     }
 }

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
 use App\Http\Resources\Request as RequestResource;
-use App\Notifications\FulfilledRequestNotification;
-use App\Notifications\RequestNotification;
-use App\Notifications\ShoppingNotification;
+use App\Notifications\Requests\FulfilledRequestNotification;
+use App\Notifications\Requests\RequestNotification;
+use App\Notifications\Requests\ShoppingNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
 use App\Transactions\Reactions\RequestReaction;
@@ -70,7 +70,7 @@ class RequestController extends Controller
         $user = auth('api')->user();
 
         try {
-            if ($shopping_request->requester->id != $user->id)
+            if ($shopping_request->requester_id != $user->id)
                 $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);

@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\CurrencyController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements HasLocalePreference
 {
