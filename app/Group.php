@@ -21,7 +21,14 @@ class Group extends Model
         return $this->boosted ? 30 : 8;
     }
 
-    public static function nicknameOf($group_id, $user_id)
+    /**
+     *Returns the nickname of the member in the group.
+     *Should be used always as this works with cache.
+     *@param int the group's id
+     *@param int the user's id
+     *@return string the nickname or '$$deleted_user$$ if not found.
+     */
+    public static function nicknameOf($group_id, $user_id): string
     {
         return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
             $nicknames = [];
@@ -43,9 +50,6 @@ class Group extends Model
         return parent::delete();
     }
 
-    /**
-     * The groups that the user in.
-     */
     public function members()
     {
         return $this
@@ -55,11 +59,22 @@ class Group extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Returns the member, fails if not found.
+     * @param int the member's id
+     */
     public function member($user_id)
     {
         return $this->members()->findOrFail($user_id);
     }
 
+
+    /**
+     * Add the desired amount to the member's balance.
+     * @param int the member's id
+     * @param float the amount to be added
+     * @return void
+     */
     public function addToMemberBalance($user_id, $amount)
     {
         $member = $this->member($user_id);
@@ -94,8 +109,14 @@ class Group extends Model
         return $this->hasMany('App\Request');
     }
 
+    /**
+     * Recalculates the balances based on the existing transactions.
+     * Will not change the existing transactions.
+     * @return void
+     */
     public function recalculateBalances()
     {
+        $this->load('members');
         foreach ($this->members as $member) {
             $balance = 0;
             $payments_payed = $this->payments()->where('payer_id', $member->id)->get();

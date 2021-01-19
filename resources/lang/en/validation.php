@@ -105,8 +105,6 @@ return [
     |
     */
     'incorrect_username_or_password' => 'Incorrect username or password',
-    'balance_negative' => 'Don\'t let your friends down! Your balance must be positive.',
-    'leave_groups' => 'Please leave all your groups before proceeding. They will miss you.',
     'attributes' => [
         'username' => 'username',
         'password' => 'password',

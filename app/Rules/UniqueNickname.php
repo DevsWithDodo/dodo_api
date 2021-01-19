@@ -26,7 +26,7 @@ class UniqueNickname implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->group->members->where('member_data.nickname', $value)->count() == 0;
+        return $this->group->members()->where('member_data.nickname', $value)->count() == 0;
     }
 
     /**
@@ -36,6 +36,6 @@ class UniqueNickname implements Rule
      */
     public function message()
     {
-        return '$$taken$:attribute$$';
+        return __('errors.taken_nickname');
     }
 }

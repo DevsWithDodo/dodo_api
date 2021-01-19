@@ -13,10 +13,8 @@ class Payment extends JsonResource
         return [
             'payment_id' => $this->id,
             'payer_id' => $this->payer_id,
-            //'payer_username' =>
             'payer_nickname' => Group::nicknameOf($this->group_id, $this->payer_id),
             'taker_id' => $this->taker_id,
-            //'taker_username' =>
             'taker_nickname' => Group::nicknameOf($this->group_id, $this->taker_id),
             'amount' => round(floatval($this->amount), 2),
             'note' => $this->note,

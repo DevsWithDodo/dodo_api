@@ -2,14 +2,10 @@
 
 namespace App\Notifications\Requests;
 
+use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\AndroidConfig;
-use NotificationChannels\Fcm\Resources\AndroidFcmOptions;
-use NotificationChannels\Fcm\Resources\AndroidNotification;
-use NotificationChannels\Fcm\Resources\ApnsConfig;
-use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Request;
 use App\User;
@@ -32,8 +28,9 @@ class FulfilledRequestNotification extends Notification
 
     public function toFcm($notifiable)
     {
+        $group = $this->request->group;
         $message = __('notifications.fulfilled_request_descr', [
-            'user' => $this->request->group->members->find($this->fulfiller)->member_data->nickname,
+            'user' => Group::nicknameOf($group, $this->fulfiller->id),
             'request' => $this->request->name
         ]);
         $title = __('notifications.fulfilled_request_title');
@@ -42,8 +39,8 @@ class FulfilledRequestNotification extends Notification
                 'id' => '2' . rand(0, 100000),
                 'payload' => json_encode([
                     'screen' => 'shopping',
-                    'group_id' => $this->request->group->id,
-                    'group_name' => $this->request->group->name,
+                    'group_id' => $group->id,
+                    'group_name' => $group->name,
                     'details' => null
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'

@@ -41,7 +41,6 @@ class RequestController extends Controller
             "requester_id" => $user->id,
         ]);
 
-        //notify
         try {
             foreach ($group->members->except($user->id) as $member)
                 $member->notify(new RequestNotification($shopping_request));
@@ -76,7 +75,6 @@ class RequestController extends Controller
             Log::error('FCM error', ['error' => $e]);
         }
 
-        //TODO make 'redo' possible
         $shopping_request->delete();
         return response()->json(null, 204);
     }
@@ -94,6 +92,7 @@ class RequestController extends Controller
             ->where('request_id', $request->request_id)
             ->first();
 
+        //Create, update, or delete reaction
         if ($reaction) {
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);
@@ -108,7 +107,9 @@ class RequestController extends Controller
         return response()->json(null, 204);
     }
 
-    /* I'm shopping notification */
+    /**
+     * Send a notification to the group members that the user is currently shopping.
+     */
     public function sendShoppingNotification(Request $request, Group $group)
     {
         $user = auth('api')->user();

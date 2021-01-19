@@ -46,9 +46,7 @@ class MemberController extends Controller
             'nickname' => $request->nickname,
             'is_admin' => false
         ]);
-        Cache::forget($group->id . '_balances');
 
-        //notify
         try {
             foreach ($group->members as $member)
                 if ($member->id != $user->id)
@@ -69,15 +67,12 @@ class MemberController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $member_to_update = $group->members->find($request->member_id ?? $user->id);
+        $member_to_update = $group->member($request->member_id ?? $user->id);
 
         $this->authorize('edit_member', [$group, $member_to_update]);
 
-        //the request is valid
-
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
-        //notify
         try {
             if ($user->id != $member_to_update->id)
                 $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
@@ -102,17 +97,17 @@ class MemberController extends Controller
         $group->member($member->id)
             ->member_data->update(['is_admin' => $request->admin]);
 
-        //notify
         try {
             if ($request->admin && $member->id != $user->id)
                 $member->notify(new PromotedToAdminNotification($group, $user));
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
+
         //make everyone an admin if there is no admin left
         if ($group->admins()->count() == 0)
-            //TODO possibly buggy
-            $group->members()->update(['is_admin' => true]);
+            foreach ($group->members as $member)
+                $member->member_data->update(['is_admin' => true]);
 
         return response()->json(null, 204);
     }
@@ -125,12 +120,12 @@ class MemberController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $member_to_delete = $group->members->find($request->member_id ?? $user->id);
+        $member_to_delete = $group->member($request->member_id ?? $user->id);
         $this->authorize('edit_member', [$group, $member_to_delete]);
 
         $balance = $group->member($member_to_delete->id)->member_data->balance;
         if ($member_to_delete->id == $user->id) { //leaving
-            if ($balance < 0) abort(400, __('validation.balance_negative'));
+            if ($balance < 0) abort(400, __('errors.balance_negative'));
             if ($balance > 0) {
                 $balance_divided = bcdiv($balance, ($group->members->count() - 1));
                 $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
@@ -163,7 +158,6 @@ class MemberController extends Controller
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
         $group->members()->detach($member_to_delete->id);
 
-        //TODO notify
 
         if ($group->members()->count() == 0)
             $group->delete();
@@ -177,6 +171,7 @@ class MemberController extends Controller
     /**
      * Guests
      */
+
     public function hasGuests(Group $group)
     {
         $this->authorize('edit', $group);
@@ -207,7 +202,6 @@ class MemberController extends Controller
             'is_admin' => false
         ]);
 
-        //notify
         try {
             foreach ($group->members as $member)
                 if ($member->id != $guest->id)
@@ -215,11 +209,12 @@ class MemberController extends Controller
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
+
         return response()->json(new UserResource($guest), 201);
     }
 
     /**
-     * Merge a guest's data to a member's data and delete guest.
+     * Merge a guest's data to a member's data and delete the guest.
      **/
     public function mergeGuest(Request $request, Group $group)
     {
@@ -229,8 +224,8 @@ class MemberController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $guest = User::find($request->guest_id);
-        $member = User::find($request->member_id);
+        $guest = User::findOrFail($request->guest_id);
+        $member = User::findOrFail($request->member_id);
         $this->authorize('merge_guest', [$group, $guest]);
 
         //the request is valid

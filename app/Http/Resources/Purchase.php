@@ -20,12 +20,9 @@ class Purchase extends JsonResource
         return [
             'transaction_id' => $this->id,
             'name' => $this->name,
-            //'group_id' => $this->group_id,
-            //'group_name' => $this->group->name,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'buyer_id' => $this->buyer_id,
-            //'buyer_username' => ,
             'buyer_nickname' => Group::nicknameOf($this->group_id, $this->buyer_id),
             'total_amount' => round(floatval($this->amount), 2),
             'receivers' => PurchaseReceiver::collection($this->receivers),

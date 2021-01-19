@@ -61,6 +61,12 @@ class Purchase extends Model
             $remainder = 0;
         }
     }
+
+    /**
+     * Deletes, recalculates, and recreates the receivers of the purchase.
+     * Should be used only for testing purposes as this can take a while.
+     * @return void
+     * */
     public function recalculateReceivers()
     {
         $receivers = $this->receivers->map(function ($item, $key) {

@@ -15,13 +15,9 @@ use Illuminate\Support\Facades\DB;
 class User extends Authenticatable implements HasLocalePreference
 {
     use Notifiable, HasFactory;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+
     protected $fillable = [
-        'username',
+        'username', //returns guest if null
         'password',
         'api_token',
         'password_reminder',
@@ -29,10 +25,11 @@ class User extends Authenticatable implements HasLocalePreference
         'default_currency',
         'fcm_token',
         'language',
-        'ad_free',
-        'gradients_enabled',
+        'ad_free', //true if trial is active
+        'gradients_enabled', //true if trial is active
         'available_boosts',
         'trial'
+        //is_guest
     ];
 
     protected $hidden = [
@@ -40,12 +37,19 @@ class User extends Authenticatable implements HasLocalePreference
     ];
 
 
-    public function getUsernameAttribute($value)
+    public function getUsernameAttribute($value): string
     {
         return $value ?? __('notifications.guest');
     }
 
-    public function getTrialAttribute($value)
+    public function getIsGuestAttribute()
+    {
+        return $this->password == null;
+    }
+    /**
+     * Decides if the user is registered within the last two weeks.
+     */
+    public function getTrialAttribute($value): bool
     {
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
@@ -56,16 +60,21 @@ class User extends Authenticatable implements HasLocalePreference
         return true;
     }
 
-    public function getAdFreeAttribute($value)
+    public function getAdFreeAttribute($value): bool
     {
         return $this->trial ? 1 : $value;
     }
 
-    public function getGradientsEnabledAttribute($value)
+    public function getGradientsEnabledAttribute($value): bool
     {
         return $this->trial ? 1 : $value;
     }
 
+    /**
+     * Creates an api token for the user that is used for authentication.
+     *
+     * @return string the token
+     */
     public function generateToken()
     {
         $this->api_token = Str::random(60);
@@ -91,10 +100,9 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function preferredLocale()
     {
-        return 'hu'; //$this->language;
+        return $this->language;
     }
 
-    //The groups that the user in:
     public function groups()
     {
         return $this
@@ -102,11 +110,6 @@ class User extends Authenticatable implements HasLocalePreference
             ->as('member_data')
             ->withPivot('nickname', 'is_admin', 'balance')
             ->withTimestamps();
-    }
-
-    public function memberIn($group_id)
-    {
-        return $this->groups()->where('group_id', $group_id)->first();
     }
 
     /**
@@ -127,36 +130,15 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function totalBalance()
     {
-        $currencies = CurrencyController::currencyRates();
-        $base = $currencies['base'];
-        $rates = $currencies['rates'];
-        $result_currency = $this->default_currency;
-
-        $result = 0;
         $this->load('groups');
+        $result = 0;
         foreach ($this->groups as $group) {
-            $group_balance = $group->member($this->id)->balance;
-            $group_currency = $group->currency;
-            if ($group_currency == $result_currency) {
-                $result += $group_balance;
-            } else {
-                //convert to base currency
-                $in_base = $group_balance
-                    / (($group_currency == $base)
-                        ? 1
-                        : ($rates[$group_currency]  ?? abort(500, "Server Error. Invalid currency.")));
-                //convert to result currency
-                $result += $in_base
-                    * (($result_currency == $base)
-                        ? 1
-                        : ($rates[$result_currency] ?? abort(500, "Server Error. Invalid currency.")));
-            }
+            $result += CurrencyController::exchangeCurrency(
+                from_currency: $group->currency,
+                to_currency: $this->default_currency,
+                amount: $group->member($this->id)->balance
+            );
         }
         return $result;
-    }
-
-    public function getIsGuestAttribute()
-    {
-        return $this->password == null;
     }
 }

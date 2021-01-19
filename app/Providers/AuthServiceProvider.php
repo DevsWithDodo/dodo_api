@@ -34,7 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('is_not_guest', function (User $user) {
-            return $user->is_guest ? Response::deny('Unauthorized for guest users.') : Response::allow();
+            return $user->is_guest ? Response::deny(__('errors.unauthorized_for_guests')) : Response::allow();
         });
         Gate::define('member', function (User $user, Group $group) {
             return $group->members->contains($user);

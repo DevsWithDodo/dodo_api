@@ -5,11 +5,6 @@ namespace App\Notifications\Requests;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\AndroidConfig;
-use NotificationChannels\Fcm\Resources\AndroidFcmOptions;
-use NotificationChannels\Fcm\Resources\AndroidNotification;
-use NotificationChannels\Fcm\Resources\ApnsConfig;
-use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Group;
 use App\User;
@@ -35,12 +30,12 @@ class ShoppingNotification extends Notification
     public function toFcm($notifiable)
     {
         $message = __('notifications.shopping_descr', [
-            'user' => $this->group->members->find($this->user)->member_data->nickname,
+            'user' => Group::nicknameOf($this->group->id, $this->user->id),
             'store' => $this->store,
             'group' => $this->group->name
         ]);
         $title = __('notifications.shopping_title', [
-            'user' => $this->group->members->find($this->user)->member_data->nickname
+            'user' => Group::nicknameOf($this->group->id, $this->user->id),
         ]);
         return FcmMessage::create()
             ->setData([

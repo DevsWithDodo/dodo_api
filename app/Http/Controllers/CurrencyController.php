@@ -26,8 +26,33 @@ class CurrencyController extends Controller
             return $result;
         });
     }
+
+    private static function getBaseCurrency(): string
+    {
+        return CurrencyController::currencyRates()['base'];
+    }
+
     public static function currencyList(): array
     {
         return array_keys(CurrencyController::currencyRates()['rates']);
+    }
+
+    public static function exchangeCurrency($from_currency, $to_currency, $amount): float
+    {
+        $rates = CurrencyController::currencyRates();
+        if ($from_currency == $to_currency) {
+            return $amount;
+        } else {
+            //convert to base currency
+            $in_base = $amount
+                / (($from_currency == CurrencyController::getBaseCurrency())
+                    ? 1
+                    : ($rates[$from_currency]  ?? abort(500, "Server Error. Invalid currency.")));
+            //convert to result currency
+            return $in_base
+                * (($to_currency == CurrencyController::getBaseCurrency())
+                    ? 1
+                    : ($rates[$to_currency] ?? abort(500, "Server Error. Invalid currency.")));
+        }
     }
 }

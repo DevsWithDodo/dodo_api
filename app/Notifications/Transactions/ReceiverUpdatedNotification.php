@@ -2,14 +2,10 @@
 
 namespace App\Notifications\Transactions;
 
+use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\AndroidConfig;
-use NotificationChannels\Fcm\Resources\AndroidFcmOptions;
-use NotificationChannels\Fcm\Resources\AndroidNotification;
-use NotificationChannels\Fcm\Resources\ApnsConfig;
-use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Transactions\PurchaseReceiver;
 
@@ -29,10 +25,12 @@ class ReceiverUpdatedNotification extends Notification
 
     public function toFcm($notifiable)
     {
+        $purchase = $this->receiver->purchase;
+        $group = $purchase->group;
         $message = __('notifications.receiver_updated_descr', [
-            'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
-            'purchase' => $this->receiver->purchase->name,
-            'amount' => round(floatval($this->receiver->amount), 2) . " " . $this->receiver->purchase->group->currency,
+            'user' => Group::nicknameOf($group->id, $purchase->buyer->id),
+            'purchase' => $purchase->name,
+            'amount' => round(floatval($this->receiver->amount), 2) . " " . $group->currency,
         ]);
         $title = __('notifications.receiver_updated_title');
         return FcmMessage::create()
@@ -40,8 +38,8 @@ class ReceiverUpdatedNotification extends Notification
                 'id' => '6' . rand(0, 100000),
                 'payload' => json_encode([
                     'screen' => 'home',
-                    'group_id' => $this->receiver->purchase->group->id,
-                    'group_name' => $this->receiver->purchase->group->name,
+                    'group_id' => $group->id,
+                    'group_name' => $group->name,
                     'details' => 'purchase'
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'

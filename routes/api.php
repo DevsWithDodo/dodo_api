@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PurchaseController;
@@ -12,14 +11,14 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 
 Route::post('register',         [UserController::class, 'register'])->name('user.register');
-Route::post('login',            [LoginController::class, 'login'])->name('user.login');
+Route::post('login',            [UserController::class, 'login'])->name('user.login');
 Route::get('password_reminder', [UserController::class, 'passwordReminder'])->name('user.password_reminder');
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
     Route::get('user',     [UserController::class, 'show'])->name('user.show');
     Route::put('user',     [UserController::class, 'update'])->name('user.update');
-    Route::post('logout',  [LoginController::class, 'logout'])->name('user.logout');
+    Route::post('logout',  [UserController::class, 'logout'])->name('user.logout');
     Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
 
     Route::get('balance',  [UserController::class, 'balance'])->name('user.balance');

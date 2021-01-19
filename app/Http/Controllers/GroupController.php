@@ -108,9 +108,7 @@ class GroupController extends Controller
     public function delete(Group $group)
     {
         $this->authorize('edit', $group);
-
         $group->delete();
-
         return response()->json(null, 204);
     }
 }

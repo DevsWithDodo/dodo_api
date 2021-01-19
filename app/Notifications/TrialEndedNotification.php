@@ -31,10 +31,7 @@ class TrialEndedNotification extends Notification
             ->setData([
                 'id' => '' . rand(0, 100000),
                 'payload' => json_encode([
-                    'screen' => 'store',
-                    //'group_id' => $this->group->id,
-                    //'group_name' => $this->group->name,
-                    'details' => null
+                    'screen' => 'store'
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
             ])

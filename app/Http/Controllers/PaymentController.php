@@ -93,6 +93,7 @@ class PaymentController extends Controller
             ->where('payment_id', $request->payment_id)
             ->first();
 
+        //Create, update, or delete reaction
         if ($reaction) {
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);

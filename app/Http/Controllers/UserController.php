@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -14,12 +17,14 @@ use App\Http\Resources\User as UserResource;
 
 use App\User;
 
+
 class UserController extends Controller
 {
-    public function show()
+    use AuthenticatesUsers;
+
+    public function username()
     {
-        $user = auth('api')->user();
-        return new UserResource($user);
+        return 'username';
     }
 
     public function register(Request $request)
@@ -46,6 +51,51 @@ class UserController extends Controller
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
+    }
+
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        if ($this->attemptLogin($request)) {
+            $user = $request->user();
+            if ($user->token == null) {
+                $user->generateToken();
+            }
+            if ($request->fcm_token) {
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+            }
+            return new UserResource($user);
+        }
+        abort(400, __('validation.incorrect_username_or_password'));
+    }
+
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user) {
+            $user->api_token = null;
+            $user->fcm_token = null;
+            $user->save();
+        }
+
+        return response()->json(null, 204);
+    }
+
+    public function show()
+    {
+        $user = auth('api')->user();
+        return new UserResource($user);
     }
 
     public function update(Request $request)
@@ -103,7 +153,7 @@ class UserController extends Controller
     public function delete(Request $request)
     {
         $user = $request->user();
-        if ($user->groups->count() > 0) abort(400, __('validation.leave_groups'));
+        if ($user->groups->count() > 0) abort(400, __('errors.leave_groups'));
         $user->delete();
 
         return response()->json(null, 204);

@@ -36,6 +36,6 @@ class IsMember implements Rule
      */
     public function message()
     {
-        return '$$not_member$:attribute$$';
+        return __('errors.not_member');
     }
 }

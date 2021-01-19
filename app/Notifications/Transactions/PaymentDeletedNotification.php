@@ -2,14 +2,10 @@
 
 namespace App\Notifications\Transactions;
 
+use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\AndroidConfig;
-use NotificationChannels\Fcm\Resources\AndroidFcmOptions;
-use NotificationChannels\Fcm\Resources\AndroidNotification;
-use NotificationChannels\Fcm\Resources\ApnsConfig;
-use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Transactions\Payment;
 
@@ -29,10 +25,11 @@ class PaymentDeletedNotification extends Notification
 
     public function toFcm($notifiable)
     {
+        $group = $this->payment->group;
         $message = __('notifications.deleted_payment_descr', [
-            'user' =>  $this->payment->group->members->find($this->payment->payer_id)->member_data->nickname,
-            'amount' => round(floatval($this->payment->amount), 2) . " " . $this->payment->group->currency,
-            'group' => $this->payment->group->name
+            'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
+            'amount' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
+            'group' => $group->name
         ]);
 
         $title = __('notifications.deleted_payment_title');
@@ -41,8 +38,8 @@ class PaymentDeletedNotification extends Notification
                 'id' => '4' . rand(0, 100000),
                 'payload' => json_encode([
                     'screen' => 'home',
-                    'group_id' => $this->payment->group->id,
-                    'group_name' => $this->payment->group->name,
+                    'group_id' => $group->id,
+                    'group_name' => $group->name,
                     'details' => 'payment'
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'

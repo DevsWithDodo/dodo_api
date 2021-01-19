@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use App\Rules\IsMember;
 
 use App\Transactions\Purchase;
@@ -48,7 +47,7 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $group = Group::find($request->group);
+        $group = Group::findOrFail($request->group);
         $this->authorize('member', $group);
 
         $purchase = Purchase::create([
@@ -114,6 +113,7 @@ class PurchaseController extends Controller
             ->where('purchase_id', $request->purchase_id)
             ->first();
 
+        //Create, update, or delete reaction
         if ($reaction) {
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);

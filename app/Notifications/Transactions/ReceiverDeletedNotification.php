@@ -2,14 +2,10 @@
 
 namespace App\Notifications\Transactions;
 
+use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\AndroidConfig;
-use NotificationChannels\Fcm\Resources\AndroidFcmOptions;
-use NotificationChannels\Fcm\Resources\AndroidNotification;
-use NotificationChannels\Fcm\Resources\ApnsConfig;
-use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
 use App\Transactions\PurchaseReceiver;
 
@@ -29,8 +25,9 @@ class ReceiverDeletedNotification extends Notification
 
     public function toFcm($notifiable)
     {
+        $group = $this->receiver->group;
         $message = __('notifications.receiver_deleted_descr', [
-            'user' => $this->receiver->purchase->group->members->find($this->receiver->purchase->buyer)->member_data->nickname,
+            'user' => Group::nicknameOf($group->id, $this->receiver->purchase->buyer_id),
             'purchase' => $this->receiver->purchase->name
         ]);
         $title = __('notifications.receiver_deleted_title');
@@ -39,8 +36,8 @@ class ReceiverDeletedNotification extends Notification
                 'id' => '6' . rand(0, 100000),
                 'payload' => json_encode([
                     'screen' => 'home',
-                    'group_id' => $this->receiver->purchase->group->id,
-                    'group_name' => $this->receiver->purchase->group->name,
+                    'group_id' => $group->id,
+                    'group_name' => $group->name,
                     'details' => 'purchase'
                 ]),
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK'

@@ -17,7 +17,7 @@ class GroupPolicy
     public function notGuest(User $user)
     {
         if ($user->is_guest) {
-            return Response::deny('Unauthorized for guest users.');
+            return Response::deny(__('errors.unauthorized_for_guests'));
         }
     }
 
@@ -25,9 +25,9 @@ class GroupPolicy
     {
         $this->notGuest($user);
         if ($group->members->count() >= $group->member_limit)
-            return Response::deny('The group\'s member limit is reached.');
+            return Response::deny(__('errors.group_limit_reached'));
         if ($group->members->contains($user))
-            return Response::deny('You are already a member of this group.');
+            return Response::deny(__('errors.already_member'));
 
         return Response::allow();
     }
@@ -36,9 +36,9 @@ class GroupPolicy
     {
         $this->notGuest($user);
         if ($group->boosted)
-            return Response::deny('The group is boosted already.');
+            return Response::deny(__('errors.already_boosted'));
         if ($user->available_boosts <= 0)
-            return Response::deny('You do not have any boosts available.');
+            return Response::deny(__('erros.no_boosts'));
         return Response::allow();
     }
 
@@ -59,7 +59,7 @@ class GroupPolicy
         if ($user->id == $member->id)
             return Response::allow();
         if (!($group->member($user->id)->member_data->is_admin))
-            return Response::deny('You must be an admin.');
+            return Response::deny(__('errors.must_be_admin'));
         return Response::allow();
     }
 
@@ -67,7 +67,7 @@ class GroupPolicy
     {
         $this->notGuest($user);
         if (!($group->member($user->id)->member_data->is_admin))
-            return Response::deny('You must be an admin.');
+            return Response::deny(__('errors.must_be_admin'));
         return Response::allow();
     }
 
@@ -75,9 +75,9 @@ class GroupPolicy
     {
         $this->notGuest($user);
         if ($group->members->count() >= $group->member_limit)
-            return Response::deny('The group\'s member limit is reached.');
+            return Response::deny(__('errors.group_limit_reached'));
         if (!($group->member($user->id)->member_data->is_admin))
-            return Response::deny('You must be an admin.');
+            return Response::deny(__('errors.must_be_admin'));
         return Response::allow();
     }
 
@@ -85,9 +85,9 @@ class GroupPolicy
     {
         $this->notGuest($user);
         if (!($group->member($user->id)->member_data->is_admin))
-            return Response::deny('You must be an admin');
+            return Response::deny(__('errors.must_be_admin'));
         if (!($guest->is_guest))
-            return Response::deny('The chosen user is not a guest.');
+            return Response::deny(__('errors.must_be_guest'));
         return Response::allow();
     }
 }

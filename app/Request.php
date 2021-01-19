@@ -5,6 +5,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents the items on the shopping lists.
+ */
 class Request extends Model
 {
     use HasFactory;
