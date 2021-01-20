@@ -85,7 +85,7 @@
                         We store the group you last viewed to make your experience better.</li>
                     <li><b>Statistics</b>
                         We can create statistics (eg. how many groups are you a member of, how many transactions you
-                        make) to see which of our feautures are popular and to make Lender better.</li>
+                        make, what color do you use) to see which of our feautures are popular and to make Lender better.</li>
                 </ol>
                 <h4>Who can see my data?</h4>
                 Your username, nicknames and the data mentioned in point 3. in the above list can be seen by other
@@ -144,9 +144,7 @@
                 <h4>In-App purchases</h4>
                 Our third parties (Google Play, App Store) may collect your account number and other financial details
                 if you use our in-app purchases. We can not access and we do not store these information as
-                these transactions are handled by our third parties. However, if you use these services you agree that
-                our third parties may send us your personal information (such as name, email address) which we can use
-                to contact you and apply the extra services you bought.<br>
+                these transactions are handled by our third parties.<br>
                 The above service's Privacy Policy Notices can be found here:
                 <a href="https://policies.google.com/privacy" target="__blank" style="color: black">
                     Google's privacy policy</a>,
@@ -197,7 +195,7 @@
                 Sámuel Szajbély, <a href="mailto:developer@lenderapp.net" target="__blank"
                     style="color: black">developer@lenderapp.net</a>,<br>
             </div>
-            <p>Updated: 2020.01.17.</p>
+            <p>Updated: 2020.01.20.</p>
         </div>
     </div>
 </body>
