@@ -38,7 +38,7 @@ class GroupPolicy
         if ($group->boosted)
             return Response::deny(__('errors.already_boosted'));
         if ($user->available_boosts <= 0)
-            return Response::deny(__('erros.no_boosts'));
+            return Response::deny(__('errors.no_boosts'));
         return Response::allow();
     }
 
