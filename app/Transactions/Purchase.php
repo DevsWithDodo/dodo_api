@@ -4,6 +4,7 @@ namespace App\Transactions;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Purchase extends Model
 {
@@ -40,7 +41,12 @@ class Purchase extends Model
                 $old_receiver_users[] = $receiver->receiver_id;
             }
         }
-
+        if (count($receivers) == 0) {
+            echo "Deleting purchase (".$this->name. ", ".$this->amount.") in group ".$this->group->id." because it has no receivers.\n";
+            Log::info("Deleting purchase (".$this->name. ", ".$this->amount.") in group ".$this->group->id." because it has no receivers.\n", ['purchase' => $this]);
+            $this->delete();
+            return;
+        }
         $amount_divided = bcdiv($this->amount, count($receivers));
         $remainder = bcsub($this->amount, bcmul($amount_divided, count($receivers)));
         foreach ($receivers as $receiver_user) {
