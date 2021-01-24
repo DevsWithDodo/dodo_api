@@ -36,7 +36,7 @@ class MemberController extends Controller
         $group = Group::firstWhere('invitation', $request->invitation_token);
         $validator = Validator::make($request->all(), [
             'invitation_token' => 'required|string|exists:groups,invitation',
-            'nickname' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
+            'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -63,7 +63,7 @@ class MemberController extends Controller
         $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group->id)],
-            'nickname' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
+            'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -183,7 +183,7 @@ class MemberController extends Controller
     {
         $this->authorize('add_guest', $group);
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|min:1|max:15', new UniqueNickname($group->id),
+            'username' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
             'language' => 'required|in:en,hu,it,de',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
