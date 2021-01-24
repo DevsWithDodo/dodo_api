@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:url" content="{{ Request::url() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="http://www.lenderapp.net/landscape_preview" />
+    <meta property="og:image" content="https://www.lenderapp.net/landscape_preview" />
     <meta property="og:description" content="Money and debt management app designed for groups." />
     @if($group == null)
     <meta property="og:title" content="{{ config('app.name') }}" />

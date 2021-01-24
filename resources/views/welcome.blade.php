@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:url" content="{{ Request::url() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="http://www.lenderapp.net/landscape_preview" />
+    <meta property="og:image" content="https://www.lenderapp.net/landscape_preview" />
     <meta property="og:image:width" content="160" />
     <meta property="og:image:height" content="63" />
     <meta property="og:title" content="{{ config('app.name') }}" />
@@ -29,24 +29,15 @@
     <div class="flex-center position-ref full-height">
         <div class="top-right">
             <a href="https://github.com/machiato32/csocsort_app" target="_blank">
-                <img src="/GitHub_Logo.png" alt="GitHub logo" height="25px">
+                <img src="/GitHub_Logo.png" alt="Available on GitHub" height="25px">
             </a>
         </div>
         <div class="content">
-            <img src="logo_color.png" alt="Lender logo" height="200px">
-            <div class="title">Lender</div>
-            <p class="large uppercase">Money and debt management app designed for groups</p>
-            <a href="http://bit.ly/3bu0ICa" class="joinBtn"
-                style="background-color: white;opacity:0.8;color:rgb(47, 167, 207);font-weight:bold;padding:10px">
-                <table>
-                    <tr>
-                        <td>
-                            <span class="join_group">Support us on</span><br>
-                            <img src="/PayPal_logo.png" alt="paypal logo" height="30px">
-                        </td>
-                    </tr>
-                </table>
-            </a>
+            <img src="logo_color.png" height="200px">
+            <h1><span class="title">Lender</span></h1>
+            <h2>
+                <p class="large uppercase">Money and debt management app designed for groups</p>
+            </h2>
         </div>
         <div class="bottom">
             <a
@@ -59,7 +50,7 @@
                 <table>
                     <tr>
                         <td>
-                            <img src="/apple_logo.png" alt="apple logo" height="38px">
+                            <img src="/apple_logo.png" height="38px">
                         </td>
                         <td>
                             <span class="join_group">Coming Soon to the</span><br>
