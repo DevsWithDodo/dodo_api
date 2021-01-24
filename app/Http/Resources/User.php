@@ -15,9 +15,9 @@ class User extends JsonResource
             'last_active_group' => $this->last_active_group,
             'default_currency' => $this->default_currency,
             'total_balance' => 0, //TODO delete
-            'ad_free' => $this->ad_free,
-            'gradients_enabled' => $this->gradients_enabled,
-            'available_boosts' => $this->available_boosts,
+            'ad_free' => $this->ad_free ? 1 : 0,
+            'gradients_enabled' => $this->gradients_enabled ? 1 : 0,
+            'available_boosts' => $this->available_boosts ? 1 : 0,
         ];
     }
 }
