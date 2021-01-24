@@ -140,7 +140,7 @@ class PurchaseTest extends TestCase
                     'receivers' => $user_ids
                 ]);
             $response->assertStatus(201);
-            $id = $response->json()["transaction_id"];
+            $id = $response->json()["purchase_id"];
             $response = $this->actingAs($buyer, 'api')
                 ->putJson(route('purchases.update', $id),  [
                     'name' => $purchase2->name,
