@@ -1,6 +1,6 @@
 // --- Config --- //
-var purecookieTitle = "🍪Cookies"; // Title
-var purecookieDesc = "Even Dodos do not like cookies. However, we use some essential ones to run our site. We do not collect and send any personal data.";
+var purecookieTitle = "🍪Not even Dodos like cookies."; // Title
+var purecookieDesc = "However, we use some essential ones to run our site. We do not collect and send any personal data to anyone.";
 var purecookieLink = 'See our <a href="privacy-policy">privacy policy</a> for more information.'; // Cookiepolicy link
 var purecookieButton = "I consent."; // Button text
 // ---        --- //
