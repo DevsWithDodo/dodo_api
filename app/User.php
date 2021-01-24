@@ -60,12 +60,12 @@ class User extends Authenticatable implements HasLocalePreference
         return true;
     }
 
-    public function getAdFreeAttribute($value): bool
+    public function getAdFreeAttribute($value)
     {
         return $this->trial ? 1 : $value;
     }
 
-    public function getGradientsEnabledAttribute($value): bool
+    public function getGradientsEnabledAttribute($value)
     {
         return $this->trial ? 1 : $value;
     }
