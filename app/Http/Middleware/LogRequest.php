@@ -23,7 +23,7 @@ class LogRequest
         $response = $next($request);
 
         if (config('app.log'))
-            Log::channel('requests')->info('response', [$request->method() => $request->path(), 'data' => $response->getContent()]);
+            Log::channel('requests')->info('response', [$request->method() => $request->path(), 'data' => ($request->is('api/*') ? $response->getContent() : "A nice little html...")]);
 
         return $response;
     }

@@ -101,6 +101,8 @@ class Handler extends ExceptionHandler
                 $response['trace'] = $e->getTrace();
             }
 
+            if($response['error'] == "") $response['error'] = "Server Error";
+
             // Return a JSON response with the response array and status code
             return response()->json($response, $status);
         }
