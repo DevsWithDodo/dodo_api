@@ -84,8 +84,8 @@
                         you customize Lender as you wish.
                         We store the group you last viewed to make your experience better.</li>
                     <li><b>Statistics</b>
-                        We can create statistics (eg. how many groups are you a member of, how many transactions you
-                        make, what color do you use) to see which of our feautures are popular and to make Lender better.</li>
+                        We can create anonymous usage statistics (eg. avarage group size, what are the favourite color
+                        themes) to see which of our feautures are popular and to make Lender better.</li>
                 </ol>
                 <h4>Who can see my data?</h4>
                 Your username, nicknames and the data mentioned in point 3. in the above list can be seen by other
@@ -116,9 +116,9 @@
                     target="__blank" style="color: black">
                     You can read more about your rights in details here.</a><br>
                 Contact us (see our contact information below) if you want to claim your rights.<br>
-                You also have the right to complain to the <a href="https://www.naih.hu" target="__blank"
-                    style="color: black">NAIH</a> if you feel there is a problem with the way we are handling
-                your data.<br>
+                You also have the right to complain to the
+                <a href="https://www.naih.hu" target="__blank" style="color: black">NAIH</a> if you feel there is a
+                problem with the way we are handling your data.<br>
                 We handle subject access requests in accordance with the GDPR.<br><br>
                 Since our service does not include any decisions, our users are not subject to any automated
                 decision-making algorithms. Also, we do not create profiles from our users.
@@ -128,11 +128,10 @@
                 secure.
                 We do this by placing a small text file on your device / computer hard drive.
                 Our cookies are required to enjoy and use the full functionality of this website.
-                We use a cookie control system which allows you to accept the use of cookies, and
-                control which cookies are saved to your device / computer. Our cookies will be
-                saved for a maximum of one week. Your web browser should provide you with the controls to
-                manage and
-                delete cookies from your device, please see your web browser options.
+                We do not collect any personal information or usage data with cookies.
+                We use a cookie control system which allows you to accept the use of cookies.
+                Our cookies will be saved for a maximum of one week. Your web browser should provide you with the
+                controls to manage and delete cookies from your device, please see your web browser options.
 
                 <h2>Data security and protection</h2>
                 We ensure the security of any personal information we hold by using secure data
@@ -159,7 +158,7 @@
                     href="https://firebase.google.com/support/privacy" target="__blank" style="color: black">can be
                     found here.</a>
                 <h4>Adverts & commissions</h4>
-                Our website and app may contain adverts. These are served through Google AdMob.
+                Our website and app may contain adverts. These are served through MoPub.
                 We do not control the actual adverts seen / displayed.
                 Our ad partners may collect data and use cookies for ad
                 personalisation and measurement. Where ad preferences are requested as 'nonpersonalised' cookies
@@ -176,7 +175,9 @@
                 to continue our work and provide you with the best
                 overall experience and valued information.
                 If you have any concerns about this we suggest you do not click on any adverts found throughout
-                our services.
+                our services.<br>
+                <a href="https://www.mopub.com/en/legal/privacy" target="__blank" style="color: black">MoPub's Privacy
+                    Policy Notice can be found here.</a>
 
                 <h2>Resources & further information</h2>
                 <ul>
@@ -195,7 +196,7 @@
                 Sámuel Szajbély, <a href="mailto:developer@lenderapp.net" target="__blank"
                     style="color: black">developer@lenderapp.net</a>,<br>
             </div>
-            <p>Updated: 2020.01.20.</p>
+            <p>Updated: 2020.01.26.</p>
         </div>
     </div>
 </body>
