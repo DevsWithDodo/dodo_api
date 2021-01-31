@@ -80,18 +80,34 @@ Route::get('/admin', function () {
     $groups = 0;
     $languages = [];
     $group_count = [];
+    $colors_gradients_enabled = [];
+    $colors_free = [];
     foreach ($users as $user) {
         $groups += $user->groups()->count();
 
         if (isset($group_count[$user->groups()->count()])){
             $group_count[$user->groups()->count()]++;
-        }else {
+        } else {
             $group_count[$user->groups()->count()] = 1;
+        }
+
+        if($user->gradients_enabled){
+            if (isset($colors_gradients_enabled[$user->color_theme])){
+                $colors_gradients_enabled[$user->color_theme]++;
+            } else {
+                $colors_gradients_enabled[$user->color_theme] = 1;
+            }
+        } else {
+            if (isset($colors_free[$user->color_theme])){
+                $colors_free[$user->color_theme]++;
+            } else {
+                $colors_free[$user->color_theme] = 1;
+            }
         }
 
         if (isset($languages[$user->language])){
             $languages[$user->language]++;
-        }else {
+        } else {
             $languages[$user->language] = 1;
         }
     }
@@ -103,16 +119,16 @@ Route::get('/admin', function () {
         'boosted' => $boosted,
         'not_boosted' => $not_boosted,
         'all_groups' => $all,
-        'boosted_members_avg' => round($boosted_members / $boosted, 2),
-        'not_boosted_members_avg' => round($not_boosted_members / $not_boosted, 2),
-        'boosted_guests_avg' => round($boosted_guests / $boosted, 2),
-        'not_boosted_guests_avg' => round($not_boosted_guests / $not_boosted, 2),
-        'payments_avg' => round($payments / $all, 2),
-        'purchases_avg' => round($purchases / $all, 2),
-        'requests_all_avg' => round($requests_all / $all, 2),
+        'boosted_members_avg' => round($boosted_members / ($boosted ? $boosted : 1), 2),
+        'not_boosted_members_avg' => round($not_boosted_members / ($not_boosted ? $not_boosted : 1), 2),
+        'boosted_guests_avg' => round($boosted_guests / ($boosted ? $boosted : 1), 2),
+        'not_boosted_guests_avg' => round($not_boosted_guests / ($not_boosted ? $not_boosted : 1), 2),
+        'payments_avg' => round($payments / ($all ? $all : 1), 2),
+        'purchases_avg' => round($purchases / ($all ? $all : 1), 2),
+        'requests_all_avg' => round($requests_all / ($all ? $all : 1), 2),
         'requests_avg' => round($requests_use / ($groups_use_requests ? $groups_use_requests : 1), 2),
         'groups_use_requests' => $groups_use_requests,
-        'guests_all_avg' => round($guests_all / $all, 2),
+        'guests_all_avg' => round($guests_all / ($all ? $all : 1), 2),
         'guests_avg' => round($guests_use / ($groups_use_guests ? $groups_use_guests : 1), 2),
         'groups_use_guests' => $groups_use_guests,
         'currencies' => $currencies,
@@ -121,8 +137,10 @@ Route::get('/admin', function () {
         'group_count' => $group_count,
         'all_users' => $all_users,
         'guests' => $guests,
-        'group_avg' => round($groups / $all_users, 2),
-        'languages' => $languages
+        'group_avg' => round($groups / ($all_users ? $all_users : 1), 2),
+        'languages' => $languages,
+        'colors_gradients_enabled' => $colors_gradients_enabled,
+        'colors_free' => $colors_free
     ]);
 
 })->middleware('passwordprotect:1');

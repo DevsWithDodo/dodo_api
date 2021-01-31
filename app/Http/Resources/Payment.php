@@ -10,6 +10,16 @@ class Payment extends JsonResource
 {
     public function toArray($request)
     {
+        switch ($this->note) {
+            case '$$legacy_money$$':
+                $note = __('general.legacy_money');
+                break;
+            case '$$auto_payment$$':
+                $note = __('general.auto_payment');
+            default:
+                $note = $this->note;
+                break;
+        }
         return [
             'payment_id' => $this->id,
             'payer_id' => $this->payer_id,
@@ -17,7 +27,7 @@ class Payment extends JsonResource
             'taker_id' => $this->taker_id,
             'taker_nickname' => Group::nicknameOf($this->group_id, $this->taker_id),
             'amount' => round(floatval($this->amount), 2),
-            'note' => $this->note,
+            'note' => $note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'reactions' => Reaction::collection($this->reactions)

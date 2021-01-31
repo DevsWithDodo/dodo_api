@@ -6,6 +6,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RequestController;
+use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 Route::post('register',         [UserController::class, 'register'])->name('user.register');
 Route::post('login',            [UserController::class, 'login'])->name('user.login');
 Route::get('password_reminder', [UserController::class, 'passwordReminder'])->name('user.password_reminder');
+
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
@@ -63,15 +65,24 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/payments/reaction',    [PaymentController::class, 'reaction'])->name('reactions.payments');
 
     /* Requests */
-    Route::get('/requests',                       [RequestController::class, 'index'])->name('requests.index');
-    Route::post('/requests',                      [RequestController::class, 'store'])->name('requests.store');
-    Route::put('/requests/{shopping_request}',    [RequestController::class, 'update'])->name('requests.update');
-    Route::delete('/requests/{shopping_request}', [RequestController::class, 'delete'])->name('requests.delete');
+    Route::get('/requests',                             [RequestController::class, 'index'])->name('requests.index');
+    Route::post('/requests',                            [RequestController::class, 'store'])->name('requests.store');
+    Route::put('/requests/{shopping_request}',          [RequestController::class, 'update'])->name('requests.update');
+    Route::delete('/requests/{shopping_request}',       [RequestController::class, 'delete'])->name('requests.delete');
+    Route::post('/requests/restore/{shopping_request}', [RequestController::class, 'restore'])->name('requests.restore');
 
-    Route::post('/requests/reaction',             [RequestController::class, 'reaction'])->name('reactions.requests');
+    Route::post('/requests/reaction',                   [RequestController::class, 'reaction'])->name('reactions.requests');
 
     /* 'I'm shopping' notification */
     Route::post('/groups/{group}/send_shopping_notification', [RequestController::class, 'sendShoppingNotification'])->name('notification.shopping');
+
+
+    /* Statistics */
+    Route::get('/groups/{group}/statistics/payments',  [StatisticsController::class, 'payments']);
+    Route::get('/groups/{group}/statistics/purchases', [StatisticsController::class, 'purchases']);
+    Route::get('/groups/{group}/statistics/all',       [StatisticsController::class, 'all']);
+
+
 });
 
 

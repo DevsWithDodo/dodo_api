@@ -5,12 +5,17 @@ namespace App\Notifications\Members;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Group;
 use App\User;
 
-class PromotedToAdminNotification extends Notification
+
+class PromotedToAdminNotification extends Notification //implements ShouldQueue
 {
+    //use Queueable;
+
     public Group $group;
     public User $admin;
 

@@ -38,18 +38,15 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $user = auth('api')->user();
+        $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:30',
-            'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($request->group)]
+            'receivers.*.user_id' => ['required', new IsMember($group)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        $group = Group::findOrFail($request->group);
-        $this->authorize('member', $group);
-
+        $this->authorize('view', $group);
         $purchase = Purchase::create([
             'name' => $request->name,
             'group_id' => $group->id,
@@ -63,7 +60,7 @@ class PurchaseController extends Controller
             $request->receivers
         ));
 
-        return response()->json(new PurchaseResource($purchase), 201);
+        return response()->json(null, 204);
     }
 
     public function update(Request $request, Purchase $purchase)
@@ -74,7 +71,7 @@ class PurchaseController extends Controller
             'name' => 'required|string|min:1|max:30',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required', 'exists:users,id', new IsMember($group->id)]
+            'receivers.*.user_id' => ['required', new IsMember($group)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -90,7 +87,7 @@ class PurchaseController extends Controller
         $purchase->createReceivers($new_receivers);
         $purchase->touch();
 
-        return response()->json(new PurchaseResource($purchase), 200);
+        return response()->json(null, 204);
     }
 
     public function delete(Purchase $purchase)

@@ -39,7 +39,9 @@
                 {{$currency}} ({{round($count / $all_groups * 100)}}%) @if (!$loop->last), @endif
                 @endforeach
                 <br><br>
+                @if(!config('app.debug'))
                 Groups with broken balance:
+                @endif
                 <div id="grouptable"></div>
             </div>
             <h1>Users</h1>
@@ -57,6 +59,14 @@
                 Languages:
                 @foreach($languages as $language => $count)
                 {{$language}} ({{round($count / $all_users * 100)}}%) @if (!$loop->last), @endif
+                @endforeach
+                <br>Colors used by users which have gradients enabled:
+                @foreach($colors_gradients_enabled as $color => $count)
+                {{$color}} ({{round($count / $all_users * 100)}}%) @if (!$loop->last), @endif
+                @endforeach
+                <br>Colors used by free users:
+                @foreach($colors_free as $color => $count)
+                {{$color}} ({{round($count / $all_users * 100)}}%) @if (!$loop->last), @endif
                 @endforeach
             </div>
             <form method="POST" action="/admin/send_notification">

@@ -3,6 +3,7 @@
 namespace App\Listeners\Payments;
 
 use App\Events\Payments\PaymentDeletedEvent;
+use App\Group;
 use App\Notifications\Transactions\PaymentDeletedNotification;
 use Illuminate\Support\Facades\Log;
 
@@ -29,9 +30,8 @@ class PaymentDeletedListener
         $payment = $event->payment;
         if (config('app.debug'))
             Log::info('payment deleted', ["payment" => $event->payment]);
-        $payment->group->addToMemberBalance($payment->payer_id, (-1) * $payment->amount);
-        $payment->group->addToMemberBalance($payment->taker_id, $payment->amount);
-
+        Group::addToMemberBalance($payment->group_id, $payment->payer_id, (-1) * $payment->amount);
+        Group::addToMemberBalance($payment->group_id, $payment->taker_id, $payment->amount);
         $user = $payment->taker;
         if (auth('api')->user() && $user->id != auth('api')->user()->id) {
             try {

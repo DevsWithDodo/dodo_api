@@ -19,21 +19,19 @@ class RequestController extends Controller
     public function index(Request $request)
     {
         $group = Group::findOrFail($request->group);
-        $this->authorize('member', $group);
+        $this->authorize('view', $group);
         return RequestResource::collection($group->requests()->with('reactions')->get());
     }
 
     public function store(Request $request)
     {
         $user = auth('api')->user();
+        $group = Group::with('members')->findOrFail($request->group);
         $validator = Validator::make($request->all(), [
-            'group' => 'required|exists:groups,id',
             'name' => 'required|string|min:2|max:255',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        $group = Group::find($request->group);
-        $this->authorize('member', $group);
+        $this->authorize('view', $group);
 
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
@@ -47,7 +45,7 @@ class RequestController extends Controller
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
-        return new RequestResource($shopping_request);
+        return response()->json(null, 204);
     }
 
     public function update(Request $request, ShoppingRequest $shopping_request)
@@ -63,6 +61,15 @@ class RequestController extends Controller
         return response()->json(null, 204);
     }
 
+    public function restore($shopping_request)
+    {
+        $shopping_request = ShoppingRequest::withTrashed()->findOrFail($shopping_request);
+        $this->authorize('delete', $shopping_request);
+
+        $shopping_request->restore();
+
+        return response()->json(null, 204);
+    }
     public function delete(ShoppingRequest $shopping_request)
     {
         $this->authorize('delete', $shopping_request);
@@ -113,12 +120,13 @@ class RequestController extends Controller
     public function sendShoppingNotification(Request $request, Group $group)
     {
         $user = auth('api')->user();
-        $this->authorize('member', $group);
+        $this->authorize('view', $group);
         $validator = Validator::make($request->all(), [
             'store' => ['required', 'string', 'max:20'],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
+        $group->load('members');
         try {
             foreach ($group->members->except($user->id) as $member)
                 $member->notify(new ShoppingNotification($group, $user, $request->store));

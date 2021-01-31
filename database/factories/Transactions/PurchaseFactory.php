@@ -26,8 +26,8 @@ class PurchaseFactory extends Factory
         return [
             'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200),
             'name' => $this->faker->text(20),
-            'created_at' => Carbon::now()->subMinutes(rand(1, 60)),
-            'updated_at' => Carbon::now()->subMinutes(rand(1, 60))
+            'created_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440)),
+            'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440))
         ];
     }
 }

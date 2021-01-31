@@ -4,6 +4,7 @@ namespace App\Listeners\Payments;
 
 use Illuminate\Support\Facades\Log;
 use App\Events\Payments\PaymentUpdatedEvent;
+use App\Group;
 use App\Notifications\Transactions\PaymentDeletedNotification;
 use App\Notifications\Transactions\PaymentNotification;
 use App\Notifications\Transactions\PaymentUpdatedNotification;
@@ -38,10 +39,10 @@ class PaymentUpdatedListener
 
         if ($diff != 0) {
             //amount is different
-            $group->addToMemberBalance($new_payment->payer_id, $diff);
+            Group::addToMemberBalance($group->id, $new_payment->payer_id, $diff);
             if ($old_payment['taker_id'] == $new_payment->taker_id) {
                 //taker is the same
-                $group->addToMemberBalance($new_payment->taker_id, (-1) * $diff);
+                Group::addToMemberBalance($group->id, $new_payment->taker_id, (-1) * $diff);
                 $user = $new_payment->taker;
                 if (auth('api')->user() && $user->id != auth('api')->user()->id) {
                     try {
@@ -55,8 +56,8 @@ class PaymentUpdatedListener
 
         if ($old_payment['taker_id'] != $new_payment->taker_id) {
             //taker is different
-            $group->addToMemberBalance($old_payment['taker_id'], $old_payment['amount']);
-            $group->addToMemberBalance($new_payment->taker_id, (-1) * $new_payment->amount);
+            Group::addToMemberBalance($group->id, $old_payment['taker_id'], $old_payment['amount']);
+            Group::addToMemberBalance($group->id, $new_payment->taker_id, (-1) * $new_payment->amount);
 
             //notify old taker
             $user = User::find($old_payment['taker_id']);

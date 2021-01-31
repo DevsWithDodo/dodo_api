@@ -3,6 +3,7 @@
 namespace App\Listeners\Purchases;
 
 use App\Events\Purchases\PurchaseReceiverDeletedEvent;
+use App\Group;
 use App\Notifications\Transactions\ReceiverDeletedNotification;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +30,7 @@ class PurchaseReceiverDeletedListener
         $receiver = $event->receiver;
         if (config('app.debug'))
             Log::info('purchase receiver deleted', ["purchase receiver" => $receiver]);
-        $receiver->group->addToMemberBalance($receiver->receiver_id, $receiver->amount);
+        Group::addToMemberBalance($receiver->group_id, $receiver->receiver_id, $receiver->amount);
 
         $user = $receiver->user;
         if (auth('api')->user() && $user->id != auth('api')->user()->id)

@@ -6,11 +6,16 @@ use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Transactions\Payment;
 
-class PaymentDeletedNotification extends Notification
+
+class PaymentDeletedNotification extends Notification //implements ShouldQueue
 {
+    //use Queueable;
+
     public Payment $payment;
 
     public function __construct(Payment $payment)

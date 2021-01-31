@@ -35,26 +35,25 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $payer = auth('api')->user();
+        $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
-            'group' => 'required|exists:groups,id',
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($request->group)],
+            'taker_id' => ['required', 'not_in:' . $payer->id, new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        $group = Group::findOrFail($request->group);
         $taker = User::findOrFail($request->taker_id);
 
-        $this->authorize('member', $group);
+        $this->authorize('view', $group);
 
-        $payment = Payment::create([
+        Payment::create([
             'amount' => $request->amount,
             'group_id' => $group->id,
             'taker_id' => $taker->id,
             'payer_id' => $payer->id,
             'note' => $request->note ?? null
         ]);
-        return response()->json(new PaymentResource($payment), 201);
+        return response()->json(null, 204);
     }
 
     public function update(Request $request, Payment $payment)
@@ -63,14 +62,14 @@ class PaymentController extends Controller
         $payer = auth('api')->user();
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($payment->group->id)],
+            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($payment->group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $payment->update($request->only('amount', 'taker_id', 'note'));
 
-        return response()->json(new PaymentResource($payment), 200);
+        return response()->json(null, 204);
     }
 
     public function delete(Payment $payment)

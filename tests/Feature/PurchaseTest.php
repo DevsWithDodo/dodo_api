@@ -38,7 +38,7 @@ class PurchaseTest extends TestCase
                     'amount' => $purchase->amount,
                     'receivers' => $user_ids
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
 
             $balance = 0;
             foreach ($group->members as $member) {
@@ -84,7 +84,7 @@ class PurchaseTest extends TestCase
                     'amount' => $purchase->amount,
                     'receivers' => $user_ids
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
 
             $balance = 0;
             foreach ($group->members as $member) {
@@ -139,15 +139,15 @@ class PurchaseTest extends TestCase
                     'amount' => $purchase->amount,
                     'receivers' => $user_ids
                 ]);
-            $response->assertStatus(201);
-            $id = $response->json()["purchase_id"];
-            $response = $this->actingAs($buyer, 'api')
-                ->putJson(route('purchases.update', $id),  [
+            $response->assertStatus(204);
+            $purchase_created = $group->purchases->first();
+            $response = $this->actingAs($purchase_created->buyer, 'api')
+                ->putJson(route('purchases.update', $purchase_created->id),  [
                     'name' => $purchase2->name,
                     'amount' => $purchase2->amount,
                     'receivers' => $user_ids_2
                 ]);
-            $response->assertStatus(200);
+            $response->assertStatus(204);
 
             $balance = 0;
             foreach ($group->members as $member) {

@@ -16,9 +16,9 @@ class Group extends JsonResource
             'group_name' => $this->name,
             'currency' => $this->currency,
             'anyone_can_invite' => $this->anyone_can_invite,
-            'members' => Member::collection($this->members),
             'invitation' => $this->invitation,
-            'boosted' => $this->boosted
+            'boosted' => $this->boosted,
+            'members' => Member::collection($this->members)
         ];
         if (auth('api')->user()->can('edit', \App\Group::find($this->id))) {
             $group['guests'] = Guest::collection($this->guests);

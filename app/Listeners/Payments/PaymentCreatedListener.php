@@ -3,6 +3,7 @@
 namespace App\Listeners\Payments;
 
 use App\Events\Payments\PaymentCreatedEvent;
+use App\Group;
 use App\Notifications\Transactions\PaymentNotification;
 use Illuminate\Support\Facades\Log;
 
@@ -29,8 +30,8 @@ class PaymentCreatedListener
         $payment = $event->payment;
         if (config('app.debug'))
             Log::info('payment created', ["payment" => $event->payment]);
-        $payment->group->addToMemberBalance($payment->payer_id, $payment->amount);
-        $payment->group->addToMemberBalance($payment->taker_id, (-1) * $payment->amount);
+        Group::addToMemberBalance($payment->group_id, $payment->payer_id, $payment->amount);
+        Group::addToMemberBalance($payment->group_id, $payment->taker_id, (-1) * $payment->amount);
 
         $user = $payment->taker;
         if (auth('api')->user() && $user->id != auth('api')->user()->id) {

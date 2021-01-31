@@ -43,7 +43,7 @@ class Purchase extends Model
         }
         if (count($receivers) == 0) {
             echo "Deleting purchase (".$this->name. ", ".$this->amount.") in group ".$this->group->id." because it has no receivers.\n";
-            Log::info("Deleting purchase (".$this->name. ", ".$this->amount.") in group ".$this->group->id." because it has no receivers.\n", ['purchase' => $this]);
+            Log::info("Deleting purchase because it has no receivers.", ['purchase' => $this]);
             $this->delete();
             return;
         }

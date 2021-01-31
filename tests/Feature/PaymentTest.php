@@ -35,7 +35,7 @@ class PaymentTest extends TestCase
                     'taker_id' => $taker->id,
                     'amount' => $payment->amount
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
 
             $balance = 0;
             foreach ($group->members as $member) {
@@ -78,16 +78,16 @@ class PaymentTest extends TestCase
                     'taker_id' => $taker->id,
                     'amount' => $payment->amount
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
 
-            $id = $response->json()["payment_id"];
-            $response = $this->actingAs($payer, 'api')
-                ->putJson(route('payments.update', $id),  [
+            $payment_created = $group->payments->first();
+            $response = $this->actingAs($payment_created->payer, 'api')
+                ->putJson(route('payments.update', $payment_created->id),  [
                     'note' => $payment_2->name,
                     'taker_id' => $taker_2->id,
                     'amount' => $payment_2->amount
                 ]);
-            $response->assertStatus(200);
+            $response->assertStatus(204);
 
             $balance = 0;
             foreach ($group->members as $member) {

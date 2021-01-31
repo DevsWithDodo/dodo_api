@@ -20,7 +20,7 @@ class GroupController extends Controller
     public function index()
     {
         $user = auth('api')->user();
-        return GroupResource::collection($user->groups);
+        return response()->json(['data' => $user->groups->map(function ($i) {return ['group_id' => $i->id, 'group_name' => $i->name, 'currency' => $i->currency];})]);
     }
 
     public function show(Request $request, Group $group)
@@ -60,7 +60,7 @@ class GroupController extends Controller
         $this->authorize('view', $group);
         $user = $request->user();
         return response()->json(['data' => [
-            'is_boosted' => $group->boosted,
+            'is_boosted' => $group->boosted ? 1 : 0,
             'available_boosts' => $user->available_boosts
         ]]);
     }

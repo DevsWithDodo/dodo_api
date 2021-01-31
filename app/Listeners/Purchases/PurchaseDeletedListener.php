@@ -3,6 +3,7 @@
 namespace App\Listeners\Purchases;
 
 use App\Events\Purchases\PurchaseDeletedEvent;
+use App\Group;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseDeletedListener
@@ -25,8 +26,9 @@ class PurchaseDeletedListener
      */
     public function handle(PurchaseDeletedEvent $event)
     {
+        $purchase = $event->purchase;
         if (config('app.debug'))
-            Log::info('purchase deleted', ["purchase" => $event->purchase]);
-        $event->purchase->group->addToMemberBalance($event->purchase->buyer_id, (-1) * $event->purchase->amount);
+            Log::info('purchase deleted', ["purchase" => $purchase]);
+        Group::addToMemberBalance($purchase->group_id, $purchase->buyer_id, (-1) * $purchase->amount);
     }
 }

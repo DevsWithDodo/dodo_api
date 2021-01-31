@@ -25,15 +25,17 @@ class User extends Authenticatable implements HasLocalePreference
         'default_currency',
         'fcm_token',
         'language',
+        'color_theme',
         'ad_free', //true if trial is active
         'gradients_enabled', //true if trial is active
         'available_boosts',
-        'trial'
+        'trial',
+        'personalised_ads'
         //is_guest
     ];
 
     protected $hidden = [
-        'password', 'password_reminder'
+        'password', 'password_reminder',
     ];
 
 
@@ -136,7 +138,7 @@ class User extends Authenticatable implements HasLocalePreference
             $result += CurrencyController::exchangeCurrency(
                 from_currency: $group->currency,
                 to_currency: $this->default_currency,
-                amount: $group->member($this->id)->balance
+                amount: $group->member($this->id)->member_data->balance
             );
         }
         return $result;

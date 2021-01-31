@@ -6,11 +6,16 @@ use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Transactions\PurchaseReceiver;
 
-class ReceiverNotification extends Notification
+
+class ReceiverNotification extends Notification //implements ShouldQueue
 {
+    //use Queueable;
+
     public PurchaseReceiver $receiver;
 
     public function __construct(PurchaseReceiver $receiver)

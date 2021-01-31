@@ -4,6 +4,7 @@ namespace App\Listeners\Purchases;
 
 use Illuminate\Support\Facades\Log;
 use App\Events\Purchases\PurchaseUpdatedEvent;
+use App\Group;
 
 class PurchaseUpdatedListener
 {
@@ -32,7 +33,7 @@ class PurchaseUpdatedListener
         if ($diff != 0) {
             if (config('app.debug'))
                 Log::info('purchase updated', ["purchase" => $event->purchase]);
-            $group->addToMemberBalance($new_purchase->buyer_id, $diff);
+            Group::addToMemberBalance($group->id, $new_purchase->buyer_id, $diff);
         }
     }
 }

@@ -41,7 +41,7 @@ class MemberTest extends TestCase
                     'amount' => $purchase->amount,
                     'receivers' => $user_ids
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
         }
         $this->group->recalculateBalances();
         $balance = 0;
@@ -99,7 +99,7 @@ class MemberTest extends TestCase
         $response->assertStatus(204);
 
 
-        //TODO BUG
+        //TODO: BUG
         //the transactions have no effect
 
         //$this->assertFalse($this->group->members->has($user->id));
@@ -125,9 +125,9 @@ class MemberTest extends TestCase
             ->postJson(route('member.delete', ['group' => $this->group->id]), [
                 'member_id' => $member_to_kick->id
             ]);
-        $response->assertStatus(204);
+        $response->assertStatus(200);
 
-        //TODO BUG
+        //TODO: BUG
         //the transactions have no effect
 
         //$this->assertFalse($this->group->members->has($member_to_kick->id));

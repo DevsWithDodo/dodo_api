@@ -6,12 +6,17 @@ use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Request;
 use App\User;
 
-class FulfilledRequestNotification extends Notification
+
+class FulfilledRequestNotification extends Notification //implements ShouldQueue
 {
+    //use Queueable;
+
     public Request $request;
     public User $fulfiller;
 

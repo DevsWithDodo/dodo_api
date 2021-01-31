@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $csocsort = Group::factory()->create([
-            'name' => 'Csocsort'
+            'name' => 'Csocsort',
+            'boosted' => 1
         ]);
         $other_group = Group::factory()->create();
         $dominik = User::factory()->create([

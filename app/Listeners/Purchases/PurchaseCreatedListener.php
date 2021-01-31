@@ -3,6 +3,7 @@
 namespace App\Listeners\Purchases;
 
 use App\Events\Purchases\PurchaseCreatedEvent;
+use App\Group;
 use Illuminate\Support\Facades\Log;
 use App\Transactions\Purchase;
 
@@ -29,6 +30,6 @@ class PurchaseCreatedListener
         $purchase = $event->purchase;
         if (config('app.debug'))
             Log::info('purchase created', ["purchase" => $purchase]);
-        $purchase->group->addToMemberBalance($purchase->buyer_id, $purchase->amount);
+        Group::addToMemberBalance($purchase->group_id, $purchase->buyer_id, $purchase->amount);
     }
 }

@@ -37,7 +37,7 @@ class CurrencyController extends Controller
         return array_keys(CurrencyController::currencyRates()['rates']);
     }
 
-    public static function exchangeCurrency($from_currency, $to_currency, $amount): float
+    public static function exchangeCurrency($from_currency, $to_currency,float $amount): float
     {
         $rates = CurrencyController::currencyRates();
         if ($from_currency == $to_currency) {

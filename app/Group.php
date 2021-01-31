@@ -21,25 +21,6 @@ class Group extends Model
         return $this->boosted ? 30 : 8;
     }
 
-    /**
-     *Returns the nickname of the member in the group.
-     *Should be used always as this works with cache.
-     *@param int the group's id
-     *@param int the user's id
-     *@return string the nickname or '$$deleted_user$$ if not found.
-     */
-    public static function nicknameOf($group_id, $user_id): string
-    {
-        return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
-            $nicknames = [];
-            $group = Group::with('members')->findOrFail($group_id);
-            foreach ($group->members as $member) {
-                $nicknames[$member->id] = $member->member_data->nickname;
-            }
-            return $nicknames;
-        })[$user_id] ?? '$$deleted_member$$';
-    }
-
     public function delete()
     {
         $this->members()->detach($this->members);
@@ -70,18 +51,37 @@ class Group extends Model
 
 
     /**
+     *Returns the nickname of the member in the group.
+     *Should be used always as this works with cache.
+     *@param int the group's id
+     *@param int the user's id
+     *@return string the nickname or '$$deleted_user$$ if not found.
+     */
+    public static function nicknameOf($group_id, $user_id): string
+    {
+        return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
+            $nicknames = [];
+            $group = Group::with('members')->findOrFail($group_id);
+            foreach ($group->members as $member) {
+                $nicknames[$member->id] = $member->member_data->nickname;
+            }
+            return $nicknames;
+        })[$user_id] ?? __('general.deleted_member');
+    }
+
+    /**
      * Add the desired amount to the member's balance.
-     * @param int the member's id
-     * @param float the amount to be added
+     * @param int $group_id
+     * @param int $user_id the member's id
+     * @param float $amount the amount to be added
      * @return void
      */
-    public function addToMemberBalance($user_id, $amount)
+    public static function addToMemberBalance($group_id, $user_id, $amount)
     {
-        $member = $this->member($user_id);
-        $old_balance = $member->member_data->balance;
-        $member->member_data->update(['balance' => bcadd($old_balance, $amount)]);
+        $old_balance = DB::table('group_user')->where('group_id', $group_id)->where('user_id', $user_id)->get('balance')->first()->balance;
+        DB::table('group_user')->where('group_id', $group_id)->where('user_id', $user_id)->update(['balance' => bcadd($old_balance, $amount)]);
         if (config('app.debug'))
-            Log::info('updated member balance', ['user id' => $user_id, 'amount' => $amount, 'old balance' => $old_balance, 'new balance' => $member->member_data->balance]);
+            Log::info('updated member balance', ['user id' => $user_id, 'amount' => $amount, 'old balance' => $old_balance]);
     }
 
     public function guests()

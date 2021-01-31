@@ -25,8 +25,8 @@ class PaymentFactory extends Factory
         return [
             'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200),
             'note' => $this->faker->word,
-            'created_at' => Carbon::now()->subMinutes(rand(1, 60)),
-            'updated_at' => Carbon::now()->subMinutes(rand(1, 60))
+            'created_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440)),
+            'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440))
         ];
     }
 }

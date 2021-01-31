@@ -12,9 +12,9 @@ class IsMember implements Rule
      *
      * @return void
      */
-    public function __construct($group_id)
+    public function __construct(Group $group)
     {
-        $this->group = Group::find($group_id);
+        $this->group = $group;
     }
 
     /**

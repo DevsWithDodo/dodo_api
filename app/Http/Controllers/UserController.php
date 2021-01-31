@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -36,10 +35,9 @@ class UserController extends Controller
             'password_reminder' => ['required', 'string'],
             'fcm_token' => 'required|string',
             'language' => 'required|in:en,hu,it,de',
+            'personalised_ads' => 'required|boolean'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
-        //the request is valid
 
         $user = User::create([
             'username' => $request->username,
@@ -47,7 +45,8 @@ class UserController extends Controller
             'password_reminder' => Crypt::encryptString($request->password_reminder),
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token,
-            'language' => $request->language
+            'language' => $request->language,
+            'personalised_ads' => $request->personalised_ads
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
@@ -108,6 +107,7 @@ class UserController extends Controller
             'old_password' => 'required_with:new_password|string|password',
             'new_password' => 'string|min:4|confirmed',
             'password_reminder' => 'required_with:new_password|string',
+            'theme' => 'string',
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
@@ -122,6 +122,7 @@ class UserController extends Controller
             'ad_free' => $request->ad_free,
             'gradients_enabled' => $request->gradients_enabled,
             'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
+            'color_theme' => $request->theme
         ])->filter()->all();
         if (count($data) == 0) abort(400, "The given data to update is empty.");
 
@@ -141,13 +142,16 @@ class UserController extends Controller
             $reminder = Crypt::decryptString($user->password_reminder);
             return response()->json(['data' => $reminder]);
         } catch (DecryptException $e) {
-            return abort(500, 'Decryption error. Please try again later.');
+            return abort(500, 'Decryption error.');
         }
     }
 
     public function balance(Request $request)
     {
-        return response()->json($request->user->totalBalance());
+        return response()->json(['data' => [
+            'balance' => $request->user()->totalBalance(),
+            'currency' => $request->user()->default_currency
+        ]]);
     }
 
     public function delete(Request $request)

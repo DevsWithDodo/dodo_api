@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\Response;
 use App\User;
 use App\Group;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -35,9 +36,6 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('is_not_guest', function (User $user) {
             return $user->is_guest ? Response::deny(__('errors.unauthorized_for_guests')) : Response::allow();
-        });
-        Gate::define('member', function (User $user, Group $group) {
-            return $group->members->contains($user);
         });
 
         //log queries

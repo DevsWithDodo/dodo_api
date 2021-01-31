@@ -2,15 +2,19 @@
 
 namespace App\Notifications\Transactions;
 
-use App\Group;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Transactions\PurchaseReceiver;
+use App\Group;
 
-class ReceiverDeletedNotification extends Notification
+class ReceiverDeletedNotification extends Notification //implements ShouldQueue
 {
+    //use Queueable;
+
     public PurchaseReceiver $receiver;
 
     public function __construct(PurchaseReceiver $receiver)

@@ -3,6 +3,7 @@
 namespace App\Listeners\Purchases;
 
 use App\Events\Purchases\PurchaseReceiverCreatedEvent;
+use App\Group;
 use App\Notifications\Transactions\ReceiverNotification;
 use Illuminate\Support\Facades\Log;
 
@@ -29,11 +30,10 @@ class PurchaseReceiverCreatedListener
         $receiver = $event->receiver;
         if (config('app.debug'))
             Log::info('purchase receiver created', ["purchase receiver" => $receiver]);
-        $receiver->group->addToMemberBalance($receiver->receiver_id, (-1) * $receiver->amount);
-        $user = $receiver->user;
-        if (auth('api')->user() && $user->id != auth('api')->user()->id) {
+        Group::addToMemberBalance($receiver->group_id, $receiver->receiver_id, (-1) * $receiver->amount);
+        if (auth('api')->user() && $receiver->receiver_id != auth('api')->user()->id) {
             try {
-                $user->notify(new ReceiverNotification($receiver));
+                $receiver->user->notify(new ReceiverNotification($receiver));
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }

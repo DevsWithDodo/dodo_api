@@ -11,9 +11,6 @@ class GroupPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Perform pre-authorization checks.
-     */
     public function notGuest(User $user)
     {
         if ($user->is_guest) {
@@ -44,7 +41,7 @@ class GroupPolicy
 
     public function view(User $user, Group $group)
     {
-        return $group->members->contains($user);
+        return $group->members->contains($user) ? Response::allow() : Response::deny('user_not_member');
     }
 
     public function edit(User $user, Group $group)
@@ -89,5 +86,10 @@ class GroupPolicy
         if (!($guest->is_guest))
             return Response::deny(__('errors.must_be_guest'));
         return Response::allow();
+    }
+
+    public function viewStatistics(User $user, Group $group)
+    {
+        return $group->boosted && $group->members->contains($user);
     }
 }

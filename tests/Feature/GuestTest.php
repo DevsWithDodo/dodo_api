@@ -45,7 +45,7 @@ class GuestTest extends TestCase
                     'amount' => $purchase->amount,
                     'receivers' => $user_ids
                 ]);
-            $response->assertStatus(201);
+            $response->assertStatus(204);
         }
         $this->group->recalculateBalances();
         $balance = 0;
@@ -76,7 +76,7 @@ class GuestTest extends TestCase
         $random_user_balance = $random_user->member_data->balance;
 
         $guest->mergeDataInto($member->id);
-        $this->group->addToMemberBalance($member->id, $guest_balance);
+        Group::addToMemberBalance($this->group->id, $member->id, $guest_balance);
         //TODO bug the database do not update.
         //$this->assertEquals(0, $guest->member_data->balance);
         //$this->assertEquals(bcadd($guest_balance, $member_balance), $member->member_data->balance);

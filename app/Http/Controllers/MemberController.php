@@ -62,7 +62,7 @@ class MemberController extends Controller
     {
         $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
-            'member_id' => ['exists:users,id', new IsMember($group->id)],
+            'member_id' => ['exists:users,id', new IsMember($group)],
             'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -88,7 +88,7 @@ class MemberController extends Controller
         $user = auth('api')->user();
         $this->authorize('edit_admins', $group);
         $validator = Validator::make($request->all(), [
-            'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
+            'member_id' => ['required', 'exists:users,id', new IsMember($group)],
             'admin' => 'required|boolean',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -114,9 +114,9 @@ class MemberController extends Controller
 
     public function delete(Request $request, Group $group)
     {
-        $user = auth('api')->user();
+        $user = $request->user();
         $validator = Validator::make($request->all(), [
-            'member_id' => ['exists:users,id', new IsMember($group->id)],
+            'member_id' => ['exists:users,id', new IsMember($group)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -166,7 +166,14 @@ class MemberController extends Controller
             foreach ($group->members as $member)
                 $member->member_data->update(['is_admin' => true]);
 
-        return response()->json(null, 204);
+
+        if($user->groups->count()){
+            $group = $user->groups()->first();
+            return response(['data' => ['group_id' => $group->id, 'group_name' => $group->name, 'currency' => $group->currency]]);
+        }else {
+            return response()->json(null, 204);
+        }
+
     }
 
     /**
@@ -220,8 +227,8 @@ class MemberController extends Controller
     public function mergeGuest(Request $request, Group $group)
     {
         $validator = Validator::make($request->all(), [
-            'member_id' => ['required', 'exists:users,id', new IsMember($group->id)],
-            'guest_id' => ['required', 'exists:users,id', new IsMember($group->id)],
+            'member_id' => ['required', 'exists:users,id', new IsMember($group)],
+            'guest_id' => ['required', 'exists:users,id', new IsMember($group)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -237,7 +244,7 @@ class MemberController extends Controller
         $group->members()->detach($guest);
         $guest->delete();
 
-        $group->addToMemberBalance($member->id, $balance);
+        Group::addToMemberBalance($group->id, $member->id, $balance);
 
         return response()->json(null, 204);
     }
