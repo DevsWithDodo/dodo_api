@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 use App\Group;
+use App\Transactions\PurchaseReceiver;
 
 class StatisticsController extends Controller
 {
@@ -42,16 +43,16 @@ class StatisticsController extends Controller
                     $current_date->addDay()->format('Y-m-d')
                 ]);
 
-            $payed[$date] = round($current_payments->where('payer_id', $user_id)->sum('amount'), 2);
-            $taken[$date] = round($current_payments->where('taker_id', $user_id)->sum('amount'), 2);
+            $payed[$date] = $current_payments->where('payer_id', $user_id)->sum('amount');
+            $taken[$date] = $current_payments->where('taker_id', $user_id)->sum('amount');
         }
 
         return response()->json(['data' => [
             'payed' => $payed,
             'taken' => $taken,
             'sum' => [
-                'payed' => round(array_sum($payed), 2),
-                'taken' => round(array_sum($taken), 2),
+                'payed' => array_sum($payed),
+                'taken' => array_sum($taken),
             ]
         ]]);
     }
@@ -70,10 +71,21 @@ class StatisticsController extends Controller
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
         $purchases_collection = $group->purchases()
+            ->where('buyer_id', $user_id)
             ->whereBetween('created_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
+            ->select(['amount', 'created_at'])
+            ->get();
+        $receivers_collection = PurchaseReceiver::where('purchases.group_id', $group->id)
+            ->where('receiver_id', $user_id)
+            ->join('purchases', 'purchases.id', '=', 'purchase_receivers.purchase_id')
+            ->whereBetween('created_at', [
+                $from_date->format('Y-m-d'),
+                $until_date->addDay()->format('Y-m-d')
+            ])
+            ->select(['purchase_receivers.amount','created_at'])
             ->get();
 
 
@@ -82,22 +94,28 @@ class StatisticsController extends Controller
 
         while ($current_date <= $until_date) {
             $date = $current_date->format('Y-m-d');
-            $current_purchases = $purchases_collection
+
+            $bought[$date] = $purchases_collection
                 ->whereBetween('created_at', [
                     $current_date->format('Y-m-d'),
                     $current_date->addDay()->format('Y-m-d')
-                ]);
+                ])
+                ->sum('amount');
 
-            $bought[$date] = round($current_purchases->where('buyer_id', $user_id)->sum('amount'), 2);
-            $received[$date] = round($current_purchases->where('receiver_id', $user_id)->sum('amount'), 2);
+            $received[$date] = $receivers_collection
+                ->whereBetween('created_at', [
+                    $current_date->format('Y-m-d'),
+                    $current_date->addDay()->format('Y-m-d')
+                ])
+                ->sum('amount');
         }
 
         return response()->json(['data' => [
             'bought' => $bought,
             'received' => $received,
             'sum' => [
-                'bought' => round(array_sum($bought), 2),
-                'received' => round(array_sum($received), 2),
+                'bought' => array_sum($bought),
+                'received' => array_sum($received)
             ]
         ]]);
     }
@@ -134,27 +152,28 @@ class StatisticsController extends Controller
 
         while ($current_date <= $until_date) {
             $date = $current_date->format('Y-m-d');
-            $current_purchases = $purchases_collection
+
+            $payments[$date] = $purchases_collection
                 ->whereBetween('created_at', [
                     $current_date->format('Y-m-d'),
                     $current_date->addDay()->format('Y-m-d')
-                ]);
-            $current_payments = $payments_collection
-            ->whereBetween('created_at', [
-                $current_date->format('Y-m-d'),
-                $current_date->addDay()->format('Y-m-d')
-            ]);
+                ])
+                ->sum('amount');
 
-            $payments[$date] = round($current_payments->sum('amount'), 2);
-            $purchases[$date] = round($current_purchases->sum('amount'), 2);
+            $purchases[$date] = $payments_collection
+                ->whereBetween('created_at', [
+                    $current_date->format('Y-m-d'),
+                    $current_date->addDay()->format('Y-m-d')
+                ])
+                ->sum('amount');
         }
 
         return response()->json(['data' => [
             'payments' => $payments,
             'purchases' => $purchases,
             'sum' => [
-                'payments' => round(array_sum($payments), 2),
-                'purchases' => round(array_sum($purchases), 2),
+                'payments' => array_sum($payments),
+                'purchases' => array_sum($purchases),
             ]
         ]]);
     }
