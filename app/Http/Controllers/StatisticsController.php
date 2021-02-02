@@ -25,7 +25,7 @@ class StatisticsController extends Controller
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
         $payments_collection = $group->payments()
-            ->whereBetween('created_at', [
+            ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
@@ -38,7 +38,7 @@ class StatisticsController extends Controller
         while ($current_date <= $until_date) {
             $date = $current_date->format('Y-m-d');
             $current_payments = $payments_collection
-                ->whereBetween('created_at', [
+                ->whereBetween('updated_at', [
                     $current_date->format('Y-m-d'),
                     $current_date->addDay()->format('Y-m-d')
                 ]);
@@ -72,42 +72,42 @@ class StatisticsController extends Controller
 
         $purchases_collection = $group->purchases()
             ->where('buyer_id', $user_id)
-            ->whereBetween('created_at', [
+            ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
-            ->select(['amount', 'created_at'])
+            ->select(['amount', 'updated_at'])
             ->get();
-        $receivers_collection = PurchaseReceiver::where('purchases.group_id', $group->id)
+        $receivers_collection = PurchaseReceiver::join('purchases', 'purchases.id', '=', 'purchase_receivers.purchase_id')
             ->where('receiver_id', $user_id)
-            ->join('purchases', 'purchases.id', '=', 'purchase_receivers.purchase_id')
-            ->whereBetween('created_at', [
+            ->where('purchases.group_id', $group->id)
+            ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
-            ->select(['purchase_receivers.amount','created_at'])
+            ->select(['purchase_receivers.amount as receiver_amount', 'updated_at'])
             ->get();
-
 
         $bought = $received = [];
         $current_date = $from_date->toMutable();
 
         while ($current_date <= $until_date) {
-            $date = $current_date->format('Y-m-d');
+            $date = $current_date->toImmutable();
 
-            $bought[$date] = $purchases_collection
-                ->whereBetween('created_at', [
-                    $current_date->format('Y-m-d'),
-                    $current_date->addDay()->format('Y-m-d')
+            $bought[$date->format('Y-m-d')] = $purchases_collection
+                ->whereBetween('updated_at', [
+                    $date->format('Y-m-d'),
+                    $date->addDay()->format('Y-m-d')
                 ])
                 ->sum('amount');
 
-            $received[$date] = $receivers_collection
-                ->whereBetween('created_at', [
-                    $current_date->format('Y-m-d'),
-                    $current_date->addDay()->format('Y-m-d')
+            $received[$date->format('Y-m-d')] = $receivers_collection
+                ->whereBetween('updated_at', [
+                    $date->format('Y-m-d'),
+                    $date->addDay()->format('Y-m-d')
                 ])
-                ->sum('amount');
+                ->sum('receiver_amount');
+            $current_date->addDay();
         }
 
         return response()->json(['data' => [
@@ -134,14 +134,14 @@ class StatisticsController extends Controller
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
         $purchases_collection = $group->purchases()
-            ->whereBetween('created_at', [
+            ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
             ->get();
 
         $payments_collection = $group->payments()
-        ->whereBetween('created_at', [
+        ->whereBetween('updated_at', [
             $from_date->format('Y-m-d'),
             $until_date->addDay()->format('Y-m-d')
         ])
@@ -151,21 +151,22 @@ class StatisticsController extends Controller
         $current_date   = $from_date->toMutable();
 
         while ($current_date <= $until_date) {
-            $date = $current_date->format('Y-m-d');
+            $date = $current_date->toImmutable();
 
-            $payments[$date] = $purchases_collection
-                ->whereBetween('created_at', [
-                    $current_date->format('Y-m-d'),
-                    $current_date->addDay()->format('Y-m-d')
+            $payments[$date->format('Y-m-d')] = $payments_collection
+                ->whereBetween('updated_at', [
+                    $date->format('Y-m-d'),
+                    $date->addDay()->format('Y-m-d')
                 ])
                 ->sum('amount');
 
-            $purchases[$date] = $payments_collection
-                ->whereBetween('created_at', [
-                    $current_date->format('Y-m-d'),
-                    $current_date->addDay()->format('Y-m-d')
+            $purchases[$date->format('Y-m-d')] = $purchases_collection
+                ->whereBetween('updated_at', [
+                    $date->format('Y-m-d'),
+                    $date->addDay()->format('Y-m-d')
                 ])
                 ->sum('amount');
+            $current_date->addDay();
         }
 
         return response()->json(['data' => [
