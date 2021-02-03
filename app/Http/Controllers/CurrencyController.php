@@ -39,7 +39,7 @@ class CurrencyController extends Controller
 
     public static function exchangeCurrency($from_currency, $to_currency,float $amount): float
     {
-        $rates = CurrencyController::currencyRates();
+        $rates = CurrencyController::currencyRates()['rates'];
         if ($from_currency == $to_currency) {
             return $amount;
         } else {
@@ -47,12 +47,12 @@ class CurrencyController extends Controller
             $in_base = $amount
                 / (($from_currency == CurrencyController::getBaseCurrency())
                     ? 1
-                    : ($rates[$from_currency]  ?? abort(500, "Server Error. Invalid currency.")));
+                    : ($rates[$from_currency]  ?? abort(500, "Server Error. Invalid currency: " . $from_currency)));
             //convert to result currency
             return $in_base
                 * (($to_currency == CurrencyController::getBaseCurrency())
                     ? 1
-                    : ($rates[$to_currency] ?? abort(500, "Server Error. Invalid currency.")));
+                    : ($rates[$to_currency] ?? abort(500, "Server Error. Invalid currency: " . $to_currency)));
         }
     }
 }
