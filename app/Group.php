@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class Group extends Model
 
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency', 'anyone_can_invite', 'invitation', 'boosted'];
+    protected $fillable = ['name', 'currency', 'admin_approval', 'invitation', 'boosted'];
 
     public function getMemberLimitAttribute()
     {
@@ -36,7 +37,18 @@ class Group extends Model
         return $this
             ->belongsToMany('App\User', 'group_user')
             ->as('member_data')
-            ->withPivot('nickname', 'is_admin', 'balance')
+            ->withPivot('nickname', 'is_admin', 'balance', 'approved')
+            ->where('approved', true)
+            ->withTimestamps();
+    }
+
+    public function unapprovedMembers()
+    {
+        return $this
+            ->belongsToMany('App\User', 'group_user')
+            ->as('member_data')
+            ->withPivot('nickname', 'is_admin', 'balance', 'approved')
+            ->where('approved', false)
             ->withTimestamps();
     }
 
@@ -59,6 +71,7 @@ class Group extends Model
      */
     public static function nicknameOf($group_id, $user_id): string
     {
+        App::setLocale(auth('api')->user()->language);
         return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
             $nicknames = [];
             $group = Group::with('members')->findOrFail($group_id);

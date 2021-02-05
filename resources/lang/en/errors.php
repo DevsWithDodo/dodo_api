@@ -12,4 +12,5 @@ return [
     'taken_nickname' => 'This nickname is already taken.',
     'balance_negative' => 'Don\'t let your friends down! Your balance must be positive.',
     'leave_groups' => 'Please leave all your groups before proceeding. They will miss you.',
+    'update_deleted' => 'You cannot edit or delete a transaction with deleted members.',
 ];

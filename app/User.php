@@ -110,7 +110,8 @@ class User extends Authenticatable implements HasLocalePreference
         return $this
             ->belongsToMany('App\Group', 'group_user')
             ->as('member_data')
-            ->withPivot('nickname', 'is_admin', 'balance')
+            ->withPivot('nickname', 'is_admin', 'balance', 'approved')
+            ->where('approved', true)
             ->withTimestamps();
     }
 

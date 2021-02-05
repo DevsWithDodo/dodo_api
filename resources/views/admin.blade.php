@@ -32,7 +32,7 @@
                 use them)<br>
                 Avarage purchases: {{$purchases_avg}}<br>
                 Avarage payments: {{$payments_avg}}<br>
-                Avarage purchases: {{$requests_all_avg}} ({{$requests_avg}} among {{$groups_use_requests}} groups which
+                Avarage requests: {{$requests_all_avg}} ({{$requests_avg}} among {{$groups_use_requests}} groups which
                 use them)<br>
                 Currencies:
                 @foreach($currencies as $currency => $count)

@@ -16,6 +16,13 @@ class AddPersonalisedAdsField extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('personalised_ads')->default(0);
         });
+
+        Schema::table('groups', function(Blueprint $table) {
+            $table->renameColumn('anyone_can_invite', 'admin_approval');
+        });
+        Schema::table('groups', function(Blueprint $table) {
+            $table->boolean('admin_approval')->default(0)->change();
+        });
     }
 
     /**

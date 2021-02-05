@@ -111,6 +111,7 @@ class UserController extends Controller
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
+            'personalised_ads' => 'boolean'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $data = collect([
@@ -122,7 +123,8 @@ class UserController extends Controller
             'ad_free' => $request->ad_free,
             'gradients_enabled' => $request->gradients_enabled,
             'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
-            'color_theme' => $request->theme
+            'color_theme' => $request->theme,
+            'personalised_ads' => $request->personalised_ads
         ])->filter()->all();
         if (count($data) == 0) abort(400, "The given data to update is empty.");
 

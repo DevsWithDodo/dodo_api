@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
     {
         $csocsort = Group::factory()->create([
             'name' => 'Csocsort',
-            'boosted' => 1
+            'boosted' => 1,
+            'admin_approval' => 1
         ]);
         $other_group = Group::factory()->create();
         $dominik = User::factory()->create([

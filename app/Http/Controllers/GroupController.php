@@ -61,7 +61,9 @@ class GroupController extends Controller
         $user = $request->user();
         return response()->json(['data' => [
             'is_boosted' => $group->boosted ? 1 : 0,
-            'available_boosts' => $user->available_boosts
+            'available_boosts' => $user->available_boosts,
+            'trial' => $user->trial ? 1 : 0,
+            'created_at' => $group->created_at
         ]]);
     }
     public function boost(Request $request, Group $group)

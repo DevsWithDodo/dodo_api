@@ -37,13 +37,18 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('groups/{group}/boost', [GroupController::class, 'boost'])->name('group.boost');
 
     /* Members */
-    Route::post('join',                          [MemberController::class, 'store'])->name('member.store');
-    Route::get('groups/{group}/member',          [MemberController::class, 'show'])->name('member.show');
-    Route::put('groups/{group}/members',         [MemberController::class, 'update'])->name('member.update');
-    Route::put('groups/{group}/admins',          [MemberController::class, 'updateAdmin'])->name('member.admin.update');
-    Route::post('groups/{group}/members/delete', [MemberController::class, 'delete'])->name('member.delete');
+    Route::post('join',                             [MemberController::class, 'store'])->name('member.store');
+    Route::get('groups/{group}/member',             [MemberController::class, 'show'])->name('member.show');
+    Route::put('groups/{group}/members',            [MemberController::class, 'update'])->name('member.update');
+    Route::put('groups/{group}/admins',             [MemberController::class, 'updateAdmin'])->name('member.admin.update');
+    Route::post('groups/{group}/members/delete',    [MemberController::class, 'delete'])->name('member.delete');
+
+    /* Unapproved Members */
+    Route::get('groups/{group}/members/unapproved',       [MemberController::class, 'showUnapproved'])->name('member.unapproved');
+    Route::post('groups/{group}/members/approve_or_deny', [MemberController::class, 'ApproveOrDeny'])->name('member.approve_or_deny');
 
     /* Guests */
+    Route::get('/groups/{group}/guests',        [MemberController::class, 'guests'])->name('guests.show');
     Route::get('/groups/{group}/has_guests',    [MemberController::class, 'hasGuests'])->name('guests.has_guests');
     Route::post('/groups/{group}/add_guest',    [MemberController::class, 'addGuest'])->name('guests.store');
     Route::post('/groups/{group}/merge_guest',  [MemberController::class, 'mergeGuest'])->name('guests.merge');

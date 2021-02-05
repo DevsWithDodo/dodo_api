@@ -158,7 +158,7 @@
                     href="https://firebase.google.com/support/privacy" target="__blank" style="color: black">can be
                     found here.</a>
                 <h4>Adverts & commissions</h4>
-                Our website and app may contain adverts. These are served through MoPub.
+                Our website and app may contain adverts. These are served through Google AdMob.
                 We do not control the actual adverts seen / displayed.
                 Our ad partners may collect data and use cookies for ad
                 personalisation and measurement. Where ad preferences are requested as 'nonpersonalised' cookies
@@ -176,8 +176,8 @@
                 overall experience and valued information.
                 If you have any concerns about this we suggest you do not click on any adverts found throughout
                 our services.<br>
-                <a href="https://www.mopub.com/en/legal/privacy" target="__blank" style="color: black">MoPub's Privacy
-                    Policy Notice can be found here.</a>
+                <a href="https://policies.google.com/privacy?hl=en" target="__blank" style="color: black">Google's
+                    Privacy Policy Notice can be found here.</a>
 
                 <h2>Resources & further information</h2>
                 <ul>

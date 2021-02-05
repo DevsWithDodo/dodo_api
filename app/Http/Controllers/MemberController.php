@@ -15,11 +15,13 @@ use App\Notifications\Transactions\PaymentNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Member as MemberResource;
+use App\Http\Resources\Guest as GuestResource;
 use Illuminate\Support\Facades\Log;
 
 use App\Transactions\Payment;
 use App\User;
 use App\Group;
+use App\Notifications\Members\ApproveMemberNotification;
 
 class MemberController extends Controller
 {
@@ -34,6 +36,7 @@ class MemberController extends Controller
     {
         $user = auth('api')->user();
         $group = Group::firstWhere('invitation', $request->invitation_token);
+
         $validator = Validator::make($request->all(), [
             'invitation_token' => 'required|string|exists:groups,invitation',
             'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
@@ -44,13 +47,18 @@ class MemberController extends Controller
 
         $group->members()->attach($user, [
             'nickname' => $request->nickname,
-            'is_admin' => false
+            'is_admin' => false,
+            'approved' => !$group->admin_approval
         ]);
 
         try {
-            foreach ($group->members as $member)
-                if ($member->id != $user->id)
+            if($group->admin_approval){
+                foreach ($group->admins->except($user) as $admin)
+                    $admin->notify(new ApproveMemberNotification($group, $user));
+            } else {
+                foreach ($group->members->except($user) as $member)
                     $member->notify(new JoinedGroupNotification($group, $user));
+            }
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -62,7 +70,7 @@ class MemberController extends Controller
     {
         $user = auth('api')->user();
         $validator = Validator::make($request->all(), [
-            'member_id' => ['exists:users,id', new IsMember($group)],
+            'member_id' => ['exists:users,id', new IsMember($group, true)],
             'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -146,13 +154,15 @@ class MemberController extends Controller
                 }
             }
         } else { //kicking
-            Payment::create([
-                'amount' => (-1) * $balance,
-                'group_id' => $group->id,
-                'taker_id' => $user->id,
-                'payer_id' => $member_to_delete->id,
-                'note' => '$$legacy_money$$'
-            ]);
+            if ($balance != 0){
+                Payment::create([
+                    'amount' => (-1) * $balance,
+                    'group_id' => $group->id,
+                    'taker_id' => $user->id,
+                    'payer_id' => $member_to_delete->id,
+                    'note' => '$$legacy_money$$'
+                ]);
+            }
         }
 
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
@@ -166,7 +176,6 @@ class MemberController extends Controller
             foreach ($group->members as $member)
                 $member->member_data->update(['is_admin' => true]);
 
-
         if($user->groups->count()){
             $group = $user->groups()->first();
             return response(['data' => ['group_id' => $group->id, 'group_name' => $group->name, 'currency' => $group->currency]]);
@@ -177,8 +186,46 @@ class MemberController extends Controller
     }
 
     /**
+     * Unapproved members
+     */
+    public function showUnapproved(Group $group)
+    {
+        $this->authorize('edit', $group);
+        return MemberResource::collection($group->unapprovedMembers);
+    }
+
+    public function approveOrDeny(Request $request, Group $group)
+    {
+        $this->authorize('edit', $group);
+        $validator = Validator::make($request->all(), [
+            'member_id' => 'required',
+            'approve' => 'required|boolean',
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        $user = $group->unapprovedMembers()->findOrFail($request->member_id);
+
+        if($request->approve){
+            $user->member_data->update(['approved'=> true]);
+            try {
+                foreach ($group->members->except($user) as $member)
+                    $member->notify(new JoinedGroupNotification($group, $user));
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
+        } else {
+            $group->unapprovedMembers()->detach($user);
+        }
+    }
+
+    /**
      * Guests
      */
+    public function guests(Group $group)
+    {
+        $this->authorize('edit', $group);
+        return GuestResource::collection($group->guests);
+    }
 
     public function hasGuests(Group $group)
     {

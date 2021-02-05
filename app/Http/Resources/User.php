@@ -14,11 +14,11 @@ class User extends JsonResource
             'api_token' => $this->api_token,
             'last_active_group' => $this->last_active_group,
             'default_currency' => $this->default_currency,
-            'total_balance' => 0, //TODO delete
             'ad_free' => $this->ad_free ? 1 : 0,
+            'trial' => $this->trial ? 1 : 0,
             'gradients_enabled' => $this->gradients_enabled ? 1 : 0,
             'available_boosts' => $this->available_boosts ? 1 : 0,
-            'personalised_ads' => $this->personalised_ads
+            'personalised_ads' => $this->personalised_ads ? 1 : 0
         ];
     }
 }

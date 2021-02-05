@@ -12,17 +12,17 @@ use App\Group;
 use App\User;
 
 
-class PromotedToAdminNotification extends Notification //implements ShouldQueue
+class ApproveMemberNotification extends Notification //implements ShouldQueue
 {
     //use Queueable;
 
     public Group $group;
-    public User $admin;
+    public User $user;
 
-    public function __construct(Group $group, User $admin)
+    public function __construct(Group $group, User $user)
     {
         $this->group = $group;
-        $this->admin = $admin;
+        $this->user = $user;
     }
 
     public function via($notifiable)
@@ -32,18 +32,18 @@ class PromotedToAdminNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.promoted_to_admin_descr', [
-            'user' => Group::nicknameOf($this->group->id, $this->admin->id),
+        $message = __('notifications.approve_member_descr', [
+            'user' => $this->user->username,
             'group' => $this->group->name
         ]);
-        $title = __('notifications.promoted_to_admin_title', [
+        $title = __('notifications.approve_member_title', [
             'group' => $this->group->name
         ]);
         return FcmMessage::create()
             ->setData([
                 'id' => '5' . rand(0, 100000),
                 'payload' => json_encode([
-                    'screen' => 'home',
+                    'screen' => 'group_settings',
                     'group_id' => $this->group->id,
                     'group_name' => $this->group->name,
                     'details' => null

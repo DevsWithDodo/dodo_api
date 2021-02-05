@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Group;
+use App\Http\Controllers\CurrencyController;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -24,9 +25,8 @@ class GroupFactory extends Factory
     {
         return [
             'name' => $this->faker->text(20),
-            'anyone_can_invite' => array_rand([true, false]),
             'invitation' => Str::random(20),
-            'currency' => "HUF"
+            'currency' => array_rand(CurrencyController::currencyRates())
         ];
     }
 }

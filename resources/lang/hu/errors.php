@@ -12,4 +12,5 @@ return [
     'taken_nickname' => 'This nickname is already taken.',
     'balance_negative' => 'Ne hagyd cserben barátaidat! Az egyenleged nem lehet negatív.',
     'leave_groups' => 'Lépj ki az összes csoportodból, mielőtt búcsút intesz nekünk.',
+    'update_deleted' => 'Nem lehet törölni vagy módosítani olyan tranzakciókat, amelyek kilépett csoporttagokat tartalmaznak.',
 ];
