@@ -37,6 +37,7 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
             'currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
+            'admin_approval' => 'boolean', //TODO: required
             'member_nickname' => ['required', 'string', 'min:1', 'max:15'],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -44,7 +45,8 @@ class GroupController extends Controller
         $group = Group::create([
             'name' => $request->group_name,
             'currency' => $request->currency,
-            'invitation' => Str::random(20)
+            'invitation' => Str::random(20),
+            'admin_approval' => false //TODO
         ]);
 
         $group->members()->attach(auth('api')->user()->id, [

@@ -208,7 +208,7 @@ class MemberController extends Controller
         if($request->approve){
             $user->member_data->update(['approved'=> true]);
             try {
-                foreach ($group->members->except($user) as $member)
+                foreach ($group->members()->except($user) as $member)
                     $member->notify(new JoinedGroupNotification($group, $user));
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
