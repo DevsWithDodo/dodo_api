@@ -69,7 +69,7 @@ class Group extends Model
      *@param int the user's id
      *@return string the nickname or '$$deleted_user$$ if not found.
      */
-    public static function nicknameOf($group_id, $user_id): string
+    public static function nicknameOf(int $group_id, int $user_id): string
     {
         App::setLocale(auth('api')->user()->language);
         return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {

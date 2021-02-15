@@ -35,7 +35,7 @@ class FulfilledRequestNotification extends Notification //implements ShouldQueue
     {
         $group = $this->request->group;
         $message = __('notifications.fulfilled_request_descr', [
-            'user' => Group::nicknameOf($group, $this->fulfiller->id),
+            'user' => Group::nicknameOf($group->id, $this->fulfiller->id),
             'request' => $this->request->name
         ]);
         $title = __('notifications.fulfilled_request_title');
