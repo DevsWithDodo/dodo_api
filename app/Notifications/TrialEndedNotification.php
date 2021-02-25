@@ -24,18 +24,10 @@ class TrialEndedNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.trial_ended_descr');
-        $title = __('notifications.trial_ended_title');
-        return FcmMessage::create()
-            ->setData([
-                'id' => '' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'store'
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: __('notifications.trial_ended.title'),
+            message_parts: [__('notifications.trial_ended.descr')],
+            payload: ['screen' => 'store'],
+        );
     }
 }

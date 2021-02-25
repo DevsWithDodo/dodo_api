@@ -61,6 +61,11 @@ class Group extends Model
         return $this->members()->findOrFail($user_id);
     }
 
+    public function isMember($user_id): bool
+    {
+        return $this->members()->find($user_id) != null;
+    }
+
 
     /**
      *Returns the nickname of the member in the group.

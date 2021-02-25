@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Group;
+use App\Notifications\NotificationMaker;
 use App\User;
 
 
@@ -34,27 +35,23 @@ class ShoppingNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.shopping_descr', [
+        $message = __('notifications.shopping.descr', [
             'user' => Group::nicknameOf($this->group->id, $this->user->id),
             'store' => $this->store,
             'group' => $this->group->name
         ]);
-        $title = __('notifications.shopping_title', [
+        $title = __('notifications.shopping.title', [
             'user' => Group::nicknameOf($this->group->id, $this->user->id),
         ]);
-        return FcmMessage::create()
-            ->setData([
-                'id' => '8' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'shopping',
-                    'group_id' => $this->group->id,
-                    'group_name' => $this->group->name,
-                    'details' => null
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: $title,
+            message_parts: [$message],
+            payload: [
+                'screen' => 'shopping',
+                'group_id' => $this->group->id,
+                'group_name' => $this->group->name,
+                'details' => null
+            ],
+        );
     }
 }

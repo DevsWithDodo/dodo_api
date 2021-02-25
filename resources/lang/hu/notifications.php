@@ -2,38 +2,65 @@
 
 return [
     'guest' => "Egy vendég",
-    'changed_group_name_title' => 'A csoport neve megváltozott',
-    'changed_group_name_descr' => 'A(z) :old_name nevű csoportodat :user átnevezte erre: :new_name.',
-    'changed_nickname_title' => ':name lettél!',
-    'changed_nickname_descr' => ':user átállította a nevedet itt: :group.',
-    'fulfilled_request_title' => 'A kérésedet teljesítették',
-    'fulfilled_request_descr' => ':user ügyes volt, megszerezte, amit kértél: :request!',
-    'joined_group_title' => ':group új taggal bővült',
-    'joined_group_descr' => ':user még új nálatok, legyetek hozzá kedvesek!',
-    'new_payment_title' => 'Fizettek neked!',
-    'new_payment_descr' => 'A kedvenc, :group nevű csoportodban :user fizetett neked :amount-t.',
-    'new_payment_message' => 'Ezt írta hozzá: :message.',
-    'updated_payment_title' => 'Az egyik fizetésedet módosították',
-    'updated_payment_descr' => ':user a(z) :old_amount-os fizetését megváltoztatta :new_amount-ra',
-    'deleted_payment_title' => 'Az egyik fizetéséedet törölték.',
-    'deleted_payment_descr' => ':user visszavonta a(z) :amount-os fizetését.',
-    'new_request_title' => 'Új kérés érkezett!',
-    'new_request_descr' => ':user felírt :request-t a(z) :group bevásárlólistájára.',
-    'promoted_to_admin_title' => 'Előléptettek!',
-    'promoted_to_admin_descr' => ':user adminná tett! Mostantól tudod szerkeszteni a(z) :group különböző adatait.',
-    'receiver_notification_title' => 'Vásároltak neked!',
-    'receiver_notification_descr' => ':user: vett neked :purchase-t :amount-ért itt: :group.',
-    'receiver_updated_title' => 'Egy vásárlást módosítottak',
-    'receiver_updated_descr' => ':user módosította :purchase árát :amount-ra.',
-    'receiver_deleted_title' => 'Egy vásárlást töröltek.',
-    'receiver_deleted_descr' => ':user visszavonta a :purchase megvásárlását.',
-    'shopping_title' => ':user boltban van',
-    'shopping_descr' => 'Ha szeretnél valamit innen: :store,  akkor írj a(z) :group bevásárlólistájára!',
+    'user' => [
+        'nickname_changed' => [
+            //name
+            'title' => ':name lettél!',
+            'descr' => 'átállította a nevedet.',
+        ],
+        'joined' => [
+            //group
+            'title' => ':group új taggal bővült',
+            //user, group
+            'descr' => ':user még csak most landolt nálatok, legyetek hozzá kedvesek!',
+        ],
+        'approve' => [
+            //group
+            'title' => "Egy felhasználó csatlakozni szeretne egy csoportodhoz",
+            //user, group
+            'descr' => "Döntsd el, hogy :user tagja lehet-e a(z) :group csoportnak",
+        ],
+        'promoted_to_admin' => [
+            //group
+            'title' => 'Előléptettek!',
+            //user, group
+            'descr' => ':user adminná tett! Mostantól tudod szerkeszteni :group különböző adatait.',
+        ],
+    ],
+    'group' => [
+        'name' => [
+            'updated' => 'Egy csoportod neve megváltozott',
+        ],
+        'boosted' => [
+            //user, group
+            'title' => ':group fejlesztve lett',
+            //user, group
+            'descr' => ':user felhasználta egy csoportfejlesztő Dodóját. Mostantól a csoport létszáma akár 30 is lehet, és használhatjátok a statisztikákat is! ',
+        ],
+    ],
+    'payment' => [
+        'created' => 'Fizettek neked!',
+        'updated' => 'Az egyik fizetésedet módosították',
+        'deleted' => 'Az egyik fizetésedet törölték',
+    ],
+    'request' => [
+        'created' => 'Új kérés érkezett a bevásárlólistára!',
+        'fulfilled' => 'A kérésedet teljesítették',
+    ],
+    'purchase' => [
+        'created' => 'Vásároltak neked!',
+        'updated' => 'Egy vásárlást módosítottak',
+        'deleted' => 'Egy vásárlást töröltek',
+    ],
+    'shopping' => [
+        //user
+        'title' => ':user boltban van',
+        //user, store, group
+        'descr' => 'Ha szeretnél valamit innen: :store,  akkor írj :group bevásárlólistájára!',
+    ],
+    'trial_ended' => [
+        'title' => 'A két hetes próbaidőszakod véget ért',
+        'descr' => 'Vegyél reklámmentességet, színeket és egyéb szuper dodóságokat a Dodó boltban! Ne aggódj, minden hasznos funkciója a Lendernek megmaradt 😉',
+    ],
     'message_from_developers' => 'Üzenet a fejlesztőktől',
-    'group_boosted_title' => ':group fejlesztve lett',
-    'group_boosted_descr' => ':user felhasználta egy csoportfejlesztő Dodóját. Mostantól a csoport létszáma akár 30 is lehet, és használhatjátok a statisztikákat is!',
-    'trial_ended_title' => 'A két hetes próbaidőd véget ért',
-    'trial_ended_descr' => 'Vegyél reklámmentességet, színeket és egyéb szuper dodóságokat a Dodó boltban! Ne aggódj, minden hasznos funkciója a Lendernek megmaradt 😉',
-//deleted member: kiváló ügynök volt.
-
 ];

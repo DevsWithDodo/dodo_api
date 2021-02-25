@@ -130,6 +130,8 @@ return [
 
     'developer_email' => env('DEVELOPER_EMAIL'),
 
+    'admin_password' => env('ADMIN_PASSWORD'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
@@ -173,7 +175,7 @@ return [
          * Package Service Providers...
          */
         Kreait\Laravel\Firebase\ServiceProvider::class,
-        Michaelmetz\Passwordprotect\PasswordProtectServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -236,6 +238,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        //packages
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

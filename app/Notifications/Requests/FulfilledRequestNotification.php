@@ -3,6 +3,7 @@
 namespace App\Notifications\Requests;
 
 use App\Group;
+use App\Notifications\NotificationMaker;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
@@ -34,24 +35,19 @@ class FulfilledRequestNotification extends Notification //implements ShouldQueue
     public function toFcm($notifiable)
     {
         $group = $this->request->group;
-        $message = __('notifications.fulfilled_request_descr', [
-            'user' => Group::nicknameOf($group->id, $this->fulfiller->id),
-            'request' => $this->request->name
-        ]);
-        $title = __('notifications.fulfilled_request_title');
-        return FcmMessage::create()
-            ->setData([
-                'id' => '2' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'shopping',
-                    'group_id' => $group->id,
-                    'group_name' => $group->name,
-                    'details' => null
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: __('notifications.request.fulfilled'),
+            message_parts: [
+                'user' => Group::nicknameOf($group->id, $this->fulfiller->id),
+                'request_fulfilled' => $this->request->name,
+                'group' => $group->name,
+            ],
+            payload: [
+                'screen' => 'shopping',
+                'group_id' => $group->id,
+                'group_name' => $group->name,
+                'details' => null
+            ]
+        );
     }
 }

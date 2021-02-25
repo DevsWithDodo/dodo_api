@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Transactions\Purchase;
 use App\Group;
 use App\User;
+use Illuminate\Support\Facades\Hash;
 
 class MemberTest extends TestCase
 {
@@ -20,7 +21,7 @@ class MemberTest extends TestCase
 
         Artisan::call('migrate');
         $this->group = Group::factory()->create();
-        $users = User::factory()->count(rand(3, 20))->create();
+        $users = User::factory()->count(rand(3, 20))->create(['password' => Hash::make('1234')]); //not guests
         foreach ($users as $user) {
             $this->group->members()->attach($user->id, ['nickname' => $user->username, 'is_admin' => true]);
         }

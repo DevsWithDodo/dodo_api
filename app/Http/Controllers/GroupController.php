@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GroupExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-
 use App\Http\Controllers\CurrencyController;
 use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
@@ -20,7 +21,9 @@ class GroupController extends Controller
     public function index()
     {
         $user = auth('api')->user();
-        return response()->json(['data' => $user->groups->map(function ($i) {return ['group_id' => $i->id, 'group_name' => $i->name, 'currency' => $i->currency];})]);
+        return response()->json(['data' => $user->groups->map(function ($i) {
+            return ['group_id' => $i->id, 'group_name' => $i->name, 'currency' => $i->currency];
+        })]);
     }
 
     public function show(Request $request, Group $group)
@@ -37,7 +40,7 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
             'currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
-            'admin_approval' => 'boolean', //TODO: required
+            'admin_approval' => 'boolean',
             'member_nickname' => ['required', 'string', 'min:1', 'max:15'],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -46,7 +49,7 @@ class GroupController extends Controller
             'name' => $request->group_name,
             'currency' => $request->currency,
             'invitation' => Str::random(20),
-            'admin_approval' => false //TODO
+            'admin_approval' => $request->admin_approval ?? false
         ]);
 
         $group->members()->attach(auth('api')->user()->id, [
@@ -91,12 +94,13 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|min:1|max:20',
             'currency' => ['nullable', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
+            'admin_approval' => 'nullable|boolean',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = auth('api')->user();
         $old_name = $group->name;
-        $group->update($request->only('name', 'currency'));
+        $group->update($request->only('name', 'currency', 'admin_approval'));
 
         try {
             if ($old_name != $group->name)
@@ -114,5 +118,12 @@ class GroupController extends Controller
         $this->authorize('edit', $group);
         $group->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportData(Group $group)
+    {
+        $this->authorize('view', $group);
+
+        return Excel::download(new GroupExport($group), $group->name . '.xlsx');
     }
 }

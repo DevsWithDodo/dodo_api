@@ -9,12 +9,10 @@ use NotificationChannels\Fcm\FcmMessage;
 class CustomNotification extends Notification
 {
     public $message;
-    public $screen;
 
-    public function __construct($message, $screen = null)
+    public function __construct($message)
     {
         $this->message = $message;
-        $this->screen = $screen;
     }
 
     public function via($notifiable)
@@ -24,14 +22,10 @@ class CustomNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        $title = __('notifications.message_from_developers');
-        $message = $this->message;
-        return FcmMessage::create()
-            ->setData([
-                'id' => '9' . rand(0, 100000),
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: __('notifications.message_from_developers'),
+            message_parts: [$this->message],
+            payload: [],
+        );
     }
 }

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'about' => 'Információk',
+    'thank_you' => 'Köszönjük, hogy a Lendert használod.',
+    'descr' => 'A különböző füleken láthatók :Group fizetései, vásárlásai és idővonala.',
+    'n_a_descr' => 'Az \'N/A\' a csoportból kilépett felhasználókat jelöli.',
+    'support' => 'Ha tetszik, értékeld a Lendert az alkalmazásboltodban!',
+    'preview' => 'Csak az utolsó 30 nap eseményei érhetőek el. A Dodó Boltban vehetsz csoportfejlesztő Dodókat, akik feloldják ezt a korlátot.',
+    'members' => 'Csoporttagok',
+    'username' => 'Felhasználónév',
+    'nickname' => 'Becenév',
+    'balance' => 'Egyenleg',
+    'joined' => 'Csatlakozott',
+    'payments' => 'Fizetések',
+    'payer' => 'Ki fizetett?',
+    'taker' => 'Kinek fizetett?',
+    'amount' => 'Összeg',
+    'note' => 'Megjegyzés',
+    'date' => 'Dátum',
+    'purchases' => 'Vásárlások',
+    'name' => 'Név',
+    'buyer' => 'Ki vette?',
+    'receiver' => 'Kinek vette?',
+    'receivers' => 'Kiknek vette?',
+    'timeline' => 'Idővonal',
+];

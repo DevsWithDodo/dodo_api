@@ -27,11 +27,14 @@ class DatabaseSeeder extends Seeder
         $other_group = Group::factory()->create();
         $dominik = User::factory()->create([
             'username' => 'dominik',
-            'password' => Hash::make('1234')
+            'password' => Hash::make('1234'),
+            'ad_free' => 1,
+            'trial' => 0
         ]);
         $samu = User::factory()->create([
             'username' => 'samu',
-            'password' => Hash::make('1234')
+            'password' => Hash::make('1234'),
+            'trial' => 0
         ]);
         foreach ([$csocsort, $other_group] as $group) {
             $group->members()->attach($dominik->id, [

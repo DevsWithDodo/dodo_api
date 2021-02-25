@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Group;
+use App\Notifications\NotificationMaker;
 use App\User;
 
 class GroupBoostedNotification extends Notification //implements ShouldQueue
@@ -32,32 +33,28 @@ class GroupBoostedNotification extends Notification //implements ShouldQueue
     public function toFcm($notifiable)
     {
         $message = __(
-            'notifications.group_boosted_descr',
+            'notifications.group.boosted.descr',
             [
                 'user' => Group::nicknameOf($this->group->id, $this->user->id),
                 'group' => $this->group->name
             ]
         );
         $title = __(
-            'notifications.group_boosted_title',
+            'notifications.group.boosted.title',
             [
                 'user' => Group::nicknameOf($this->group->id, $this->user->id),
                 'group' => $this->group->name
             ]
         );
-        return FcmMessage::create()
-            ->setData([
-                'id' => '' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'home',
-                    'group_id' => $this->group->id,
-                    'group_name' => $this->group->name,
-                    'details' => null
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: $title,
+            message_parts: [$message],
+            payload: [
+                'screen' => 'home',
+                'group_id' => $this->group->id,
+                'group_name' => $this->group->name,
+                'details' => null
+            ],
+        );
     }
 }

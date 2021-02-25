@@ -123,7 +123,6 @@ class StatisticsController extends Controller
     public function all(Request $request, Group $group)
     {
         $this->authorize('viewStatistics', $group);
-        $user_id = $request->user()->id;
         $validator = Validator::make($request->all(), [
             'from_date' => 'required|date_format:Y-m-d',
             'until_date' => 'required|date_format:Y-m-d',
@@ -141,11 +140,11 @@ class StatisticsController extends Controller
             ->get();
 
         $payments_collection = $group->payments()
-        ->whereBetween('updated_at', [
-            $from_date->format('Y-m-d'),
-            $until_date->addDay()->format('Y-m-d')
-        ])
-        ->get();
+            ->whereBetween('updated_at', [
+                $from_date->format('Y-m-d'),
+                $until_date->addDay()->format('Y-m-d')
+            ])
+            ->get();
 
         $payments = $purchases = [];
         $current_date   = $from_date->toMutable();

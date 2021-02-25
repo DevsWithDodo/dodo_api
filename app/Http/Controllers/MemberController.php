@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache;
 
 use App\Rules\IsMember;
 use App\Rules\UniqueNickname;
@@ -52,7 +51,7 @@ class MemberController extends Controller
         ]);
 
         try {
-            if($group->admin_approval){
+            if ($group->admin_approval) {
                 foreach ($group->admins->except($user) as $admin)
                     $admin->notify(new ApproveMemberNotification($group, $user));
             } else {
@@ -94,14 +93,15 @@ class MemberController extends Controller
     public function updateAdmin(Group $group, Request $request)
     {
         $user = auth('api')->user();
-        $this->authorize('edit_admins', $group);
+        $member = User::findOrFail($request->member_id);
+        $this->authorize('edit_admin', [$group, $member]);
         $validator = Validator::make($request->all(), [
-            'member_id' => ['required', 'exists:users,id', new IsMember($group)],
+            'member_id' => ['required', new IsMember($group)],
             'admin' => 'required|boolean',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $member = User::find($request->member_id);
+
         $group->member($member->id)
             ->member_data->update(['is_admin' => $request->admin]);
 
@@ -154,7 +154,7 @@ class MemberController extends Controller
                 }
             }
         } else { //kicking
-            if ($balance != 0){
+            if ($balance != 0) {
                 Payment::create([
                     'amount' => (-1) * $balance,
                     'group_id' => $group->id,
@@ -176,13 +176,12 @@ class MemberController extends Controller
             foreach ($group->members as $member)
                 $member->member_data->update(['is_admin' => true]);
 
-        if($user->groups->count()){
+        if ($user->groups->count()) {
             $group = $user->groups()->first();
             return response(['data' => ['group_id' => $group->id, 'group_name' => $group->name, 'currency' => $group->currency]]);
-        }else {
+        } else {
             return response()->json(null, 204);
         }
-
     }
 
     /**
@@ -205,8 +204,8 @@ class MemberController extends Controller
 
         $user = $group->unapprovedMembers()->findOrFail($request->member_id);
 
-        if($request->approve){
-            $user->member_data->update(['approved'=> true]);
+        if ($request->approve) {
+            $user->member_data->update(['approved' => true]);
             try {
                 foreach ($group->members()->except($user) as $member)
                     $member->notify(new JoinedGroupNotification($group, $user));

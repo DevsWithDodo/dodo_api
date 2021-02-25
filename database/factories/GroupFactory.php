@@ -26,7 +26,9 @@ class GroupFactory extends Factory
         return [
             'name' => $this->faker->text(20),
             'invitation' => Str::random(20),
-            'currency' => array_rand(CurrencyController::currencyRates())
+            'currency' => array_rand(CurrencyController::currencyRates()['rates']),
+            'admin_approval' => $this->faker->boolean(),
+            'boosted' => $this->faker->boolean()
         ];
     }
 }

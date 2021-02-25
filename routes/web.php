@@ -32,7 +32,8 @@ Route::get('/join/{token}', function ($token) {
     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
 
-Route::get('/admin', function () {
+Route::get('/admin', function (Request $request) {
+    if ($request->password != config('app.admin_password')) abort(404);
     $not_boosted_members = $boosted_members = 0;
     $not_boosted_guests = $boosted_guests = 0;
     $boosted = $not_boosted = $all = 0;
@@ -53,7 +54,7 @@ Route::get('/admin', function () {
         $all++;
         $payments += $group->payments()->count();
         $purchases += $group->purchases()->count();
-        $requests= $group->requests()->count();
+        $requests = $group->requests()->count();
         $requests_all += $requests;
         if ($requests) {
             $requests_use += $requests;
@@ -61,13 +62,13 @@ Route::get('/admin', function () {
         }
         $guests = $group->guests()->count();
         $guests_all += $guests;
-        if ($guests){
+        if ($guests) {
             $guests_use += $guests;
             $groups_use_guests++;
         }
-        if (isset($currencies[$group->currency])){
+        if (isset($currencies[$group->currency])) {
             $currencies[$group->currency]++;
-        }else {
+        } else {
             $currencies[$group->currency] = 1;
         }
     }
@@ -85,27 +86,27 @@ Route::get('/admin', function () {
     foreach ($users as $user) {
         $groups += $user->groups()->count();
 
-        if (isset($group_count[$user->groups()->count()])){
+        if (isset($group_count[$user->groups()->count()])) {
             $group_count[$user->groups()->count()]++;
         } else {
             $group_count[$user->groups()->count()] = 1;
         }
 
-        if($user->gradients_enabled){
-            if (isset($colors_gradients_enabled[$user->color_theme])){
+        if ($user->gradients_enabled) {
+            if (isset($colors_gradients_enabled[$user->color_theme])) {
                 $colors_gradients_enabled[$user->color_theme]++;
             } else {
                 $colors_gradients_enabled[$user->color_theme] = 1;
             }
         } else {
-            if (isset($colors_free[$user->color_theme])){
+            if (isset($colors_free[$user->color_theme])) {
                 $colors_free[$user->color_theme]++;
             } else {
                 $colors_free[$user->color_theme] = 1;
             }
         }
 
-        if (isset($languages[$user->language])){
+        if (isset($languages[$user->language])) {
             $languages[$user->language]++;
         } else {
             $languages[$user->language] = 1;
@@ -142,25 +143,7 @@ Route::get('/admin', function () {
         'colors_gradients_enabled' => $colors_gradients_enabled,
         'colors_free' => $colors_free
     ]);
-
-})->middleware('passwordprotect:1');
-
-Route::post('/admin/recalculate', function (Request $request) {
-    Group::findOrFail($request->group)->recalculateBalances();
-    return redirect()->back();
-})->middleware('passwordprotect:1');
-
-Route::post('admin/send_notification', function (Request $request) {
-    if ($request->everyone) {
-        foreach (\App\User::all() as $user)
-            $user->notify(new CustomNotification($request->message));
-        return response("Message sent to everyone.");
-    } else {
-        $user = \App\User::findOrFail($request->id);
-        $user->notify(new CustomNotification($request->message));
-        return response("Message sent to " . $user->username . '.');
-    }
-})->middleware('passwordprotect:1');
+});
 
 Route::get('/landscape_preview', function () {
     $path = public_path() . '/lender_preview.png';

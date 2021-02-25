@@ -3,6 +3,7 @@
 namespace App\Notifications\Transactions;
 
 use App\Group;
+use App\Notifications\NotificationMaker;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
@@ -31,26 +32,20 @@ class PaymentDeletedNotification extends Notification //implements ShouldQueue
     public function toFcm($notifiable)
     {
         $group = $this->payment->group;
-        $message = __('notifications.deleted_payment_descr', [
-            'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
-            'amount' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
-            'group' => $group->name
-        ]);
-
-        $title = __('notifications.deleted_payment_title');
-        return FcmMessage::create()
-            ->setData([
-                'id' => '4' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'home',
-                    'group_id' => $group->id,
-                    'group_name' => $group->name,
-                    'details' => 'payment'
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: __('notifications.payment.deleted'),
+            message_parts: [
+                'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
+                'amount' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
+                'deleted',
+                'group' => $group->name,
+            ],
+            payload: [
+                'screen' => 'home',
+                'group_id' => $group->id,
+                'group_name' => $group->name,
+                'details' => 'payment'
+            ]
+        );
     }
 }

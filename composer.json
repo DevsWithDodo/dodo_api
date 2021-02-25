@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.0",
         "doctrine/dbal": "^2.10",
+        "fakerphp/faker": "^1.13",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -18,14 +19,13 @@
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
-        "michaelmetz/passwordprotect": "^1.0",
+        "maatwebsite/excel": "^3.1",
         "spatie/enum": "^3.0",
         "spatie/laravel-backup": "^6.11"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",
         "facade/ignition": "^2.3.6",
-        "fzaninotto/faker": "^1.9.1",
         "mockery/mockery": "^1.3.1",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.3"

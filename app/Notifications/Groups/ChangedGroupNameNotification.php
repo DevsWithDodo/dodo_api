@@ -5,6 +5,7 @@ namespace App\Notifications\Groups;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
+use App\Notifications\NotificationMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -12,7 +13,7 @@ use App\Group;
 use App\User;
 
 
-class ChangedGroupNameNotification extends Notification// implements ShouldQueue
+class ChangedGroupNameNotification extends Notification // implements ShouldQueue
 {
     //use Queueable;
 
@@ -36,25 +37,19 @@ class ChangedGroupNameNotification extends Notification// implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $message = __('notifications.changed_group_name_descr', [
-            'user' => Group::nicknameOf($this->group->id, $this->user->id),
-            'old_name' => $this->old_name,
-            'new_name' => $this->new_name
-        ]);
-        $title = __('notifications.changed_group_name_title');
-        return FcmMessage::create()
-            ->setData([
-                'id' => '0' . rand(0, 100000),
-                'payload' => json_encode([
-                    'screen' => 'home',
-                    'group_id' => $this->group->id,
-                    'group_name' => $this->group->name,
-                    'details' => null
-                ]),
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK'
-            ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
-                ->setTitle($title)
-                ->setBody($message));
+        return NotificationMaker::makeFcmMessage(
+            title: __('notifications.group.name.updated'),
+            message_parts: [
+                'user' => Group::nicknameOf($this->group->id, $this->user->id),
+                'group' => $this->old_name,
+                'changed' => $this->new_name
+            ],
+            payload: [
+                'screen' => 'home',
+                'group_id' => $this->group->id,
+                'group_name' => $this->group->name,
+                'details' => null
+            ],
+        );
     }
 }

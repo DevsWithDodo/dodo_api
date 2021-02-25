@@ -126,7 +126,6 @@ class RequestController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $group->load('members');
         try {
             foreach ($group->members->except($user->id) as $member)
                 $member->notify(new ShoppingNotification($group, $user, $request->store));

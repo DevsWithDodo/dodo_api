@@ -1,5 +1,7 @@
 <?php
 
+use App\Exports\GroupExport;
+use App\Group;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\GroupController;
@@ -14,7 +16,6 @@ use Illuminate\Support\Facades\Mail;
 Route::post('register',         [UserController::class, 'register'])->name('user.register');
 Route::post('login',            [UserController::class, 'login'])->name('user.login');
 Route::get('password_reminder', [UserController::class, 'passwordReminder'])->name('user.password_reminder');
-
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
@@ -87,7 +88,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/groups/{group}/statistics/purchases', [StatisticsController::class, 'purchases']);
     Route::get('/groups/{group}/statistics/all',       [StatisticsController::class, 'all']);
 
-
+    /* Export */
+    Route::get('/groups/{group}/export', [GroupController::class, 'exportData'])->name('export');
 });
 
 

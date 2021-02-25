@@ -69,30 +69,11 @@
                 {{$color}} ({{round($count / $all_users * 100)}}%) @if (!$loop->last), @endif
                 @endforeach
             </div>
-            <form method="POST" action="/admin/send_notification">
-                @csrf
-                <h2>Send notification</h2>
-                <div
-                    style="background-color: white; color:black; padding:40px;border-radius: 10px;opacity: 0.9;text-align:left; max-width:80%;margin:0 auto;font-size:15px;font-weight:400;">
-
-                    to <input id="id" name="id" type="number" min="1" placeholder="id" style="width:40px" />
-                    / <input type="checkbox" name="everyone"> everyone
-                    <textarea id="message" name="message" placeholder="Message"
-                        style="width:100%;margin-top:10;"></textarea>
-                    <button type="submit" style="float: right;margin-top:10;">Send</button>
-                </div>
-            </form>
         </div>
 
 
         <script>
             //groups
-        var recalculateGroupFormatter = function(cell, formatterParams, onRendered) {
-            console.log(cell.getRow().getData()['id']);
-            return `<form method='POST' action='/admin/recalculate'>@csrf
-                <input type='hidden' name='group' value=` + cell.getRow().getData()['id'] + `>
-                <input type='submit'></input>`;
-        }
         var groupdata = [
         @php
         $i = 0;
@@ -135,9 +116,6 @@
             paginationSize:10,
 
         });
-        @if($i)
-        grouptable.addColumn({title:"Recalculate balance",formatter:recalculateGroupFormatter});
-        @endif
         </script>
     </div>
 </body>

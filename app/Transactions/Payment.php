@@ -4,6 +4,8 @@ namespace App\Transactions;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
+use Log;
 
 class Payment extends Model
 {
@@ -18,6 +20,14 @@ class Payment extends Model
         'updating' => \App\Events\Payments\PaymentUpdatedEvent::class,
         'deleting' => \App\Events\Payments\PaymentDeletedEvent::class
     ];
+
+    public function getNoteAttribute($value)
+    {
+        App::setLocale(auth('api')->user()?->language ?? "en");
+        if ($value == '$$legacy_money$$') return __('general.legacy_money');
+        if ($value == '$$auto_payment$$') return __('general.auto_payment');
+        return $value;
+    }
 
     public function payer()
     {
