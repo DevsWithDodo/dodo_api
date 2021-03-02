@@ -5,6 +5,7 @@ return [
     'group_limit_reached' => 'The group\'s member limit is reached.',
     'already_member' => 'You are already a member of this group.',
     'already_boosted' => 'The group is boosted already.',
+    'already_requested_member' => 'You have already requested to be a member in this group.',
     'no_boosts' => 'You do not have any boosts available.',
     'must_be_admin' => 'You must be an admin.',
     'must_be_guest' => 'The chosen user is not a guest.',

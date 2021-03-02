@@ -16,8 +16,9 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user(); //member
+        $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
+        $this->authorize('view', $group);
 
         $purchases = $group->purchases()
             ->where(function ($query) use ($user) {

@@ -13,7 +13,11 @@ class GroupPolicy
 
     public function join(User $user, Group $group)
     {
-        if ($user->is_guest) return Response::deny(__('errors.unauthorized_for_guests'));
+        //TODO: deny if requested already
+        if ($group->unapprovedMembers->contains($user))
+            return Response::deny(__('errors.already_requested_member'));
+        if ($user->is_guest)
+            return Response::deny(__('errors.unauthorized_for_guests'));
         if ($group->members->count() >= $group->member_limit)
             return Response::deny(__('errors.group_limit_reached'));
         if ($group->members->contains($user))

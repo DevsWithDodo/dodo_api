@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use App\Transactions\Payment;
 use App\User;
 use App\Group;
+use App\Notifications\Members\ApprovedJoinGroupNotification;
 use App\Notifications\Members\ApproveMemberNotification;
 
 class MemberController extends Controller
@@ -52,17 +53,21 @@ class MemberController extends Controller
 
         try {
             if ($group->admin_approval) {
-                foreach ($group->admins->except($user) as $admin)
+                foreach ($group->admins->except($user->id) as $admin)
                     $admin->notify(new ApproveMemberNotification($group, $user));
             } else {
-                foreach ($group->members->except($user) as $member)
+                foreach ($group->members->except($user->id) as $member)
                     $member->notify(new JoinedGroupNotification($group, $user));
             }
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
 
-        return new GroupResource($group);
+        if ($group->admin_approval) {
+            return response()->json(null, 204);
+        } else {
+            return new GroupResource($group);
+        }
     }
 
     public function update(Group $group, Request $request)
@@ -212,6 +217,7 @@ class MemberController extends Controller
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }
+            $user->notify(new ApprovedJoinGroupNotification($group));
         } else {
             $group->unapprovedMembers()->detach($user);
         }

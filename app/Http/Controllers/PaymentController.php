@@ -19,6 +19,7 @@ class PaymentController extends Controller
     {
         $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
+        $this->authorize('view', $group);
 
         $payments = $group->payments()
             ->where(function ($query) use ($user) {

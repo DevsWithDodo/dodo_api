@@ -111,7 +111,7 @@ class UserController extends Controller
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
-            'personalised_ads' => 'boolean'
+            'personalised_ads' => 'in:off,on'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $data = collect([
@@ -127,6 +127,7 @@ class UserController extends Controller
             'personalised_ads' => $request->personalised_ads
         ])->filter()->all();
         if (count($data) == 0) abort(400, "The given data to update is empty.");
+        if ($data['personalised_ads'] != null) $data['personalised_ads'] = $data['personalised_ads'] == 'on';
 
         $user->update($data);
         return response()->json(null, 204);

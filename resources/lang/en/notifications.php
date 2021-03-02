@@ -19,7 +19,12 @@ return [
             //group
             'title' => "A user wants to join your group",
             //user, group
-            'descr' => "Approve or deny :user\'s request.",
+            'descr' => "Approve or deny :user's request.",
+        ],
+        'approved' => [
+            //group
+            'title' => 'You became a member of :Group',
+            'descr' => 'An admin approved your join request.'
         ],
         'promoted_to_admin' => [
             //group

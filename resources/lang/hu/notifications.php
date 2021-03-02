@@ -10,7 +10,7 @@ return [
         ],
         'joined' => [
             //group
-            'title' => ':group új taggal bővült',
+            'title' => ':Group új taggal bővült',
             //user, group
             'descr' => ':user még csak most landolt nálatok, legyetek hozzá kedvesek!',
         ],
@@ -19,6 +19,11 @@ return [
             'title' => "Egy felhasználó csatlakozni szeretne egy csoportodhoz",
             //user, group
             'descr' => "Döntsd el, hogy :user tagja lehet-e a(z) :group csoportnak",
+        ],
+        'approved' => [
+            //group
+            'title' => ':Group tagja lettél',
+            'descr' => 'Egy admin elfogadta a jelentkezési kérelmedet.'
         ],
         'promoted_to_admin' => [
             //group
