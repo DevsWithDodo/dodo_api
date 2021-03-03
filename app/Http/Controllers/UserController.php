@@ -127,7 +127,7 @@ class UserController extends Controller
             'personalised_ads' => $request->personalised_ads
         ])->filter()->all();
         if (count($data) == 0) abort(400, "The given data to update is empty.");
-        if ($data['personalised_ads'] != null) $data['personalised_ads'] = $data['personalised_ads'] == 'on';
+        if (array_key_exists('personalised_ads', $data)) $data['personalised_ads'] = $data['personalised_ads'] == 'on';
 
         $user->update($data);
         return response()->json(null, 204);

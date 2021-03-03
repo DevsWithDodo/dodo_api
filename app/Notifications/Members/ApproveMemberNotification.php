@@ -47,6 +47,7 @@ class ApproveMemberNotification extends Notification //implements ShouldQueue
                 'screen' => 'group_settings',
                 'group_id' => $this->group->id,
                 'group_name' => $this->group->name,
+                'currency' => $this->group->currency,
                 'details' => null
             ],
         );

@@ -43,6 +43,7 @@ class RequestNotification extends Notification //implements ShouldQueue
                 'screen' => 'shopping',
                 'group_id' => $group->id,
                 'group_name' => $group->name,
+                'currency' => $this->group->currency,
                 'details' => null
             ]
         );

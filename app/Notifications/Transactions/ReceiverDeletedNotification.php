@@ -43,6 +43,7 @@ class ReceiverDeletedNotification extends Notification //implements ShouldQueue
                 'screen' => 'home',
                 'group_id' => $group->id,
                 'group_name' => $group->name,
+                'currency' => $group->currency,
                 'details' => 'purchase'
             ]
         );
