@@ -51,6 +51,7 @@ class ChangedGroupNameNotification extends Notification // implements ShouldQueu
                 'currency' => $this->group->currency,
                 'details' => null
             ],
+            channel_id: 'group_update'
         );
     }
 }

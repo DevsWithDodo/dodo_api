@@ -49,7 +49,8 @@ class ChangedNicknameNotification extends Notification //implements ShouldQueue
                 'group_name' => $this->group->name,
                 'currency' => $this->group->currency,
                 'details' => null
-            ]
+            ],
+            channel_id: 'group_update'
         );
     }
 }

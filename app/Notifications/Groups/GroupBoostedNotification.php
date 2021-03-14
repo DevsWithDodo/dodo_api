@@ -56,6 +56,7 @@ class GroupBoostedNotification extends Notification //implements ShouldQueue
                 'currency' => $this->group->currency,
                 'details' => null
             ],
+            channel_id: 'group_update'
         );
     }
 }

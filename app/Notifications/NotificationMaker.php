@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use NotificationChannels\Fcm\FcmMessage;
+use NotificationChannels\Fcm\Resources\AndroidConfig;
+use NotificationChannels\Fcm\Resources\AndroidNotification;
 
 class NotificationMaker
 {
@@ -18,7 +20,7 @@ class NotificationMaker
         'deleted' => "🗑️"
     ];
 
-    public static function makeFcmMessage($title, $message_parts, $payload)
+    public static function makeFcmMessage($title, $message_parts, $payload, $channel_id = null)
     {
         $message = "";
         $i = 0;
@@ -42,6 +44,10 @@ class NotificationMaker
             ])
             ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($title)
-                ->setBody($message));
+                ->setBody($message))
+            ->setAndroid(
+                AndroidConfig::create()
+                    ->setNotification(AndroidNotification::create()->setChannelId($channel_id))
+            );
     }
 }

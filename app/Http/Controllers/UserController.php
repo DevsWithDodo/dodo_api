@@ -33,7 +33,7 @@ class UserController extends Controller
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'password_reminder' => ['required', 'string'],
-            'fcm_token' => 'required|string',
+            'fcm_token' => 'string',
             'language' => 'required|in:en,hu,it,de',
             'personalised_ads' => 'required|boolean'
         ]);

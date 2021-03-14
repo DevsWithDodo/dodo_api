@@ -46,7 +46,8 @@ class PaymentDeletedNotification extends Notification //implements ShouldQueue
                 'group_name' => $group->name,
                 'currency' => $group->currency,
                 'details' => 'payment'
-            ]
+            ],
+            channel_id: 'payment_deleted'
         );
     }
 }

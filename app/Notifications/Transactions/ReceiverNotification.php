@@ -47,7 +47,8 @@ class ReceiverNotification extends Notification //implements ShouldQueue
                 'group_name' => $group->name,
                 'currency' => $group->currency,
                 'details' => 'purchase'
-            ]
+            ],
+            channel_id: 'purchase_created'
         );
     }
 }

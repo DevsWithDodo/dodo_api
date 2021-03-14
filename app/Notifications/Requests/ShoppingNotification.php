@@ -53,6 +53,7 @@ class ShoppingNotification extends Notification //implements ShouldQueue
                 'currency' => $this->group->currency,
                 'details' => null
             ],
+            channel_id: 'shopping_shop'
         );
     }
 }

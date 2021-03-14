@@ -45,7 +45,8 @@ class RequestNotification extends Notification //implements ShouldQueue
                 'group_name' => $group->name,
                 'currency' => $group->currency,
                 'details' => null
-            ]
+            ],
+            channel_id: 'shopping_created'
         );
     }
 }

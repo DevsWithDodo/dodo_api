@@ -79,20 +79,27 @@
             @endif
         </div>
         <div class="bottom">
-            <a
-                href='https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
-                <img alt='Get it on Google Play'
-                    src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'
-                    height="80px" />
-            </a>
-            <a class="joinBtn" style="cursor:not-allowed">
+            <a class="joinBtn" href="https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
                 <table>
                     <tr>
                         <td>
-                            <img src="/apple_logo.png" alt="login icon" height="38px">
+                            <img src="/google_play_logo.png" height="31px" style="padding: 4px">
                         </td>
                         <td>
-                            <span class="join_group">Coming Soon to the</span><br>
+                            <span class="join_group">Get it on</span><br>
+                            <span class="group_name">Google Play</span><br>
+                        </td>
+                    </tr>
+                </table>
+            </a>
+            <a class="joinBtn" href="https://testflight.apple.com/join/yu60fcMT">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="/apple_logo.png" height="38px">
+                        </td>
+                        <td>
+                            <span class="join_group">Download on the</span><br>
                             <span class="group_name">App Store</span><br>
                         </td>
                     </tr>

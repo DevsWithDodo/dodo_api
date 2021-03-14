@@ -28,6 +28,7 @@ class TrialEndedNotification extends Notification //implements ShouldQueue
             title: __('notifications.trial_ended.title'),
             message_parts: [__('notifications.trial_ended.descr')],
             payload: ['screen' => 'store'],
+            channel_id: 'other'
         );
     }
 }

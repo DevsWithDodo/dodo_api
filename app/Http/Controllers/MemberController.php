@@ -36,9 +36,9 @@ class MemberController extends Controller
     {
         $user = auth('api')->user();
         $group = Group::firstWhere('invitation', $request->invitation_token);
+        if ($group == null) abort(404, __('errors.invalid_invitation'));
 
         $validator = Validator::make($request->all(), [
-            'invitation_token' => 'required|string|exists:groups,invitation',
             'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());

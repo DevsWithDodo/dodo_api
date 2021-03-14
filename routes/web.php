@@ -6,6 +6,7 @@ use App\Notifications\CustomNotification;
 
 use App\Group;
 use App\Http\Controllers\CurrencyController;
+use App\Mail\AdminAccess;
 use App\User;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +34,12 @@ Route::get('/join/{token}', function ($token) {
 });
 
 Route::get('/admin', function (Request $request) {
-    if ($request->password != config('app.admin_password')) abort(404);
+    if (!$request->hasValidSignature()) {
+        $url = URL::temporarySignedRoute('admin', now()->addMinutes(30));
+        Mail::to(config('app.admin_email'))->send(new AdminAccess($url));
+        Mail::to(config('app.developer_email'))->send(new AdminAccess($url));
+        return response("Secure link sent to the developer emails.");
+    }
     $not_boosted_members = $boosted_members = 0;
     $not_boosted_guests = $boosted_guests = 0;
     $boosted = $not_boosted = $all = 0;
@@ -143,7 +149,7 @@ Route::get('/admin', function (Request $request) {
         'colors_gradients_enabled' => $colors_gradients_enabled,
         'colors_free' => $colors_free
     ]);
-});
+})->name('admin');
 
 Route::get('/landscape_preview', function () {
     $path = public_path() . '/lender_preview.png';

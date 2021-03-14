@@ -1,7 +1,5 @@
 <?php
 
-use App\Exports\GroupExport;
-use App\Group;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\GroupController;
@@ -12,6 +10,7 @@ use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 Route::post('register',         [UserController::class, 'register'])->name('user.register');
 Route::post('login',            [UserController::class, 'login'])->name('user.login');
@@ -87,11 +86,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/groups/{group}/statistics/payments',  [StatisticsController::class, 'payments']);
     Route::get('/groups/{group}/statistics/purchases', [StatisticsController::class, 'purchases']);
     Route::get('/groups/{group}/statistics/all',       [StatisticsController::class, 'all']);
-
-    /* Export */
-    Route::get('/groups/{group}/export', [GroupController::class, 'exportData'])->name('export');
 });
 
+/* Export */
+Route::get('/groups/{group}/export/get_link', function (\App\Group $group) {
+    return URL::temporarySignedRoute('export', now()->addMinutes(1), ['group' => $group, 'language' => 'hu']); // . auth('api')->user()->language;
+})->middleware(['auth:api']);
+Route::get('/groups/{group}/export/{language}', [GroupController::class, 'exportData'])->name('export');
 
 /**
  * Bug report to admin's email.

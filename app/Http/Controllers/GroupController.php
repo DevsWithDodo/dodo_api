@@ -14,7 +14,7 @@ use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Group;
-
+use Illuminate\Support\Facades\App;
 
 class GroupController extends Controller
 {
@@ -120,10 +120,11 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function exportData(Group $group)
+    public function exportData(Group $group, Request $request)
     {
-        $this->authorize('view', $group);
-
-        return Excel::download(new GroupExport($group), $group->name . '.xlsx');
+        if ($request->hasValidSignature()) {
+            App::setLocale($request->language);
+            return Excel::download(new GroupExport($group), $group->name . '.xlsx');
+        } else abort(401, "Unauthorized.");
     }
 }

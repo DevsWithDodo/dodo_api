@@ -45,6 +45,7 @@ class ApprovedJoinGroupNotification extends Notification //implements ShouldQueu
                 'currency' => $this->group->currency,
                 'details' => "added_to_group"
             ],
+            channel_id: 'group_update'
         );
     }
 }

@@ -41,7 +41,7 @@ class PurchaseController extends Controller
         $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:1|max:30',
+            'name' => 'required|string|min:1|max:50',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', new IsMember($group)]
@@ -69,7 +69,7 @@ class PurchaseController extends Controller
         $this->authorize('update', $purchase);
         $group = $purchase->group;
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:1|max:30',
+            'name' => 'required|string|min:1|max:50',
             'amount' => 'required|numeric|min:0',
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', new IsMember($group)]
