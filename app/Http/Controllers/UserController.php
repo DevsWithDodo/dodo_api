@@ -33,7 +33,7 @@ class UserController extends Controller
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
             'password_reminder' => ['required', 'string'],
-            'fcm_token' => 'string',
+            'fcm_token' => 'nullable|string',
             'language' => 'required|in:en,hu,it,de',
             'personalised_ads' => 'required|boolean'
         ]);
@@ -44,7 +44,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'password_reminder' => Crypt::encryptString($request->password_reminder),
             'default_currency' => $request->default_currency,
-            'fcm_token' => $request->fcm_token,
+            'fcm_token' => $request->fcm_token ?? null,
             'language' => $request->language,
             'personalised_ads' => $request->personalised_ads
         ]);
