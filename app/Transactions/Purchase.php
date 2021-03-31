@@ -29,6 +29,7 @@ class Purchase extends Model
     public function createReceivers(array $receivers)
     {
         $this->load('receivers');
+        $receivers = array_unique($receivers);
 
         //delete old receivers
         $old_receivers = [];
@@ -37,12 +38,17 @@ class Purchase extends Model
             if (!(in_array($receiver->receiver_id, $receivers))) {
                 $receiver->delete();
             } else {
+                if (isset($old_receivers[$receiver->receiver_id])) {
+                    self::withoutEvents(function () use ($receiver) {
+                        $receiver->delete();
+                    });
+                }
                 $old_receivers[$receiver->receiver_id] = $receiver;
                 $old_receiver_users[] = $receiver->receiver_id;
             }
         }
         if (count($receivers) == 0) {
-            echo "Deleting purchase (".$this->name. ", ".$this->amount.") in group ".$this->group->id." because it has no receivers.\n";
+            echo "Deleting purchase (" . $this->name . ", " . $this->amount . ") in group " . $this->group->id . " because it has no receivers.\n";
             Log::info("Deleting purchase because it has no receivers.", ['purchase' => $this]);
             $this->delete();
             return;
