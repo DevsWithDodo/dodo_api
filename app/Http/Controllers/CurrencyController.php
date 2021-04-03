@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CurrencyController extends Controller
 {
@@ -15,12 +16,13 @@ class CurrencyController extends Controller
     public static function currencyRates(): array
     {
         return Cache::remember('currencies', Carbon::tomorrow(), function () {
-            $ch = curl_init('https://api.exchangeratesapi.io/latest');
+            $ch = curl_init('http://api.exchangeratesapi.io/latest?access_key=' . config('app.exchange_rates_access_key'));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $json = curl_exec($ch);
             curl_close($ch);
 
             $result = json_decode($json, true);
+            Log::info('Currencies refreshed', [$result]);
             $result['rates']['EUR'] = 1;
             $result['rates']['CML'] = $result['rates']['HUF']; //Camel currency (1 CML = 1 HUF)
             return $result;
@@ -37,7 +39,7 @@ class CurrencyController extends Controller
         return array_keys(CurrencyController::currencyRates()['rates']);
     }
 
-    public static function exchangeCurrency($from_currency, $to_currency,float $amount): float
+    public static function exchangeCurrency($from_currency, $to_currency, float $amount): float
     {
         $rates = CurrencyController::currencyRates()['rates'];
         if ($from_currency == $to_currency) {

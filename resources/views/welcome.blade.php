@@ -53,14 +53,14 @@
                     </tr>
                 </table>
             </a>
-            <a class="joinBtn" href="https://testflight.apple.com/join/yu60fcMT">
+            <a class="joinBtn" href="#{{-- https://testflight.apple.com/join/yu60fcMT --}}">
                 <table>
                     <tr>
                         <td>
                             <img src="/apple_logo.png" height="38px">
                         </td>
                         <td>
-                            <span class="join_group">Download on the</span><br>
+                            <span class="join_group">Coming soon to the</span><br>
                             <span class="group_name">App Store</span><br>
                         </td>
                     </tr>
