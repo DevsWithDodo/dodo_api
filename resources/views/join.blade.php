@@ -92,7 +92,7 @@
                     </tr>
                 </table>
             </a>
-            <a class="joinBtn" href="https://testflight.apple.com/join/yu60fcMT">
+            <a class="joinBtn" href="#{{-- https://testflight.apple.com/join/yu60fcMT --}}">
                 <table>
                     <tr>
                         <td>

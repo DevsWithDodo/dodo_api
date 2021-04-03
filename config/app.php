@@ -132,6 +132,8 @@ return [
 
     'admin_password' => env('ADMIN_PASSWORD'),
 
+    'exchange_rates_access_key' => env('EXCHANGE_RATES_ACCESS_KEY'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
