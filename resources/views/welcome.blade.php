@@ -47,20 +47,20 @@
                             <img src="/google_play_logo.png" height="31px" style="padding: 4px">
                         </td>
                         <td>
-                            <span class="join_group">Get it on</span><br>
+                            <span class="join_group">GET IT ON</span><br>
                             <span class="group_name">Google Play</span><br>
                         </td>
                     </tr>
                 </table>
             </a>
-            <a class="joinBtn" href="#{{-- https://testflight.apple.com/join/yu60fcMT --}}">
+            <a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
                 <table>
                     <tr>
                         <td>
                             <img src="/apple_logo.png" height="38px">
                         </td>
                         <td>
-                            <span class="join_group">Coming soon to the</span><br>
+                            <span class="join_group">Download on the</span><br>
                             <span class="group_name">App Store</span><br>
                         </td>
                     </tr>
