@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Rules\IsMember;
+use Carbon\Carbon;
 
 use App\Http\Resources\Payment as PaymentResource;
 
@@ -21,7 +22,11 @@ class PaymentController extends Controller
         $group = Group::findOrFail($request->group);
         $this->authorize('view', $group);
 
+        $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
+        $until_date = Carbon::parse($request->until_date ?? now())->addDay();
+
         $payments = $group->payments()
+            ->whereBetween('updated_at', [$from_date,$until_date])
             ->where(function ($query) use ($user) {
                 return $query->where('taker_id', $user->id)
                     ->orWhere('payer_id', $user->id);

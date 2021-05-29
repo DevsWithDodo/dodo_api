@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Rules\IsMember;
+use Carbon\Carbon;
 
 use App\Transactions\Purchase;
 use App\Http\Resources\Purchase as PurchaseResource;
@@ -20,7 +21,11 @@ class PurchaseController extends Controller
         $group = Group::findOrFail($request->group);
         $this->authorize('view', $group);
 
+        $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
+        $until_date = Carbon::parse($request->until_date ?? now())->addDay();
+
         $purchases = $group->purchases()
+            ->whereBetween('updated_at', [$from_date,$until_date])
             ->where(function ($query) use ($user) {
                 $query
                     ->whereHas('receivers', function ($query) use ($user) {
