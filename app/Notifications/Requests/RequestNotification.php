@@ -44,7 +44,8 @@ class RequestNotification extends Notification //implements ShouldQueue
                 'group_id' => $group->id,
                 'group_name' => $group->name,
                 'currency' => $group->currency,
-                'details' => null
+                'details' => null,
+                'channel_id' => 'shopping_created'
             ],
             channel_id: 'shopping_created'
         );

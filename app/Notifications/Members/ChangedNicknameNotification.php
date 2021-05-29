@@ -48,7 +48,8 @@ class ChangedNicknameNotification extends Notification //implements ShouldQueue
                 'group_id' => $this->group->id,
                 'group_name' => $this->group->name,
                 'currency' => $this->group->currency,
-                'details' => null
+                'details' => null,
+                'channel_id' => 'group_update'
             ],
             channel_id: 'group_update'
         );

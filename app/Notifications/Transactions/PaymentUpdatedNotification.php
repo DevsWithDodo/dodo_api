@@ -45,7 +45,8 @@ class PaymentUpdatedNotification extends Notification //implements ShouldQueue
                 'group_id' => $group->id,
                 'group_name' => $group->name,
                 'currency' => $group->currency,
-                'details' => 'payment'
+                'details' => 'payment',
+                'channel_id' => 'payment_modified'
             ],
             channel_id: 'payment_modified'
         );

@@ -51,7 +51,8 @@ class ShoppingNotification extends Notification //implements ShouldQueue
                 'group_id' => $this->group->id,
                 'group_name' => $this->group->name,
                 'currency' => $this->group->currency,
-                'details' => null
+                'details' => null,
+                'channel_id' => 'shopping_shop'
             ],
             channel_id: 'shopping_shop'
         );

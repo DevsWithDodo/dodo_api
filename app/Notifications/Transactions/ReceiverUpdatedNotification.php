@@ -46,7 +46,8 @@ class ReceiverUpdatedNotification extends Notification //implements ShouldQueue
                 'group_id' => $group->id,
                 'group_name' => $group->name,
                 'currency' => $group->currency,
-                'details' => 'purchase'
+                'details' => 'purchase',
+                'channel_id' => 'purchase_updated'
             ],
             channel_id: 'purchase_updated'
         );

@@ -43,7 +43,8 @@ class ApprovedJoinGroupNotification extends Notification //implements ShouldQueu
                 'group_id' => $this->group->id,
                 'group_name' => $this->group->name,
                 'currency' => $this->group->currency,
-                'details' => "added_to_group"
+                'details' => "added_to_group",
+                'channel_id' => 'group_update'
             ],
             channel_id: 'group_update'
         );
