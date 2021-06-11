@@ -46,7 +46,7 @@ class PaymentUpdatedListener
                 $user = $new_payment->taker;
                 if (auth('api')->user() && $user->id != auth('api')->user()->id) {
                     try {
-                        $user->notify(new PaymentUpdatedNotification($new_payment));
+                        $user->notify(new PaymentUpdatedNotification($new_payment))->locale($user->language);
                     } catch (\Exception $e) {
                         Log::error('FCM error', ['error' => $e]);
                     }
@@ -63,7 +63,7 @@ class PaymentUpdatedListener
             $user = User::find($old_payment['taker_id']);
             if (auth('api')->user() && $user->id != auth('api')->user()->id) {
                 try {
-                    $user->notify(new PaymentDeletedNotification($new_payment));
+                    $user->notify(new PaymentDeletedNotification($new_payment))->locale($user->language);
                 } catch (\Exception $e) {
                     Log::error('FCM error', ['error' => $e]);
                 }
@@ -73,7 +73,7 @@ class PaymentUpdatedListener
             $user = $new_payment->taker;
             if (auth('api')->user() && $user->id != auth('api')->user()->id) {
                 try {
-                    $user->notify(new PaymentNotification($new_payment));
+                    $user->notify(new PaymentNotification($new_payment))->locale($user->language);
                 } catch (\Exception $e) {
                     Log::error('FCM error', ['error' => $e]);
                 }

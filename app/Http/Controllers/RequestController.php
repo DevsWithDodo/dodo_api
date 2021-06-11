@@ -41,7 +41,7 @@ class RequestController extends Controller
 
         try {
             foreach ($group->members->except($user->id) as $member)
-                $member->notify(new RequestNotification($shopping_request));
+                $member->notify(new RequestNotification($shopping_request))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -77,7 +77,7 @@ class RequestController extends Controller
 
         try {
             if ($shopping_request->requester_id != $user->id)
-                $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user));
+                $shopping_request->requester->notify(new FulfilledRequestNotification($shopping_request, $user))->locale($shopping_request->requester->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -128,7 +128,7 @@ class RequestController extends Controller
 
         try {
             foreach ($group->members->except($user->id) as $member)
-                $member->notify(new ShoppingNotification($group, $user, $request->store));
+                $member->notify(new ShoppingNotification($group, $user, $request->store))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

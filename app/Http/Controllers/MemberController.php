@@ -54,10 +54,10 @@ class MemberController extends Controller
         try {
             if ($group->admin_approval) {
                 foreach ($group->admins->except($user->id) as $admin)
-                    $admin->notify(new ApproveMemberNotification($group, $user));
+                    $admin->notify(new ApproveMemberNotification($group, $user))->locale($admin->language);
             } else {
                 foreach ($group->members->except($user->id) as $member)
-                    $member->notify(new JoinedGroupNotification($group, $user));
+                    $member->notify(new JoinedGroupNotification($group, $user))->locale($member->language);
             }
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
@@ -87,7 +87,7 @@ class MemberController extends Controller
 
         try {
             if ($user->id != $member_to_update->id)
-                $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname));
+                $member_to_update->notify(new ChangedNicknameNotification($group, $user, $request->nickname))->locale($member_to_update->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -112,7 +112,7 @@ class MemberController extends Controller
 
         try {
             if ($request->admin && $member->id != $user->id)
-                $member->notify(new PromotedToAdminNotification($group, $user));
+                $member->notify(new PromotedToAdminNotification($group, $user))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -152,7 +152,7 @@ class MemberController extends Controller
                     ]);
                     $remainder = 0;
                     try {
-                        $member->notify(new PaymentNotification($payment)); //TODO change
+                        $member->notify(new PaymentNotification($payment))->locale($member->language); //TODO change
                     } catch (\Exception $e) {
                         Log::error('FCM error', ['error' => $e]);
                     }
@@ -216,11 +216,15 @@ class MemberController extends Controller
             $user->update(['last_active_group' => $group->id]);
             try {
                 foreach ($group->members->except($user->id) as $member)
-                    $member->notify(new JoinedGroupNotification($group, $user));
+                    $member->notify(new JoinedGroupNotification($group, $user))->locale($member->language);
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }
-            $user->notify(new ApprovedJoinGroupNotification($group));
+            try {
+                $user->notify(new ApprovedJoinGroupNotification($group))->locale($user->language);
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
         } else {
             $group->unapprovedMembers()->detach($user);
         }
@@ -268,7 +272,7 @@ class MemberController extends Controller
         try {
             foreach ($group->members as $member)
                 if ($member->id != $guest->id)
-                    $member->notify(new JoinedGroupNotification($group, $guest));
+                    $member->notify(new JoinedGroupNotification($group, $guest))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

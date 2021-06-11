@@ -77,7 +77,7 @@ class SendNotification extends Command
         }
         $log = $this->confirm("Do you want to echo the generated message?");
 
-        $user->notify(new CustomNotification($message, $title ?? null, $payload ?? null, $channel_id ?? null, $log));
+        $user->notify(new CustomNotification($message, $title ?? null, $payload ?? null, $channel_id ?? null, $log))->locale($user->language);
         $this->info("Message sent to " . $user->username . ".");
     }
 }

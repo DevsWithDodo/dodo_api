@@ -80,7 +80,7 @@ class GroupController extends Controller
 
         try {
             foreach ($group->members->except($user->id) as $member)
-                $member->notify(new GroupBoostedNotification($group, $user));
+                $member->notify(new GroupBoostedNotification($group, $user))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }
@@ -105,7 +105,7 @@ class GroupController extends Controller
         try {
             if ($old_name != $group->name)
                 foreach ($group->members->except($user->id) as $member)
-                    $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name));
+                    $member->notify(new ChangedGroupNameNotification($group, $user, $old_name, $group->name))->locale($member->language);
         } catch (\Exception $e) {
             Log::error('FCM error', ['error' => $e]);
         }

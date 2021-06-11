@@ -35,7 +35,8 @@ class PurchaseReceiverDeletedListener
         $user = $receiver->user;
         if (auth('api')->user() && $user->id != auth('api')->user()->id)
             try {
-                $user->notify(new ReceiverDeletedNotification($receiver));
+                App::setLocale($user->language);
+                $user->notify(new ReceiverDeletedNotification($receiver))->locale($user->language);
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }

@@ -33,7 +33,7 @@ class PurchaseReceiverCreatedListener
         Group::addToMemberBalance($receiver->group_id, $receiver->receiver_id, (-1) * $receiver->amount);
         if (auth('api')->user() && $receiver->receiver_id != auth('api')->user()->id) {
             try {
-                $receiver->user->notify(new ReceiverNotification($receiver));
+                $receiver->user->notify(new ReceiverNotification($receiver))->locale($receiver->user->language);
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }
