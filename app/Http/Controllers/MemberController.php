@@ -53,10 +53,10 @@ class MemberController extends Controller
 
         try {
             if ($group->admin_approval) {
-                foreach ($group->admins->except($user->id) as $admin)
+                foreach ($group->admins->except([$user->id]) as $admin)
                     $admin->notify((new ApproveMemberNotification($group, $user))->locale($admin->language));
             } else {
-                foreach ($group->members->except($user->id) as $member)
+                foreach ($group->members->except([$user->id]) as $member)
                     $member->notify((new JoinedGroupNotification($group, $user))->locale($member->language));
             }
         } catch (\Exception $e) {
@@ -130,7 +130,7 @@ class MemberController extends Controller
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group)],
-            //'threshold' => 'required|in:1,0.01'
+            'threshold' => 'in:0.5,0.005'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -139,19 +139,17 @@ class MemberController extends Controller
 
         $balance = $group->member($member_to_delete->id)->member_data->balance;
         if ($member_to_delete->id == $user->id) { //leaving
-            //if (bccomp($balance,-10) < 0) abort(400, __('errors.balance_negative'));
-            // if (bccomp($balance,-10) > 0) {
-            //     if($balance < 0) {
-            //         Payment::create([
-            //             'amount' => $balance,
-            //             'group_id' => $group->id,
-            //             'payer_id' => $member_to_delete->id,
-            //             'taker_id' => $group->members->except([$user->id])->id,
-            //             'note' => 'If you see this than it\'s a bug :)'
-            //         ]);
-            //     } else {
-            if($balance < 0 ) abort(400, __('errors.balance_negative'));
+            if (bccomp($balance,(-1)* ($request->threshold ?? 0)) < 0) abort(400, __('errors.balance_negative'));
             else {
+                if($balance < 0) {
+                    Payment::create([
+                        'amount' => (-1)*$balance,
+                        'group_id' => $group->id,
+                        'payer_id' => $member_to_delete->id,
+                        'taker_id' => $group->members->except([$user->id])->first()->id,
+                        'note' => '$$legacy_money$$'
+                    ]);
+                } else {
                     $balance_divided = bcdiv($balance, ($group->members->count() - 1));
                     $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
                     foreach ($group->members->except([$user->id]) as $member) {
@@ -163,14 +161,9 @@ class MemberController extends Controller
                             'note' => '$$legacy_money$$'
                         ]);
                         $remainder = 0;
-                        try {
-                            $member->notify((new PaymentNotification($payment))->locale($member->language)); //TODO change
-                        } catch (\Exception $e) {
-                            Log::error('FCM error', ['error' => $e]);
-                        }
                     }
                 }
-            //}
+            }
         } else { //kicking
             if ($balance != 0) {
                 Payment::create([
