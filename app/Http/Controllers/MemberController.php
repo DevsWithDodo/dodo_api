@@ -149,7 +149,8 @@ class MemberController extends Controller
                         'taker_id' => $group->members->except([$user->id])->first()->id,
                         'note' => '$$legacy_money$$'
                     ]);
-                } else {
+                }
+                if($balance > 0) {
                     $balance_divided = bcdiv($balance, ($group->members->count() - 1));
                     $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
                     foreach ($group->members->except([$user->id]) as $member) {
