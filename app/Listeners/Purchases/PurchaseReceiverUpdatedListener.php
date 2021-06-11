@@ -39,7 +39,7 @@ class PurchaseReceiverUpdatedListener
             if (auth('api')->user() && $user->id != auth('api')->user()->id)
                 try {
                     App::setLocale($user->language);
-                    $user->notify(new ReceiverUpdatedNotification($new_receiver))->locale($user->language);
+                    $user->notify((new ReceiverUpdatedNotification($new_receiver))->locale($user->language));
                 } catch (\Exception $e) {
                     Log::error('FCM error', ['error' => $e]);
                 }

@@ -36,7 +36,7 @@ class PaymentCreatedListener
         $user = $payment->taker;
         if (auth('api')->user() && $user->id != auth('api')->user()->id) {
             try {
-                $user->notify(new PaymentNotification($payment))->locale($user->language);
+                $user->notify((new PaymentNotification($payment))->locale($user->language));
             } catch (\Exception $e) {
                 Log::error('FCM error', ['error' => $e]);
             }

@@ -56,7 +56,7 @@ class User extends Authenticatable implements HasLocalePreference
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
             $this->update(['trial' => 0]);
-            $this->notify(new TrialEndedNotification())->locale($this->language);
+            $this->notify((new TrialEndedNotification())->locale($this->language));
             return false;
         }
         return true;
