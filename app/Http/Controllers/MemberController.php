@@ -173,6 +173,8 @@ class MemberController extends Controller
         $group->requests()->where('requester_id', $member_to_delete->id)->delete();
         $group->members()->detach($member_to_delete->id);
 
+        $member_to_delete->update(['last_active_group' => null]);
+
         if ($member_to_delete->is_guest) $member_to_delete->delete();
 
         if ($group->members()->count() == 0)

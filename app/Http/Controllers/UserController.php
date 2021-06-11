@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
@@ -58,7 +59,7 @@ class UserController extends Controller
 
         if ($this->attemptLogin($request)) {
             $user = $request->user();
-            if ($user->token == null) {
+            if ($user->api_token === null) {
                 $user->generateToken();
             }
             if ($request->fcm_token) {
