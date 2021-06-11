@@ -130,6 +130,7 @@ class MemberController extends Controller
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'member_id' => ['exists:users,id', new IsMember($group)],
+            //'threshold' => 'required|in:1,0.01'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -138,26 +139,38 @@ class MemberController extends Controller
 
         $balance = $group->member($member_to_delete->id)->member_data->balance;
         if ($member_to_delete->id == $user->id) { //leaving
-            if ($balance < 0) abort(400, __('errors.balance_negative'));
-            if ($balance > 0) {
-                $balance_divided = bcdiv($balance, ($group->members->count() - 1));
-                $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
-                foreach ($group->members->except([$user->id]) as $member) {
-                    $payment = Payment::create([
-                        'amount' => (-1) * bcadd($balance_divided, $remainder),
-                        'group_id' => $group->id,
-                        'taker_id' => $member->id,
-                        'payer_id' => $user->id,
-                        'note' => '$$legacy_money$$'
-                    ]);
-                    $remainder = 0;
-                    try {
-                        $member->notify((new PaymentNotification($payment))->locale($member->language)); //TODO change
-                    } catch (\Exception $e) {
-                        Log::error('FCM error', ['error' => $e]);
+            //if (bccomp($balance,-10) < 0) abort(400, __('errors.balance_negative'));
+            // if (bccomp($balance,-10) > 0) {
+            //     if($balance < 0) {
+            //         Payment::create([
+            //             'amount' => $balance,
+            //             'group_id' => $group->id,
+            //             'payer_id' => $member_to_delete->id,
+            //             'taker_id' => $group->members->except([$user->id])->id,
+            //             'note' => 'If you see this than it\'s a bug :)'
+            //         ]);
+            //     } else {
+            if($balance < 0 ) abort(400, __('errors.balance_negative'));
+            else {
+                    $balance_divided = bcdiv($balance, ($group->members->count() - 1));
+                    $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
+                    foreach ($group->members->except([$user->id]) as $member) {
+                        $payment = Payment::create([
+                            'amount' => (-1) * bcadd($balance_divided, $remainder),
+                            'group_id' => $group->id,
+                            'taker_id' => $member->id,
+                            'payer_id' => $user->id,
+                            'note' => '$$legacy_money$$'
+                        ]);
+                        $remainder = 0;
+                        try {
+                            $member->notify((new PaymentNotification($payment))->locale($member->language)); //TODO change
+                        } catch (\Exception $e) {
+                            Log::error('FCM error', ['error' => $e]);
+                        }
                     }
                 }
-            }
+            //}
         } else { //kicking
             if ($balance != 0) {
                 Payment::create([
