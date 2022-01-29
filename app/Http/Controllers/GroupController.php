@@ -120,11 +120,30 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function exportData(Group $group, Request $request)
+    public function exportXls(Group $group, Request $request)
     {
         if ($request->hasValidSignature()) {
             App::setLocale($request->language);
             return Excel::download(new GroupExport($group), $group->name . '.xlsx');
+        } else abort(401, "Unauthorized.");
+    }
+    public function exportPdf(Group $group, Request $request)
+    {
+        if ($request->hasValidSignature()) {
+            App::setLocale($request->language);
+            $purchases = $group->purchases()
+                            ->orderBy('purchases.updated_at', 'desc')
+                            ->with('receivers')
+                            ->get();
+            $payments = $group->payments()
+                            ->orderBy('payments.updated_at', 'desc')
+                            ->with('payer')
+                            ->get();
+            $mpdf = new \Mpdf\Mpdf();
+            $mpdf->WriteHTML(view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]));
+            return $mpdf->Output();
+
+            // return view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]);
         } else abort(401, "Unauthorized.");
     }
 }

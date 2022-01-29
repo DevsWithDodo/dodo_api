@@ -89,10 +89,15 @@ Route::middleware(['auth:api'])->group(function () {
 });
 
 /* Export */
-Route::get('/groups/{group}/export/get_link', function (\App\Group $group) {
-    return URL::temporarySignedRoute('export', now()->addMinutes(1), ['group' => $group, 'language' => 'hu']); // . auth('api')->user()->language;
+Route::get('/groups/{group}/export/get_link_xls', function (\App\Group $group) {
+    return URL::temporarySignedRoute('export_xls', now()->addMinutes(1), ['group' => $group, 'language' => 'hu']); // . auth('api')->user()->language;
 })->middleware(['auth:api']);
-Route::get('/groups/{group}/export/{language}', [GroupController::class, 'exportData'])->name('export');
+Route::get('/groups/{group}/export_xls/{language}', [GroupController::class, 'exportXls'])->name('export_xls');
+Route::get('groups/{group}/export/get_link_pdf', function (\App\Group $group) {
+    return URL::temporarySignedRoute('export_pdf', now()->addMinutes(1), ['group' => $group, 'language' => 'hu']); // . auth('api')->user()->language;
+})->middleware(['auth:api']); 
+Route::get('/groups/{group}/export_pdf/{language}', [GroupController::class, 'exportPdf'])->name('export_pdf');
+
 
 /**
  * Bug report to admin's email.
