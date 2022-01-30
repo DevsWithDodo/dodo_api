@@ -76,7 +76,7 @@ class Group extends Model
      */
     public static function nicknameOf(int $group_id, int $user_id): string
     {
-        App::setLocale(auth('api')->user()->language);
+       // App::setLocale(auth('api')->user()->language);
         return Cache::remember('group_' . $group_id . "_nicknames", now()->addSeconds(5), function () use ($group_id) {
             $nicknames = [];
             $group = Group::with('members')->findOrFail($group_id);

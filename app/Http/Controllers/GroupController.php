@@ -141,7 +141,7 @@ class GroupController extends Controller
                             ->get();
             $mpdf = new \Mpdf\Mpdf();
             $mpdf->WriteHTML(view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]));
-            return $mpdf->Output();
+            return $mpdf->Output($group->name, 'I');
 
             // return view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]);
         } else abort(401, "Unauthorized.");
