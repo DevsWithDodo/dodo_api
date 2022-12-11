@@ -53,7 +53,7 @@
                     </tr>
                 </table>
             </a>
-            <a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
+            <!--<a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
                 <table>
                     <tr>
                         <td>
@@ -62,6 +62,32 @@
                         <td>
                             <span class="join_group">Download on the</span><br>
                             <span class="group_name">App Store</span><br>
+                        </td>
+                    </tr>
+                </table>
+            </a>-->
+	    <a class="joinBtn" href="https://app.lenderapp.net">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="/logo_color.png" height="38px">
+                        </td>
+                        <td>
+                            <span class="join_group">Use it</span><br>
+                            <span class="group_name">Online</span><br>
+                        </td>
+                    </tr>
+                </table>
+            </a>
+	    <a class="joinBtn" href="https://apps.microsoft.com/store/detail/lender-finances-for-groups/9NVB4CZJDSQ7?hl=en-us&gl=us">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="/microsoft_logo.png" height="38px">
+                        </td>
+                        <td>
+                            <span class="join_group">Get it from</span><br>
+                            <span class="group_name">Microsoft</span><br>
                         </td>
                     </tr>
                 </table>
