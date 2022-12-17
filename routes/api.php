@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RequestController;
@@ -106,6 +107,10 @@ Route::post('/bug', function (Request $request) {
     Mail::to(config('app.admin_email'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
     Mail::to(config('app.developer_email'))->send(new App\Mail\ReportBug(auth('api')->user(), $request->description));
     return response()->json(null, 204);
+});
+
+Route::get('/currencies', function (Request $request) {
+    return response()->json(CurrencyController::currencyRates());
 });
 
 /**
