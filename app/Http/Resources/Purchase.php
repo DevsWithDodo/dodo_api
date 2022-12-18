@@ -25,6 +25,7 @@ class Purchase extends JsonResource
             'buyer_id' => $this->buyer_id,
             'buyer_nickname' => Group::nicknameOf($this->group_id, $this->buyer_id),
             'total_amount' => round(floatval($this->amount), 2),
+            'original_total_amount' => round(floatval($this->original_amount), 2),
             'receivers' => PurchaseReceiver::collection($this->receivers),
             'reactions' => Reaction::collection($this->reactions)
         ];

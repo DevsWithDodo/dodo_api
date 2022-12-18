@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Rules\IsMember;
 use Carbon\Carbon;
 
 use App\Transactions\Purchase;
 use App\Http\Resources\Purchase as PurchaseResource;
+use App\Http\Controllers\CurrencyController;
 
 use App\Group;
 use App\Transactions\Reactions\PurchaseReaction;
@@ -48,20 +50,28 @@ class PurchaseController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:50',
             'amount' => 'required|numeric|min:0',
+            'currency' => ['required', Rule::in(CurrencyController::CurrencyList())],
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required', new IsMember($group)]
+            'receivers.*.user_id' => ['required', new IsMember($group)],
+            'receivers.*.amount' => 'nullable|numeric|min:0'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $this->authorize('view', $group);
+        $amount = CurrencyController::exchangeCurrency($request->currency, $group->currency, $request->amount);
         $purchase = Purchase::create([
             'name' => $request->name,
             'group_id' => $group->id,
             'buyer_id' => $user->id,
-            'amount' => $request->amount
+            'amount' => $amount,
+            'original_amount' => $request->amount,
+            'original_currency' => $request->currency
         ]);
         $purchase->createReceivers(array_map(
             function ($i) {
-                return $i['user_id'];
+                return [
+                    'user_id' => $i['user_id'],
+                    'original_amount' => $i['amount']
+                ];
             },
             $request->receivers
         ));

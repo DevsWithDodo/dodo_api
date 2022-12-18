@@ -12,7 +12,7 @@ class Purchase extends Model
 
     protected $table = 'purchases';
 
-    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];
+    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency'];
 
     protected $dispatchesEvents = [
         'creating' => \App\Events\Purchases\PurchaseCreatedEvent::class,
@@ -59,12 +59,14 @@ class Purchase extends Model
             if (in_array($receiver_user, $old_receiver_users)) {
                 //update receiver
                 $old_receivers[$receiver_user]->update([
-                    'amount' => bcadd($amount_divided, $remainder)
+                    'amount' => bcadd($amount_divided, $remainder),
+                    'original_amount' => bcadd($amount_divided, $remainder)
                 ]);
             } else {
                 //create receiver
                 PurchaseReceiver::create([
                     'amount' => bcadd($amount_divided, $remainder),
+                    'original_amount' => bcadd($amount_divided, $remainder),
                     'receiver_id' => $receiver_user,
                     'purchase_id' => $this->id,
                     'group_id' => $this->group_id
