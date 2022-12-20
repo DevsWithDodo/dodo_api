@@ -15,12 +15,6 @@ class Payment extends Model
 
     protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note'];
 
-    protected $dispatchesEvents = [
-        'creating' => \App\Events\Payments\PaymentCreatedEvent::class,
-        'updating' => \App\Events\Payments\PaymentUpdatedEvent::class,
-        'deleting' => \App\Events\Payments\PaymentDeletedEvent::class
-    ];
-
     public function getNoteAttribute($value)
     {
         App::setLocale(auth('api')->user()?->language ?? "en");

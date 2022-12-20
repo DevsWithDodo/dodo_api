@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Transactions\Payment;
+use App\Transactions\Purchase;
+use App\Transactions\PurchaseReceiver;
+use App\Observers\PaymentObserver;
+use App\Observers\PurchaseObserver;
+use App\Observers\PurchaseReceiverObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -12,37 +18,7 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $listen = [
-        //Payments
-        \App\Events\Payments\PaymentCreatedEvent::class => [
-            \App\Listeners\Payments\PaymentCreatedListener::class
-        ],
-        \App\Events\Payments\PaymentUpdatedEvent::class => [
-            \App\Listeners\Payments\PaymentUpdatedListener::class
-        ],
-        \App\Events\Payments\PaymentDeletedEvent::class => [
-            \App\Listeners\Payments\PaymentDeletedListener::class
-        ],
-        //Purchases
-        \App\Events\Purchases\PurchaseCreatedEvent::class => [
-            \App\Listeners\Purchases\PurchaseCreatedListener::class
-        ],
-        \App\Events\Purchases\PurchaseUpdatedEvent::class => [
-            \App\Listeners\Purchases\PurchaseUpdatedListener::class
-        ],
-        \App\Events\Purchases\PurchaseDeletedEvent::class => [
-            \App\Listeners\Purchases\PurchaseDeletedListener::class
-        ],
-        \App\Events\Purchases\PurchaseReceiverCreatedEvent::class => [
-            \App\Listeners\Purchases\PurchaseReceiverCreatedListener::class
-        ],
-        \App\Events\Purchases\PurchaseReceiverUpdatedEvent::class => [
-            \App\Listeners\Purchases\PurchaseReceiverUpdatedListener::class
-        ],
-        \App\Events\Purchases\PurchaseReceiverDeletedEvent::class => [
-            \App\Listeners\Purchases\PurchaseReceiverDeletedListener::class
-        ],
-    ];
+    protected $listen = [];
 
     /**
      * Register any events for your application.
@@ -53,6 +29,8 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        Payment::observe(PaymentObserver::class);
+        Purchase::observe(PurchaseObserver::class);
+        PurchaseReceiver::observe(PurchaseReceiverObserver::class);
     }
 }

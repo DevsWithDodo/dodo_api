@@ -15,12 +15,6 @@ class PurchaseReceiver extends Model
 
     public $timestamps = false;
 
-    protected $dispatchesEvents = [
-        'creating' => \App\Events\Purchases\PurchaseReceiverCreatedEvent::class,
-        'updating' => \App\Events\Purchases\PurchaseReceiverUpdatedEvent::class,
-        'deleting' => \App\Events\Purchases\PurchaseReceiverDeletedEvent::class
-    ];
-
     public function user()
     {
         return $this->belongsTo('App\User', 'receiver_id');

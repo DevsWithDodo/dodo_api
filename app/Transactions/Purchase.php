@@ -14,11 +14,9 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency'];
 
-    protected $dispatchesEvents = [
-        'creating' => \App\Events\Purchases\PurchaseCreatedEvent::class,
-        'updating' => \App\Events\Purchases\PurchaseUpdatedEvent::class,
-        'deleting' => \App\Events\Purchases\PurchaseDeletedEvent::class
-    ];
+    public static function divideAmount() {
+
+    }
 
     /**
      * Divides the purchase's amount without residue.
