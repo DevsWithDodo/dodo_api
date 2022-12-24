@@ -44,36 +44,35 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-        $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:50',
             'amount' => 'required|numeric|min:0',
-            'currency' => ['required', Rule::in(CurrencyController::CurrencyList())],
+            'buyer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', new IsMember($group)],
             'receivers.*.amount' => 'nullable|numeric|min:0'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $this->authorize('view', $group);
-        $amount = CurrencyController::exchangeCurrency($request->currency, $group->currency, $request->amount);
-        $purchase = Purchase::create([
-            'name' => $request->name,
-            'group_id' => $group->id,
-            'buyer_id' => $user->id,
-            'amount' => $amount,
-            'original_amount' => $request->amount,
-            'original_currency' => $request->currency
-        ]);
-        $purchase->createReceivers(array_map(
-            function ($i) {
-                return [
-                    'user_id' => $i['user_id'],
-                    'original_amount' => $i['amount']
-                ];
-            },
-            $request->receivers
-        ));
+        $buyer_id = $request->buyer_id ?? auth('api')->user()->id;
+        $currency = $request->currency ?? $group->currency;
+        $amount = CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount);
+
+        $purchase_data = $request->only(['name', 'receivers']);
+        $purchase_data['receivers'] = array_map(function ($i) use ($group, $currency) {
+            return [
+                'user_id' => $i['user_id'],
+                'amount' => isset($i['amount']) ? CurrencyController::exchangeCurrency($currency, $group->currency, $i['amount']) : null
+            ];
+        }, $request->receivers);
+        $purchase_data['buyer_id'] = $buyer_id;
+        $purchase_data['group_id'] = $group->id;
+        $purchase_data['amount'] = $amount;
+        $purchase_data['original_currency'] = $currency;
+
+        Purchase::createWithReceivers($purchase_data);
 
         return response()->json(null, 204);
     }
@@ -119,7 +118,7 @@ class PurchaseController extends Controller
             'reaction' => 'required|string|min:1|max:1'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        
+
         $purchase = Purchase::find($request->purchase_id);
         $user = auth('api')->user();
         $reaction = $purchase->reactions()
@@ -136,8 +135,8 @@ class PurchaseController extends Controller
                 'reaction' => $request->reaction,
                 'user_id' => $user->id,
                 'group_id' => $purchase->group_id
-            ]); 
-        } 
+            ]);
+        }
 
         return response()->json(null, 204);
     }

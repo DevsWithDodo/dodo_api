@@ -2,6 +2,7 @@
 
 namespace App\Transactions;
 
+use App\Http\Controllers\CurrencyController;
 use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,8 +19,43 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency'];
 
-    public static function divideAmount() {
+    public static function createWithReceivers($purchase_data) {
+        $purchase = new Purchase($purchase_data);
+        $purchase->original_amount = CurrencyController::exchangeCurrency($purchase->group->currency, $purchase->original_currency, $purchase->amount);
+        $purchase->save();
 
+        $receivers = $purchase_data['receivers'];
+        $custom_receivers = array_filter($receivers, function($receiver) { return isset($receiver['amount']); });
+        $custom_amount = array_reduce($custom_receivers, function($carry, $receiver) { return bcadd($carry, $receiver['amount']); }, 0);
+        if(count($custom_receivers) < count($receivers))
+        {
+            $amount_divided = bcdiv(bcsub($purchase->amount, $custom_amount), count($receivers) - count($custom_receivers));
+            $remainder = bcsub(bcsub($purchase->amount, $custom_amount), bcmul($amount_divided, count($receivers) - count($custom_receivers)));
+        } else {
+            $amount_divided = 0;
+            $remainder = 0;
+        }
+        $receivers_created = [];
+        foreach ($receivers as $receiver) {
+            if(isset($receiver['amount'])) {
+                $receivers_created[] = $purchase->receivers()->create([
+                    'amount' => $receiver['amount'],
+                    'original_amount' => CurrencyController::exchangeCurrency($purchase->group->currency, $purchase->original_currency, $receiver['amount']),
+                    'receiver_id' => $receiver['user_id'],
+                    'group_id' => $purchase->group_id,
+                    'custom_amount' => true
+                ]);
+            }
+            else{
+                $receivers_created[] = $purchase->receivers()->create([
+                    'amount' => bcadd($amount_divided, $remainder),
+                    'original_amount' => CurrencyController::exchangeCurrency($purchase->group->currency, $purchase->original_currency, bcadd($amount_divided, $remainder)),
+                    'receiver_id' => $receiver['user_id'],
+                    'group_id' => $purchase->group_id
+                ]);
+                $remainder = 0;
+            }
+        }
     }
 
     /**

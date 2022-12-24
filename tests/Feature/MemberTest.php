@@ -49,7 +49,7 @@ class MemberTest extends TestCase
         foreach ($this->group->members as $member) {
             $balance = bcadd($balance, $member->member_data->balance);
         }
-        $this->assertTrue(0 == $balance);
+        $this->assertEquals(0, $balance);
     }
 
     /**
@@ -109,7 +109,7 @@ class MemberTest extends TestCase
         foreach ($this->group->members as $member) {
             $balance = bcadd($balance, $member->member_data->balance);
         }
-        $this->assertTrue(0 == $balance);
+        $this->assertEquals(0, $balance);
     }
 
     /**
@@ -137,6 +137,6 @@ class MemberTest extends TestCase
         foreach ($this->group->members as $member) {
             $balance = bcadd($balance, $member->member_data->balance);
         }
-        $this->assertTrue(0 == $balance);
+        $this->assertEquals(0, $balance);
     }
 }
