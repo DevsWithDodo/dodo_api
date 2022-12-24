@@ -61,6 +61,12 @@ class PurchaseController extends Controller
         $amount = CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount);
 
         $purchase_data = $request->only(['name', 'receivers']);
+        $purchase_data['receivers'] = array_map(function ($i) use ($group, $currency) {
+            return [
+                'user_id' => $i['user_id'],
+                'amount' => isset($i['amount']) ? CurrencyController::exchangeCurrency($currency, $group->currency, $i['amount']) : null
+            ];
+        }, $request->receivers);
         $purchase_data['buyer_id'] = $buyer_id;
         $purchase_data['group_id'] = $group->id;
         $purchase_data['amount'] = $amount;
