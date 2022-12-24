@@ -30,7 +30,7 @@ class Purchase extends Model
         if(count($custom_receivers) < count($receivers))
         {
             $amount_divided = bcdiv(bcsub($purchase->amount, $custom_amount), count($receivers) - count($custom_receivers));
-            $remainder = bcsub($purchase->amount, bcmul($amount_divided, count($receivers) - count($custom_receivers)));
+            $remainder = bcsub(bcsub($purchase->amount, $custom_amount), bcmul($amount_divided, count($receivers) - count($custom_receivers)));
         } else {
             $amount_divided = 0;
             $remainder = 0;

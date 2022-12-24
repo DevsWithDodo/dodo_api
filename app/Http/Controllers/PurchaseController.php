@@ -64,7 +64,6 @@ class PurchaseController extends Controller
         $purchase_data['buyer_id'] = $buyer_id;
         $purchase_data['group_id'] = $group->id;
         $purchase_data['amount'] = $amount;
-        $purchase_data['currency'] = $group->currency;
         $purchase_data['original_currency'] = $currency;
 
         Purchase::createWithReceivers($purchase_data);
