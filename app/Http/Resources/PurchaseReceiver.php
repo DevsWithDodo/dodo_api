@@ -19,7 +19,8 @@ class PurchaseReceiver extends JsonResource
             'user_id' => $this->receiver_id,
             'nickname' => Group::nicknameOf($this->group_id, $this->receiver_id),
             'balance' => round(floatval($this->amount), 2),
-            'original_balance' => round(floatval($this->original_amount), 2)
+            'original_balance' => round(floatval($this->original_amount), 2),
+            'custom_amount' => (bool)$this->custom_amount
         ];
     }
 }
