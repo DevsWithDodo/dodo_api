@@ -44,17 +44,19 @@ class PurchaseTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance, $member->member_data->balance);
             }
-            $this->assertTrue(
-                abs(($purchase->amount - ($purchase->amount / $users->count()))
-                    - $group->member($buyer->id)->member_data->balance) < 0.01
+            $this->assertEqualsWithDelta(
+                ($purchase->amount - ($purchase->amount / $users->count())),
+                $group->member($buyer->id)->member_data->balance,
+                0.01
             );
             foreach ($group->members->except($buyer->id) as $user) {
-                $this->assertTrue(
-                    abs((0 - ($purchase->amount / $users->count()))
-                        - $group->member($user->id)->member_data->balance) < 0.01
+                $this->assertEqualsWithDelta(
+                    (0 - ($purchase->amount / $users->count())),
+                    $group->member($user->id)->member_data->balance,
+                    0.01
                 );
             }
-            $this->assertTrue(0 == $balance);
+            $this->assertEquals(0, $balance);
         }
     }
     /**
@@ -90,17 +92,52 @@ class PurchaseTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance,  $member->member_data->balance);
             }
-            $this->assertTrue(
-                abs($purchase->amount
-                    - $group->member($buyer->id)->member_data->balance) < 0.01
-            );
+            $this->assertEqualsWithDelta($purchase->amount,
+                $group->member($buyer->id)->member_data->balance, 0.01);
             foreach ($group->members->except($buyer->id) as $user) {
-                $this->assertTrue(
-                    abs((0 - ($purchase->amount / ($users->count() - 1)))
-                        - $group->member($user->id)->member_data->balance) < 0.01
+                $this->assertEqualsWithDelta(
+                    (0 - ($purchase->amount / ($users->count() - 1))),
+                    $group->member($user->id)->member_data->balance,
+                    0.01
                 );
             }
-            $this->assertTrue(0 == $balance);
+            $this->assertEquals(0, $balance);
+        }
+    }
+
+    /**
+     * @test
+     * custom amounts
+     */
+    public function customAmounts()
+    {
+        for ($i = 0; $i < 5; $i++) {
+            Artisan::call('migrate');
+            $group = Group::factory()->create();
+            $users = User::factory()->count(4)->create();
+            $user_ids = [];
+            $amount = 100;
+            foreach ($users as $user) {
+                $group->members()->attach($user->id, ['nickname' => $user->username]);
+                $user_ids[] = ['user_id' => $user->id, 'amount' => rand(10, 20)];
+            }
+            $buyer = $group->members->first();
+            $purchase = Purchase::factory()->make(['amount' => $amount]);
+
+            $response = $this->actingAs($buyer, 'api')
+                ->postJson(route('purchases.store'), [
+                    'name' => $purchase->name,
+                    'group' => $group->id,
+                    'amount' => $purchase->amount,
+                    'receivers' => $user_ids
+                ]);
+            $response->assertStatus(204);
+
+            $balance = 0;
+            foreach ($group->members as $member) {
+                $balance = bcadd($balance, $member->member_data->balance);
+            }
+            $this->assertEquals(0, $balance);
         }
     }
 
@@ -153,7 +190,7 @@ class PurchaseTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance,  $member->member_data->balance);
             }
-            $this->assertTrue(0 == $balance);
+            $this->assertEquals(0, $balance);
         }
     }
 }

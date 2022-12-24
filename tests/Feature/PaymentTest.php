@@ -41,15 +41,9 @@ class PaymentTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance, $member->member_data->balance);
             }
-            $this->assertTrue(
-                abs(($payment->amount)
-                    - $group->member($payer->id)->member_data->balance) < 0.01
-            );
-            $this->assertTrue(
-                abs(0 - ($payment->amount)
-                    - $group->member($taker->id)->member_data->balance) < 0.01
-            );
-            $this->assertTrue(0 == $balance);
+            $this->assertEqualsWithDelta($payment->amount, $group->member($payer->id)->member_data->balance, 0.01);
+            $this->assertEqualsWithDelta(0 - ($payment->amount), $group->member($taker->id)->member_data->balance, 0.01);
+            $this->assertEquals(0, $balance);
         }
     }
 
@@ -93,20 +87,11 @@ class PaymentTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance, $member->member_data->balance);
             }
-            $this->assertTrue(
-                bcsub(($payment_2->amount),
-                    $group->member($payer->id)->member_data->balance
-                ) == 0
-            );
-            $this->assertTrue(
-                bcsub(
-                    (-1) * $payment_2->amount,
-                    $group->member($taker_2->id)->member_data->balance
-                ) == 0
-            );
+            $this->assertEquals($payment_2->amount, $group->member($payer->id)->member_data->balance);
+            $this->assertEquals((-1) * $payment_2->amount, $group->member($taker_2->id)->member_data->balance);
             if ($taker->id != $taker_2->id)
-                $this->assertTrue(0 == $group->member($taker->id)->member_data->balance);
-            $this->assertTrue(0 == $balance);
+                $this->assertEquals(0, $group->member($taker->id)->member_data->balance);
+            $this->assertEquals(0, $balance);
         }
     }
 }
