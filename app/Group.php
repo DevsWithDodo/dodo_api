@@ -2,8 +2,11 @@
 
 namespace App;
 
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +35,7 @@ class Group extends Model
         return parent::delete();
     }
 
-    public function members()
+    public function members(): BelongsToMany
     {
         return $this
             ->belongsToMany('App\User', 'group_user')
@@ -42,7 +45,7 @@ class Group extends Model
             ->withTimestamps();
     }
 
-    public function unapprovedMembers()
+    public function unapprovedMembers(): BelongsToMany
     {
         return $this
             ->belongsToMany('App\User', 'group_user')
@@ -102,29 +105,34 @@ class Group extends Model
             Log::info('updated member balance', ['user id' => $user_id, 'amount' => $amount, 'old balance' => $old_balance]);
     }
 
-    public function guests()
+    public function guests(): BelongsToMany
     {
         return $this->members()->where('password', null);
     }
 
-    public function admins()
+    public function admins(): BelongsToMany
     {
         return $this->members()->where('is_admin', true);
     }
 
-    public function purchases()
+    public function purchases(): HasMany
     {
         return $this->hasMany('App\Transactions\Purchase');
     }
 
-    public function payments()
+    public function payments(): HasMany
     {
         return $this->hasMany('App\Transactions\Payment');
     }
 
-    public function requests()
+    public function requests(): HasMany
     {
         return $this->hasMany('App\Request');
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
     }
 
     /**
@@ -160,5 +168,22 @@ class Group extends Model
             }
             $member->member_data->update(['balance' => $balance]);
         }
+    }
+
+    public static function activeGroupQuery($lastActive = 30){
+        return Group::where(function($query) use ($lastActive){
+            $query->whereHas('purchases', function($query) use ($lastActive){
+                $query->where('updated_at', '>', now()->subDays($lastActive));
+            })
+            ->orWhereHas('payments', function($query) use ($lastActive){
+                $query->where('updated_at', '>', now()->subDays($lastActive));
+            })
+            ->orWhereHas('requests', function($query) use ($lastActive){
+                $query->where('updated_at', '>', now()->subDays($lastActive));
+            })
+            ->orWhereHas('reactions', function($query) use ($lastActive){
+                $query->where('updated_at', '>', now()->subDays($lastActive));
+            });
+        });
     }
 }

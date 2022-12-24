@@ -2,8 +2,11 @@
 
 namespace App\Transactions;
 
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\App;
 use Log;
 
@@ -23,23 +26,23 @@ class Payment extends Model
         return $value;
     }
 
-    public function payer()
+    public function payer(): BelongsTo
     {
         return $this->belongsTo('App\User', 'payer_id');
     }
 
-    public function taker()
+    public function taker(): BelongsTo
     {
         return $this->belongsTo('App\User', 'taker_id');
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo('App\Group', 'group_id');
     }
 
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->hasMany('App\Transactions\Reactions\PaymentReaction', 'payment_id');
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 }

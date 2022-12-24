@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 use App\Group;
+use App\Http\Controllers\AdminController;
 use App\Mail\AdminAccess;
 
 /*
@@ -29,16 +30,8 @@ Route::get('/join/{token}', function ($token) {
     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
 });
 
-Route::get('/admin', function (Request $request) {
-    if (!$request->hasValidSignature()) {
-        $url = URL::temporarySignedRoute('admin', now()->addMinutes(30));
-        Mail::to(config('app.admin_email'))->send(new AdminAccess($url));
-        Mail::to(config('app.developer_email'))->send(new AdminAccess($url));
-        return response("Secure link sent to the developer emails.");
-    } else {
-        return view('admin');
-    }
-})->name('admin');
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+Route::get('/admin/send-access-mail', [AdminController::class, 'sendAccessMail'])->name('admin.send-access-mail');
 
 Route::get('/landscape_preview', function () {
     $path = public_path() . '/lender_preview.png';

@@ -12,7 +12,6 @@ use App\Notifications\Requests\RequestNotification;
 use App\Notifications\Requests\ShoppingNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
-use App\Transactions\Reactions\RequestReaction;
 
 class RequestController extends Controller
 {
@@ -95,8 +94,10 @@ class RequestController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = auth('api')->user();
-        $reaction = RequestReaction::where('user_id', $user->id)
-            ->where('request_id', $request->request_id)
+        $shoppingRequest = ShoppingRequest::find($request->request_id);
+        $reaction = $shoppingRequest
+            ->reactions()
+            ->where('user_id', $user->id)
             ->first();
 
         //Create, update, or delete reaction
@@ -104,13 +105,11 @@ class RequestController extends Controller
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);
             else $reaction->delete();
-        } else RequestReaction::create([
+        } else $shoppingRequest->reactions()->create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'request_id' => $request->request_id,
-            'group_id' => ShoppingRequest::find($request->request_id)->group_id
+            'group_id' => $shoppingRequest->group_id
         ]);
-
         return response()->json(null, 204);
     }
 

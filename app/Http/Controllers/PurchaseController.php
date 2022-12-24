@@ -13,7 +13,6 @@ use App\Http\Resources\Purchase as PurchaseResource;
 use App\Http\Controllers\CurrencyController;
 
 use App\Group;
-use App\Transactions\Reactions\PurchaseReaction;
 
 class PurchaseController extends Controller
 {
@@ -120,10 +119,11 @@ class PurchaseController extends Controller
             'reaction' => 'required|string|min:1|max:1'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-
+        
+        $purchase = Purchase::find($request->purchase_id);
         $user = auth('api')->user();
-        $reaction = PurchaseReaction::where('user_id', $user->id)
-            ->where('purchase_id', $request->purchase_id)
+        $reaction = $purchase->reactions()
+            ->where('user_id', $user->id)
             ->first();
 
         //Create, update, or delete reaction
@@ -131,12 +131,13 @@ class PurchaseController extends Controller
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);
             else $reaction->delete();
-        } else PurchaseReaction::create([
-            'reaction' => $request->reaction,
-            'user_id' => $user->id,
-            'purchase_id' => $request->purchase_id,
-            'group_id' => Purchase::find($request->purchase_id)->group_id
-        ]);
+        } else{
+            $purchase->reactions()->create([
+                'reaction' => $request->reaction,
+                'user_id' => $user->id,
+                'group_id' => $purchase->group_id
+            ]); 
+        } 
 
         return response()->json(null, 204);
     }

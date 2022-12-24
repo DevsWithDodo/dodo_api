@@ -2,8 +2,12 @@
 
 namespace App\Transactions;
 
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Log;
 
 class Purchase extends Model
@@ -98,23 +102,23 @@ class Purchase extends Model
         return parent::delete();
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo('App\Group');
     }
 
-    public function buyer()
+    public function buyer(): BelongsTo
     {
         return $this->belongsTo('App\User', 'buyer_id');
     }
 
-    public function receivers()
+    public function receivers(): HasMany
     {
         return $this->hasMany('App\Transactions\PurchaseReceiver');
     }
 
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->hasMany('App\Transactions\Reactions\PurchaseReaction', 'purchase_id');
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 }

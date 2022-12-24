@@ -9,7 +9,6 @@ use Carbon\Carbon;
 
 use App\Http\Resources\Payment as PaymentResource;
 
-use App\Transactions\Reactions\PaymentReaction;
 use App\Transactions\Payment;
 use App\Group;
 use App\User;
@@ -94,8 +93,9 @@ class PaymentController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = auth('api')->user();
-        $reaction = PaymentReaction::where('user_id', $user->id)
-            ->where('payment_id', $request->payment_id)
+        $payment = Payment::find($request->payment_id);
+        $reaction = $payment->reactions()
+            ->where('user_id', $user->id)
             ->first();
 
         //Create, update, or delete reaction
@@ -103,11 +103,10 @@ class PaymentController extends Controller
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);
             else $reaction->delete();
-        } else PaymentReaction::create([
+        } else $payment->reactions()->create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'payment_id' => $request->payment_id,
-            'group_id' => Payment::find($request->payment_id)->group_id
+            'group_id' => $payment->group_id
         ]);
 
         return response()->json(null, 204);
