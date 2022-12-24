@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Transactions\Purchase;
 use Illuminate\Support\Facades\Artisan;
 use App\Group;
+use App\Http\Controllers\CurrencyController;
 use App\User;
 
 class PurchaseTest extends TestCase
@@ -111,34 +112,55 @@ class PurchaseTest extends TestCase
      */
     public function customAmounts()
     {
-        for ($i = 0; $i < 5; $i++) {
-            Artisan::call('migrate');
-            $group = Group::factory()->create();
-            $users = User::factory()->count(4)->create();
-            $user_ids = [];
-            $amount = 100;
-            foreach ($users as $user) {
-                $group->members()->attach($user->id, ['nickname' => $user->username]);
-                $user_ids[] = ['user_id' => $user->id, 'amount' => rand(10, 20)];
-            }
-            $buyer = $group->members->first();
-            $purchase = Purchase::factory()->make(['amount' => $amount]);
-
-            $response = $this->actingAs($buyer, 'api')
-                ->postJson(route('purchases.store'), [
-                    'name' => $purchase->name,
-                    'group' => $group->id,
-                    'amount' => $purchase->amount,
-                    'receivers' => $user_ids
-                ]);
-            $response->assertStatus(204);
-
-            $balance = 0;
-            foreach ($group->members as $member) {
-                $balance = bcadd($balance, $member->member_data->balance);
-            }
-            $this->assertEquals(0, $balance);
+        Artisan::call('migrate');
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
         }
+        $buyer = $users[0];
+        $response = $this->actingAs($buyer, 'api')
+            ->postJson(route('purchases.store'), [
+                'name' => 'asd',
+                'group' => $group->id,
+                'amount' => 100,
+                'currency' => 'EUR',
+                'receivers' => [
+                    ['user_id' => $users[0]->id],
+                    ['user_id' => $users[1]->id, 'amount' => 10],
+                    ['user_id' => $users[2]->id, 'amount' => 15],
+                    ['user_id' => $users[3]->id],
+                ]
+            ]);
+        $response->assertStatus(204);
+
+
+        $this->assertEqualsWithDelta(
+            CurrencyController::exchangeCurrency('EUR', 'HUF', 100-(100-25)/2),
+            $group->member($users[0]->id)->member_data->balance,
+            0.01
+        );
+        $this->assertEqualsWithDelta(
+            CurrencyController::exchangeCurrency('EUR', 'HUF', -10),
+            $group->member($users[1]->id)->member_data->balance,
+            0.01
+        );
+        $this->assertEqualsWithDelta(
+            CurrencyController::exchangeCurrency('EUR', 'HUF', -15),
+            $group->member($users[2]->id)->member_data->balance,
+            0.01
+        );
+        $this->assertEqualsWithDelta(
+            CurrencyController::exchangeCurrency('EUR', 'HUF', -(100-25)/2),
+            $group->member($users[3]->id)->member_data->balance,
+            0.01
+        );
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
     }
 
     /**
