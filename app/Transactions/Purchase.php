@@ -49,7 +49,7 @@ class Purchase extends Model
             else{
                 $receivers_created[] = $purchase->receivers()->create([
                     'amount' => bcadd($amount_divided, $remainder),
-                    'original_amount' => bcadd($amount_divided, $remainder),
+                    'original_amount' => CurrencyController::exchangeCurrency($purchase->group->currency, $purchase->original_currency, bcadd($amount_divided, $remainder)),
                     'receiver_id' => $receiver['user_id'],
                     'group_id' => $purchase->group_id
                 ]);
