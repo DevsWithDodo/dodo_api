@@ -16,7 +16,7 @@ class Purchase extends Model
 
     protected $table = 'purchases';
 
-    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency'];
+    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency', 'category'];
 
     public static function createWithReceivers(array $purchase_data) {
         $purchase = new Purchase();
@@ -30,6 +30,7 @@ class Purchase extends Model
         $this->original_currency = $purchase_data['original_currency'];
         $this->amount = CurrencyController::exchangeCurrency($purchase_data['original_currency'], $purchase_data['group_currency'], $purchase_data['amount']);
         $this->original_amount = $purchase_data['amount'];
+        $this->category = $purchase_data['category'];
         $this->save();
 
         $this->syncReceivers($purchase_data['receivers'], $purchase_data['original_currency'], $purchase_data['group_currency']);

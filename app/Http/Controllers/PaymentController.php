@@ -44,6 +44,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'payer_id' => ['nullable', new IsMember($group)],
             'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'amount' => 'required|numeric|min:0',
             'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
@@ -60,6 +61,7 @@ class PaymentController extends Controller
             'group_id' => $group->id,
             'taker_id' => $request->taker_id,
             'payer_id' => $request->payer_id ?? auth('api')->user()->id,
+            'category' => $request->category,
             'note' => $request->note ?? null
         ]);
         return response()->json(null, 204);
@@ -72,6 +74,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'payer_id' => ['nullable', new IsMember($group)],
             'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'amount' => 'required|numeric|min:0',
             'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
@@ -85,6 +88,7 @@ class PaymentController extends Controller
             'original_currency' => $currency,
             'taker_id' => $request->taker_id,
             'payer_id' => $request->payer_id ?? auth('api')->user()->id,
+            'category' => $request->category,
             'note' => $request->note ?? null
         ]);
 

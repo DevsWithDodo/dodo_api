@@ -50,6 +50,7 @@ class PurchaseController extends Controller
             'amount' => 'required|numeric|min:0',
             'buyer_id' => ['nullable', new IsMember($group)],
             'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', new IsMember($group)],
             'receivers.*.amount' => 'nullable|numeric|min:0'
@@ -57,7 +58,7 @@ class PurchaseController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $this->authorize('member', $group);
 
-        $purchase_data = $request->only(['name', 'receivers', 'amount']);
+        $purchase_data = $request->only(['name', 'amount', 'category', 'receivers']);
         $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
         $purchase_data['group_id'] = $group->id;
         $purchase_data['group_currency'] = $group->currency;
@@ -77,13 +78,14 @@ class PurchaseController extends Controller
             'amount' => 'required|numeric|min:0',
             'buyer_id' => ['nullable', new IsMember($group)],
             'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'receivers' => 'required|array|min:1',
             'receivers.*.user_id' => ['required', new IsMember($group)],
             'receivers.*.amount' => 'nullable|numeric|min:0'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $purchase_data = $request->only(['name', 'receivers', 'amount']);
+        $purchase_data = $request->only(['name', 'amount', 'category', 'receivers']);
         $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
         $purchase_data['group_id'] = $group->id;
         $purchase_data['group_currency'] = $group->currency;

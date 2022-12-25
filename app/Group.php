@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,11 +17,33 @@ class Group extends Model
 
     protected $table = 'groups';
 
-    protected $fillable = ['name', 'currency', 'admin_approval', 'invitation', 'boosted'];
+    protected $fillable = ['name', 'currency', 'admin_approval', 'invitation', 'boosted', 'custom_categories'];
+
+    protected $casts = [
+        'custom_categories' => 'array'
+    ];
 
     public function getMemberLimitAttribute()
     {
         return $this->boosted ? 30 : 8;
+    }
+
+    public function getCategoriesAttribute(): array
+    {
+        return array_merge(
+            //default categories
+            [
+                'food',
+                'groceries',
+                'transport',
+                'entertainment',
+                'shopping',
+                'health',
+                'bills',
+                'other'
+            ],
+            $this->boosted ? array_keys($this->custom_categories) : []
+        );
     }
 
     public function delete()
