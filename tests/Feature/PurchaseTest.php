@@ -138,22 +138,22 @@ class PurchaseTest extends TestCase
         $this->assertEqualsWithDelta(
             CurrencyController::exchangeCurrency('EUR', 'HUF', 100-(100-25)/2),
             $group->member($users[0]->id)->member_data->balance,
-            0.01
+            1
         );
         $this->assertEqualsWithDelta(
             CurrencyController::exchangeCurrency('EUR', 'HUF', -10),
             $group->member($users[1]->id)->member_data->balance,
-            0.01
+            1
         );
         $this->assertEqualsWithDelta(
             CurrencyController::exchangeCurrency('EUR', 'HUF', -15),
             $group->member($users[2]->id)->member_data->balance,
-            0.01
+            1
         );
         $this->assertEqualsWithDelta(
             CurrencyController::exchangeCurrency('EUR', 'HUF', -(100-25)/2),
             $group->member($users[3]->id)->member_data->balance,
-            0.01
+            1
         );
 
         $balance = 0;

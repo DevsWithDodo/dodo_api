@@ -56,21 +56,12 @@ class PurchaseController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $this->authorize('view', $group);
-        $buyer_id = $request->buyer_id ?? auth('api')->user()->id;
-        $currency = $request->currency ?? $group->currency;
-        $amount = CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount);
 
-        $purchase_data = $request->only(['name', 'receivers']);
-        $purchase_data['receivers'] = array_map(function ($i) use ($group, $currency) {
-            return [
-                'user_id' => $i['user_id'],
-                'amount' => isset($i['amount']) ? CurrencyController::exchangeCurrency($currency, $group->currency, $i['amount']) : null
-            ];
-        }, $request->receivers);
-        $purchase_data['buyer_id'] = $buyer_id;
+        $purchase_data = $request->only(['name', 'receivers', 'amount']);
+        $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
         $purchase_data['group_id'] = $group->id;
-        $purchase_data['amount'] = $amount;
-        $purchase_data['original_currency'] = $currency;
+        $purchase_data['group_currency'] = $group->currency;
+        $purchase_data['original_currency'] = $request->currency ?? $group->currency;;
 
         Purchase::createWithReceivers($purchase_data);
 
@@ -84,22 +75,21 @@ class PurchaseController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:50',
             'amount' => 'required|numeric|min:0',
+            'buyer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
             'receivers' => 'required|array|min:1',
-            'receivers.*.user_id' => ['required', new IsMember($group)]
+            'receivers.*.user_id' => ['required', new IsMember($group)],
+            'receivers.*.amount' => 'nullable|numeric|min:0'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $purchase->update([
-            'name' => $request->name,
-            'amount' => $request->amount
-        ]);
+        $purchase_data = $request->only(['name', 'receivers', 'amount']);
+        $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
+        $purchase_data['group_id'] = $group->id;
+        $purchase_data['group_currency'] = $group->currency;
+        $purchase_data['original_currency'] = $request->currency ?? $group->currency;;
 
-        $new_receivers = array_map(function ($i) {
-            return $i['user_id'];
-        }, $request->receivers);
-
-        $purchase->createReceivers($new_receivers);
-        $purchase->touch();
+        $purchase->updateWithReceivers($purchase_data);
 
         return response()->json(null, 204);
     }
