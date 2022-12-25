@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class User extends Authenticatable implements HasLocalePreference {
     use Notifiable, HasFactory;
@@ -72,6 +73,14 @@ class User extends Authenticatable implements HasLocalePreference {
 
     public function getGradientsEnabledAttribute($value) {
         return $this->trial ? 1 : $value;
+    }
+
+    public function sendNotification($notification) {
+        try {
+            $this->notify($notification->locale($this->language));
+        } catch (\Exception $e) {
+            Log::error('FCM error', ['error' => $e]);
+        }
     }
 
     /**

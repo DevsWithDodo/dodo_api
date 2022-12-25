@@ -20,7 +20,7 @@ class PurchaseController extends Controller
     {
         $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
         $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
         $until_date = Carbon::parse($request->until_date ?? now())->addDay();
@@ -55,7 +55,7 @@ class PurchaseController extends Controller
             'receivers.*.amount' => 'nullable|numeric|min:0'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
         $purchase_data = $request->only(['name', 'receivers', 'amount']);
         $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
@@ -70,7 +70,7 @@ class PurchaseController extends Controller
 
     public function update(Request $request, Purchase $purchase)
     {
-        $this->authorize('update', $purchase);
+        $this->authorize('member', $purchase->group);
         $group = $purchase->group;
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:1|max:50',
@@ -96,7 +96,7 @@ class PurchaseController extends Controller
 
     public function delete(Purchase $purchase)
     {
-        $this->authorize('delete', $purchase);
+        $this->authorize('member', $purchase->group);
         $purchase->delete();
         return response()->json(null, 204);
     }
@@ -110,6 +110,7 @@ class PurchaseController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $purchase = Purchase::find($request->purchase_id);
+        $this->authorize('member', $purchase->group);
         $user = auth('api')->user();
         $reaction = $purchase->reactions()
             ->where('user_id', $user->id)

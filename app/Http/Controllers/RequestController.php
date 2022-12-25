@@ -18,7 +18,7 @@ class RequestController extends Controller
     public function index(Request $request)
     {
         $group = Group::findOrFail($request->group);
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
         return RequestResource::collection($group->requests()->with('reactions')->get());
     }
 
@@ -30,7 +30,7 @@ class RequestController extends Controller
             'name' => 'required|string|min:2|max:255',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
         $shopping_request = ShoppingRequest::create([
             'name' => $request->name,
@@ -38,12 +38,8 @@ class RequestController extends Controller
             "requester_id" => $user->id,
         ]);
 
-        try {
-            foreach ($group->members->except($user->id) as $member)
-                $member->notify((new RequestNotification($shopping_request))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        foreach ($group->members->except($user->id) as $member)
+            $member->sendNotification((new RequestNotification($shopping_request)));
         return response()->json(null, 204);
     }
 
@@ -74,12 +70,8 @@ class RequestController extends Controller
         $this->authorize('delete', $shopping_request);
         $user = auth('api')->user();
 
-        try {
-            if ($shopping_request->requester_id != $user->id)
-                $shopping_request->requester->notify((new FulfilledRequestNotification($shopping_request, $user))->locale($shopping_request->requester->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        if ($shopping_request->requester_id != $user->id)
+            $shopping_request->requester->sendNotification((new FulfilledRequestNotification($shopping_request, $user)));
 
         $shopping_request->delete();
         return response()->json(null, 204);
@@ -95,6 +87,7 @@ class RequestController extends Controller
 
         $user = auth('api')->user();
         $shoppingRequest = ShoppingRequest::find($request->request_id);
+        $this->authorize('member', $shoppingRequest->group);
         $reaction = $shoppingRequest
             ->reactions()
             ->where('user_id', $user->id)
@@ -119,18 +112,14 @@ class RequestController extends Controller
     public function sendShoppingNotification(Request $request, Group $group)
     {
         $user = auth('api')->user();
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
         $validator = Validator::make($request->all(), [
             'store' => ['required', 'string', 'max:20'],
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        try {
-            foreach ($group->members->except($user->id) as $member)
-                $member->notify((new ShoppingNotification($group, $user, $request->store))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        foreach ($group->members->except($user->id) as $member)
+            $member->sendNotification((new ShoppingNotification($group, $user, $request->store)));
         return response()->json(null, 204);
     }
 }

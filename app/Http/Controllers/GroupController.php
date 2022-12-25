@@ -14,7 +14,9 @@ use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Group;
+use DB;
 use Illuminate\Support\Facades\App;
+use Kreait\Firebase\Database\Transaction;
 
 class GroupController extends Controller
 {
@@ -28,7 +30,7 @@ class GroupController extends Controller
 
     public function show(Request $request, Group $group)
     {
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
         $user = $request->user();
         $user->update(['last_active_group' => $group->id]);
         return new GroupResource($group);
@@ -36,7 +38,6 @@ class GroupController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('is_not_guest');
         $validator = Validator::make($request->all(), [
             'group_name' => 'required|string|min:1|max:20',
             'currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
@@ -62,7 +63,7 @@ class GroupController extends Controller
 
     public function isBoosted(Request $request, Group $group)
     {
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
         $user = $request->user();
         return response()->json(['data' => [
             'is_boosted' => $group->boosted ? 1 : 0,
@@ -75,14 +76,13 @@ class GroupController extends Controller
     {
         $this->authorize('boost', $group);
         $user = $request->user();
-        $user->decrement('available_boosts');
-        $group->update(['boosted' => true]);
-
-        try {
-            foreach ($group->members->except($user->id) as $member)
-                $member->notify((new GroupBoostedNotification($group, $user))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
+        DB::transaction(function () use ($user, $group) {
+            $user->decrement('available_boosts');
+            $group->update(['boosted' => true]);
+        });
+        
+        foreach ($group->members->except($user->id) as $member) {
+            $member->sendNotification((new GroupBoostedNotification($group, $user)));
         }
 
         return response()->json(null, 204);
@@ -102,13 +102,9 @@ class GroupController extends Controller
         $old_name = $group->name;
         $group->update($request->only('name', 'currency', 'admin_approval'));
 
-        try {
-            if ($old_name != $group->name)
-                foreach ($group->members->except($user->id) as $member)
-                    $member->notify((new ChangedGroupNameNotification($group, $user, $old_name, $group->name))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        if ($old_name != $group->name)
+            foreach ($group->members->except($user->id) as $member)
+                $member->sendNotification((new ChangedGroupNameNotification($group, $user, $old_name, $group->name)));
 
         return response()->json(new GroupResource($group), 200);
     }
@@ -122,28 +118,28 @@ class GroupController extends Controller
 
     public function exportXls(Group $group, Request $request)
     {
-        if ($request->hasValidSignature()) {
-            App::setLocale($request->language);
-            return Excel::download(new GroupExport($group), $group->name . '.xlsx');
-        } else abort(401, "Unauthorized.");
+        if (!$request->hasValidSignature()) abort(401, "Unauthorized.");
+        
+        App::setLocale($request->language);
+        return Excel::download(new GroupExport($group), $group->name . '.xlsx');
     }
+
     public function exportPdf(Group $group, Request $request)
     {
-        if ($request->hasValidSignature()) {
-            App::setLocale($request->language);
-            $purchases = $group->purchases()
-                            ->orderBy('purchases.updated_at', 'desc')
-                            ->with('receivers')
-                            ->get();
-            $payments = $group->payments()
-                            ->orderBy('payments.updated_at', 'desc')
-                            ->with('payer')
-                            ->get();
-            $mpdf = new \Mpdf\Mpdf();
-            $mpdf->WriteHTML(view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]));
-            return $mpdf->Output($group->name, 'I');
+        if (!$request->hasValidSignature()) abort(401, "Unauthorized."); 
+        
+        App::setLocale($request->language);
+        $purchases = $group->purchases()
+                        ->orderBy('purchases.updated_at', 'desc')
+                        ->with('receivers')
+                        ->get();
+        $payments = $group->payments()
+                        ->orderBy('payments.updated_at', 'desc')
+                        ->with('payer')
+                        ->get();
+        $mpdf = new \Mpdf\Mpdf();
+        $mpdf->WriteHTML(view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]));
+        return $mpdf->Output($group->name, 'I');
 
-            // return view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]);
-        } else abort(401, "Unauthorized.");
     }
 }

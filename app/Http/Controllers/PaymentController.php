@@ -20,7 +20,7 @@ class PaymentController extends Controller
     {
         $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
         $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
         $until_date = Carbon::parse($request->until_date ?? now())->addDay();
@@ -50,7 +50,7 @@ class PaymentController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
         $currency = $request->currency ?? $group->currency;
         Payment::create([
@@ -67,8 +67,8 @@ class PaymentController extends Controller
 
     public function update(Request $request, Payment $payment)
     {
-        $this->authorize('update', $payment);
         $group = $payment->group;
+        $this->authorize('member', $group);
         $validator = Validator::make($request->all(), [
             'payer_id' => ['nullable', new IsMember($group)],
             'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
@@ -93,7 +93,7 @@ class PaymentController extends Controller
 
     public function delete(Payment $payment)
     {
-        $this->authorize('delete', $payment);
+        $this->authorize('member', $payment->group);
         $payment->delete();
         return response()->json(null, 204);
     }
@@ -108,6 +108,7 @@ class PaymentController extends Controller
 
         $user = auth('api')->user();
         $payment = Payment::find($request->payment_id);
+        $this->authorize('member', $payment->group);
         $reaction = $payment->reactions()
             ->where('user_id', $user->id)
             ->first();
