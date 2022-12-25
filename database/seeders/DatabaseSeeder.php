@@ -63,15 +63,6 @@ class DatabaseSeeder extends Seeder
                     'group_id' => $csocsort->id,
                     'buyer_id' => $user->id
                 ]);
-            foreach ($purchases as $purchase) {
-                $ids = [];
-                foreach ($csocsort->members as $member) {
-                    if (rand(0, 1) == 0)
-                        $ids[] = $member->id;
-                }
-                if (count($ids) == 0) $ids[] = $csocsort->members->first()->id;
-                $purchase->createReceivers($ids);
-            }
             //payment
             Payment::factory()->count(rand(3, 10))
                 ->create([

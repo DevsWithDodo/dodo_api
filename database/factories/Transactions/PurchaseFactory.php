@@ -30,4 +30,23 @@ class PurchaseFactory extends Factory
             'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440))
         ];
     }
+
+    /**
+     * Configure the model factory.
+     *
+     * @return $this
+     */
+    public function configure()
+    {
+        return $this->afterCreating(function (Purchase $purchase) {
+            //create random number of receivers
+            $receivers = [];
+            for ($i = 0; $i < rand(1, 5); $i++) {
+                $receivers[] = [
+                    'user_id' => $purchase->group->members->random()->id,
+                ];
+            }
+            $purchase->syncReceivers($receivers, $purchase->group->currency, $purchase->group->currency);
+        });
+    }
 }
