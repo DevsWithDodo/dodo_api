@@ -17,7 +17,7 @@ class BlockGuests
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::guard('api')->user()->is_guest)
+        if(Auth::guard('api')->user() && Auth::guard('api')->user()->is_guest)
             return response()->json(['error' => __('errors.unauthorized_for_guests')], 403);
         return $next($request);
     }

@@ -16,7 +16,7 @@ class Payment extends Model
 
     protected $table = 'payments';
 
-    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note'];
+    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note', 'original_amount', 'original_currency'];
 
     public function getNoteAttribute($value)
     {

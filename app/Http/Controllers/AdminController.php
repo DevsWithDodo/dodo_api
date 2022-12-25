@@ -154,7 +154,7 @@ class AdminController extends Controller {
 
     public function sendAccessMail() {
         $url = URL::temporarySignedRoute('admin.index', now()->addMinutes(30));
-        if(env('APP_DEBUG') || env('DEVELOPER_EMAIL')==null){
+        if(env('APP_DEBUG') || env('DEVELOPER_EMAIL', null)==null){
             return $url;
         }
         Mail::to(config('app.admin_email'))->send(new AdminAccess($url));
