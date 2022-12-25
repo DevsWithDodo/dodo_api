@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Rules\IsMember;
 use Carbon\Carbon;
 
@@ -39,23 +40,26 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-        $payer = auth('api')->user();
         $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
+            'payer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'not_in:' . $payer->id, new IsMember($group)],
+            'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        $taker = User::findOrFail($request->taker_id);
 
         $this->authorize('view', $group);
 
+        $currency = $request->currency ?? $group->currency;
         Payment::create([
-            'amount' => $request->amount,
+            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
+            'original_amount' => $request->amount,
+            'original_currency' => $currency,
             'group_id' => $group->id,
-            'taker_id' => $taker->id,
-            'payer_id' => $payer->id,
+            'taker_id' => $request->taker_id,
+            'payer_id' => $request->payer_id ?? auth('api')->user()->id,
             'note' => $request->note ?? null
         ]);
         return response()->json(null, 204);
@@ -64,15 +68,25 @@ class PaymentController extends Controller
     public function update(Request $request, Payment $payment)
     {
         $this->authorize('update', $payment);
-        $payer = auth('api')->user();
+        $group = $payment->group;
         $validator = Validator::make($request->all(), [
+            'payer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($payment->group)],
+            'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $payment->update($request->only('amount', 'taker_id', 'note'));
+        $currency = $request->currency ?? $group->currency;
+        $payment->update([
+            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
+            'original_amount' => $request->amount,
+            'original_currency' => $currency,
+            'taker_id' => $request->taker_id,
+            'payer_id' => $request->payer_id ?? auth('api')->user()->id,
+            'note' => $request->note ?? null
+        ]);
 
         return response()->json(null, 204);
     }

@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Transactions\Purchase;
 use Illuminate\Support\Facades\Artisan;
 use App\Group;
-use App\Http\Controllers\CurrencyController;
 use App\User;
 
 class PurchaseTest extends TestCase
@@ -136,22 +135,22 @@ class PurchaseTest extends TestCase
 
 
         $this->assertEqualsWithDelta(
-            CurrencyController::exchangeCurrency('EUR', 'HUF', 100-(100-25)/2),
+            400* (100-(100-25)/2),
             $group->member($users[0]->id)->member_data->balance,
             1
         );
         $this->assertEqualsWithDelta(
-            CurrencyController::exchangeCurrency('EUR', 'HUF', -10),
+            400 * -10,
             $group->member($users[1]->id)->member_data->balance,
             1
         );
         $this->assertEqualsWithDelta(
-            CurrencyController::exchangeCurrency('EUR', 'HUF', -15),
+            400 * -15,
             $group->member($users[2]->id)->member_data->balance,
             1
         );
         $this->assertEqualsWithDelta(
-            CurrencyController::exchangeCurrency('EUR', 'HUF', -(100-25)/2),
+            400 * -(100-25)/2,
             $group->member($users[3]->id)->member_data->balance,
             1
         );

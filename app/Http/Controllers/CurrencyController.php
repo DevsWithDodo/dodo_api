@@ -15,18 +15,30 @@ class CurrencyController extends Controller
      */
     public static function currencyRates(): array
     {
-        return Cache::remember('currencies', Carbon::tomorrow(), function () {
-            $ch = curl_init('http://api.exchangeratesapi.io/latest?access_key=' . config('app.exchange_rates_access_key'));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $json = curl_exec($ch);
-            curl_close($ch);
-
-            $result = json_decode($json, true);
-            Log::info('Currencies refreshed', [$result]);
-            $result['rates']['EUR'] = 1;
-            $result['rates']['CML'] = $result['rates']['HUF']; //Camel currency (1 CML = 1 HUF)
-            return $result;
-        });
+        if (config('app.exchange_rates_access_key')){
+            return Cache::remember('currencies', Carbon::tomorrow(), function () {
+                $ch = curl_init('http://api.exchangeratesapi.io/latest?access_key=' . config('app.exchange_rates_access_key'));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $json = curl_exec($ch);
+                curl_close($ch);
+    
+                $result = json_decode($json, true);
+                Log::info('Currencies refreshed', [$result]);
+                $result['rates']['EUR'] = 1;
+                $result['rates']['CML'] = $result['rates']['HUF']; //Camel currency (1 CML = 1 HUF)
+                return $result;
+            });
+        } else {
+            return [
+                'base' => 'EUR',
+                'rates' => [
+                    'EUR' => 1,
+                    'HUF' => 400,
+                    'DKK' => 10
+                ]
+            ];
+        }
+        
     }
 
     private static function getBaseCurrency(): string

@@ -61,7 +61,7 @@ class PurchaseController extends Controller
         $purchase_data['buyer_id'] = $request->buyer_id ?? auth('api')->user()->id;
         $purchase_data['group_id'] = $group->id;
         $purchase_data['group_currency'] = $group->currency;
-        $purchase_data['original_currency'] = $request->currency ?? $group->currency;;
+        $purchase_data['original_currency'] = $request->currency ?? $group->currency;
 
         Purchase::createWithReceivers($purchase_data);
 
