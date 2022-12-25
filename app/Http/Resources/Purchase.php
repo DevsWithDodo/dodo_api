@@ -27,6 +27,7 @@ class Purchase extends JsonResource
             'total_amount' => round(floatval($this->amount), 2),
             'original_total_amount' => round(floatval($this->original_amount), 2),
             'original_currency' => $this->original_currency,
+            'category' => $this->category,
             'receivers' => PurchaseReceiver::collection($this->receivers),
             'reactions' => Reaction::collection($this->reactions)
         ];

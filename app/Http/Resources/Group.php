@@ -16,7 +16,8 @@ class Group extends JsonResource
             'admin_approval' => $this->admin_approval,
             'invitation' => $this->invitation,
             'boosted' => $this->boosted,
-            'members' => Member::collection($this->members)
+            'members' => Member::collection($this->members),
+            'custom_categories' => $this->custom_categories,
         ];
     }
 }

@@ -19,6 +19,7 @@ class Payment extends JsonResource
             'amount' => round(floatval($this->amount), 2),
             'original_amount' => round(floatval($this->original_amount), 2),
             'original_currency' => $this->original_currency,
+            'category' => $this->category,
             'note' => $this->note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
