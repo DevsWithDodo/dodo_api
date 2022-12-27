@@ -26,6 +26,15 @@ class UserController extends Controller
         return 'username';
     }
 
+    public function validateUsername(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+        return response()->json(null, 204);
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [

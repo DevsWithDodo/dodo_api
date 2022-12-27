@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
-Route::post('register',         [UserController::class, 'register'])->name('user.register');
-Route::post('login',            [UserController::class, 'login'])->name('user.login');
-Route::get('password_reminder', [UserController::class, 'passwordReminder'])->name('user.password_reminder');
+Route::post('validate_username', [UserController::class, 'validateUsername']);
+Route::post('register',          [UserController::class, 'register'])->name('user.register');
+Route::post('login',             [UserController::class, 'login'])->name('user.login');
+Route::get('password_reminder',  [UserController::class, 'passwordReminder'])->name('user.password_reminder');
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
