@@ -30,7 +30,7 @@ class Purchase extends Model
         $this->original_currency = $purchase_data['original_currency'];
         $this->amount = CurrencyController::exchangeCurrency($purchase_data['original_currency'], $purchase_data['group_currency'], $purchase_data['amount']);
         $this->original_amount = $purchase_data['amount'];
-        $this->category = $purchase_data['category'];
+        $this->category = $purchase_data['category'] ?? null;
         $this->save();
 
         $this->syncReceivers($purchase_data['receivers'], $purchase_data['original_currency'], $purchase_data['group_currency']);

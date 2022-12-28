@@ -42,7 +42,7 @@ class Group extends Model
                 'bills',
                 'other'
             ],
-            $this->boosted ? array_keys($this->custom_categories) : []
+            $this->boosted ? array_keys($this->custom_categories ?? []) : []
         );
     }
 
