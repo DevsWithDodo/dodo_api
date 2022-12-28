@@ -173,11 +173,10 @@ class UserController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'username' => ['required', 'string', 'exists:users,username'],
             'group_count' => ['required', 'numeric', 'min:0'],
             'currency' => ['required', Rule::in(CurrencyController::CurrencyList())],
-            'groups' => 'required|array|size:'.max(min($request->group_count, 1), 3),
-            'groups.*.name' => 'required|string|exists:groups,name',
+            'groups' => 'required|array|size:'.min(max($request->group_count, 1), 3),
+            'groups.*.name' => 'required|string',
             'groups.*.nickname' => 'nullable|string',
             'groups.*.balance' => 'nullable|numeric',
             'groups.*.last_transaction_amount' => 'nullable|numeric',
@@ -192,6 +191,10 @@ class UserController extends Controller
 
         foreach ($request->groups as $group_data) {
             $group = $user->groups()->firstWhere('name', $group_data['name']);
+            if(!$group){
+                $fails = $fails + 2;
+                continue;
+            }
             $member_data = $group->member($user->id)->member_data;
             $this->testKnowledgeString($member_data->nickname, $group_data['nickname'], $fails);
             $this->testKnowledgeNumber($member_data->balance, $group_data['balance'], $fails, 1);
@@ -204,20 +207,20 @@ class UserController extends Controller
             $last_purchase_received = $group->purchaseReceivers()->where('receiver_id', $user->id)->orderBy('created_at', 'desc')->first();
 
             $purchase_date_fail = 0;
-            $this->testKnowledgeDate($last_payment->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
-            $this->testKnowledgeDate($last_purchase_paid->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
-            $this->testKnowledgeDate($last_purchase_received->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_payment?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_paid?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_received?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
             $purchase_amount_fail = 0;
-            $this->testKnowledgeNumber($last_payment->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
-            $this->testKnowledgeNumber($last_purchase_paid->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
-            $this->testKnowledgeNumber($last_purchase_received->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_payment?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_paid?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_received?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
             if($purchase_date_fail == 3) $fails++;
             if($purchase_amount_fail == 3) $fails++;
         }
 
         if($fails <= min($request->group_count, 1)) {
             return response()->json([
-                'url' => URL::temporarySignedRoute('forgot_password', now()->addMinutes(5), ['username' => $user->username])
+                'url' => URL::temporarySignedRoute('user.forgot_password', now()->addMinutes(5), ['username' => $user->username])
             ]);
         } else {
             return abort(400, 'The given data is incorrect.');
@@ -227,17 +230,17 @@ class UserController extends Controller
 
     private function testKnowledgeString($expected, $given, &$fails)
     {
-       if($expected != $given) $fails++;
+       if($expected && $expected != $given) $fails++;
     }
 
     private function testKnowledgeNumber($expected, $given, &$fails, $delta = 0)
     {
-        if(abs($expected - $given) > $delta) $fails++;
+        if($expected &&abs($expected - $given) > $delta) $fails++;
     }
 
     private function testKnowledgeDate($expected, $given, &$fails, $delta = 0)
     {
-        if(Carbon::parse($expected)->diff(Carbon::parse($given))->days > $delta) $fails++;
+        if($expected && Carbon::parse($expected)->diff(Carbon::parse($given))->days > $delta) $fails++;
     }
 
     public function balance(Request $request)

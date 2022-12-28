@@ -141,6 +141,11 @@ class Group extends Model
         return $this->hasMany('App\Transactions\Purchase');
     }
 
+    public function purchaseReceivers(): HasMany
+    {
+        return $this->hasMany('App\Transactions\PurchaseReceiver');
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany('App\Transactions\Payment');
