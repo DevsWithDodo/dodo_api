@@ -15,7 +15,8 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
 
 use App\User;
-
+use Carbon\Carbon;
+use URL;
 
 class UserController extends Controller
 {
@@ -156,6 +157,87 @@ class UserController extends Controller
         } catch (DecryptException $e) {
             return abort(500, 'Decryption error.');
         }
+    }
+
+    public function forgotPassword(Request $request, string $username)
+    {
+        $user = User::where('username', $request->username)->firstOrFail();
+
+        if($request->hasValidSignature()) {
+            $validator = Validator::make($request->all(), [
+                'password' => ['required', 'string', 'min:4', 'confirmed'],
+            ]);
+            if ($validator->fails()) abort(400, $validator->errors()->first());
+            $user->update(['password' => Hash::make($request->password)]);
+            return response()->json(null, 204);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'string', 'exists:users,username'],
+            'group_count' => ['required', 'numeric', 'min:0'],
+            'currency' => ['required', Rule::in(CurrencyController::CurrencyList())],
+            'groups' => 'required|array|size:'.max(min($request->group_count, 1), 3),
+            'groups.*.name' => 'required|string|exists:groups,name',
+            'groups.*.nickname' => 'nullable|string',
+            'groups.*.balance' => 'nullable|numeric',
+            'groups.*.last_transaction_amount' => 'nullable|numeric',
+            'groups.*.last_transaction_date' => 'nullable|date',
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        $fails = 0;
+
+        $this->testKnowledgeNumber($user->groups->count(), $request->group_count, $fails);
+        $this->testKnowledgeString($user->default_currency, $request->currency, $fails);
+
+        foreach ($request->groups as $group_data) {
+            $group = $user->groups()->firstWhere('name', $group_data['name']);
+            $member_data = $group->member($user->id)->member_data;
+            $this->testKnowledgeString($member_data->nickname, $group_data['nickname'], $fails);
+            $this->testKnowledgeNumber($member_data->balance, $group_data['balance'], $fails, 1);
+
+            $last_payment = $group->payments()->where(function ($query) use ($user) {
+                $query->where('payer_id', $user->id)->orWhere('taker_id', $user->id);
+            })->orderBy('created_at', 'desc')->first();
+
+            $last_purchase_paid = $group->purchases()->where('payer_id', $user->id)->orderBy('created_at', 'desc')->first();
+            $last_purchase_received = $group->purchaseReceivers()->where('receiver_id', $user->id)->orderBy('created_at', 'desc')->first();
+
+            $purchase_date_fail = 0;
+            $this->testKnowledgeDate($last_payment->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_paid->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_received->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $purchase_amount_fail = 0;
+            $this->testKnowledgeNumber($last_payment->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_paid->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_received->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            if($purchase_date_fail == 3) $fails++;
+            if($purchase_amount_fail == 3) $fails++;
+        }
+
+        if($fails <= min($request->group_count, 1)) {
+            return response()->json([
+                'url' => URL::temporarySignedRoute('forgot_password', now()->addMinutes(5), ['username' => $user->username])
+            ]);
+        } else {
+            return abort(400, 'The given data is incorrect.');
+        }
+
+    }
+
+    private function testKnowledgeString($expected, $given, &$fails)
+    {
+       if($expected != $given) $fails++;
+    }
+
+    private function testKnowledgeNumber($expected, $given, &$fails, $delta = 0)
+    {
+        if(abs($expected - $given) > $delta) $fails++;
+    }
+
+    private function testKnowledgeDate($expected, $given, &$fails, $delta = 0)
+    {
+        if(Carbon::parse($expected)->diff(Carbon::parse($given))->days > $delta) $fails++;
     }
 
     public function balance(Request $request)

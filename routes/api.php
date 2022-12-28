@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
-Route::post('validate_username', [UserController::class, 'validateUsername']);
-Route::post('register',          [UserController::class, 'register'])->name('user.register');
-Route::post('login',             [UserController::class, 'login'])->name('user.login');
-Route::get('password_reminder',  [UserController::class, 'passwordReminder'])->name('user.password_reminder');
+Route::post('validate_username',         [UserController::class, 'validateUsername']);
+Route::post('register',                  [UserController::class, 'register'])->name('user.register');
+Route::post('login',                     [UserController::class, 'login'])->name('user.login');
+Route::get('password_reminder',          [UserController::class, 'passwordReminder'])->name('user.password_reminder');
+Route::put('forgot_password/{username}', [UserController::class, 'forgotPassword'])->name('user.forgot_password');
+
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
@@ -97,7 +99,7 @@ Route::get('/groups/{group}/export/get_link_xls', function (\App\Group $group) {
 Route::get('/groups/{group}/export_xls/{language}', [GroupController::class, 'exportXls'])->name('export_xls');
 Route::get('groups/{group}/export/get_link_pdf', function (\App\Group $group) {
     return URL::temporarySignedRoute('export_pdf', now()->addMinutes(1), ['group' => $group, 'language' => 'hu']); // . auth('api')->user()->language;
-})->middleware(['auth:api']); 
+})->middleware(['auth:api']);
 Route::get('/groups/{group}/export_pdf/{language}', [GroupController::class, 'exportPdf'])->name('export_pdf');
 
 
