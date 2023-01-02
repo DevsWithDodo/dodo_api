@@ -18,19 +18,34 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user();
+
         $group = Group::findOrFail($request->group);
         $this->authorize('member', $group);
+
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'nullable|date',
+            'until_date' => 'nullable|date',
+            'category' => ['nullable', Rule::in($group->categories)],
+            'user_id' => ['nullable', new IsMember($group)],
+            'limit' => 'nullable|numeric|min:0'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
         $until_date = Carbon::parse($request->until_date ?? now())->addDay();
 
+        $user_id = $request->user_id ?? auth('api')->user()->id;
+
         $payments = $group->payments()
             ->whereBetween('updated_at', [$from_date,$until_date])
-            ->where(function ($query) use ($user) {
-                return $query->where('taker_id', $user->id)
-                    ->orWhere('payer_id', $user->id);
-            })
+            ->where(function ($query) use ($user_id) {
+                return $query->where('taker_id', $user_id)
+                    ->orWhere('payer_id', $user_id);
+            });
+
+        if ($request->category) $payments = $payments->where('category', $request->category);
+
+        $payments = $payments
             ->orderBy('updated_at', 'desc')
             ->with('reactions')
             ->limit($request->limit)

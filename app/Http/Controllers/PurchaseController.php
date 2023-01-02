@@ -18,22 +18,36 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user();
         $group = Group::findOrFail($request->group);
         $this->authorize('member', $group);
+
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'nullable|date',
+            'until_date' => 'nullable|date',
+            'category' => ['nullable', Rule::in($group->categories)],
+            'user_id' => ['nullable', new IsMember($group)],
+            'limit' => 'nullable|numeric|min:0'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
         $until_date = Carbon::parse($request->until_date ?? now())->addDay();
 
+        $user_id = $request->user_id ?? auth('api')->user()->id;
+
         $purchases = $group->purchases()
             ->whereBetween('updated_at', [$from_date,$until_date])
-            ->where(function ($query) use ($user) {
+            ->where(function ($query) use ($user_id) {
                 $query
-                    ->whereHas('receivers', function ($query) use ($user) {
-                        $query->where('receiver_id', $user->id);
+                    ->whereHas('receivers', function ($query) use ($user_id) {
+                        $query->where('receiver_id', $user_id);
                     })
-                    ->orWhere('buyer_id', $user->id);
-            })
+                    ->orWhere('buyer_id', $user_id);
+            });
+
+        if ($request->category) $purchases = $purchases->where('category', $request->category);
+
+        $purchases = $purchases
             ->orderBy('purchases.updated_at', 'desc')
             ->limit($request->limit)
             ->with('receivers')
