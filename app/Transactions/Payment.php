@@ -25,6 +25,11 @@ class Payment extends Model
         return $value;
     }
 
+    public function getEdtiableAttribute()
+    {
+       return $this->group->members()->whereIn('id', [$this->taker_id, $this->payer_id])->count() == 2;
+    }
+
     public function payer(): BelongsTo
     {
         return $this->belongsTo('App\User', 'payer_id');

@@ -29,7 +29,8 @@ class Purchase extends JsonResource
             'original_currency' => $this->original_currency,
             'category' => $this->category,
             'receivers' => PurchaseReceiver::collection($this->receivers),
-            'reactions' => Reaction::collection($this->reactions)
+            'reactions' => Reaction::collection($this->reactions),
+            'editable' => $this->editable
         ];
     }
 }

@@ -14,7 +14,6 @@ use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\Guest as GuestResource;
-use Illuminate\Support\Facades\Log;
 
 use App\Transactions\Payment;
 use App\User;

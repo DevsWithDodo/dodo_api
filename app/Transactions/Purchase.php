@@ -18,6 +18,13 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency', 'category'];
 
+    public function getEdtiableAttribute()
+    {
+        $receiver_ids = array_merge($this->receivers->pluck('receiver_id')->toArray());
+        return $this->group->members()->whereIn('id', $receiver_ids)->count() == count($receiver_ids)
+            && $this->group->members()->where('id', $this->buyer_id)->exists();
+    }
+
     public static function createWithReceivers(array $purchase_data) {
         $purchase = new Purchase();
         $purchase->group_id = $purchase_data['group_id'];
