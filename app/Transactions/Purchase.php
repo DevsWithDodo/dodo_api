@@ -66,7 +66,7 @@ class Purchase extends Model
         $old_receivers_to_update = [];
         //handle old receivers
         foreach ($this->receivers as $receiver) {
-            if(in_array($receiver->user_id, $receiver_user_ids)) {
+            if(in_array($receiver->receiver_id, $receiver_user_ids)) {
                 $old_receivers_to_update[$receiver->receiver_id] = $receiver;
             } else {
                 $receiver->delete();
