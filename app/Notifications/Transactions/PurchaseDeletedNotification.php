@@ -31,6 +31,7 @@ class PurchaseDeletedNotification extends Notification //implements ShouldQueue
         return NotificationMaker::makeFcmMessage(
             title: __('notifications.purchase.deleted'),
             message_parts: [
+                'user' => Group::nicknameOf($group->id, $this->purchase->buyer_id),
                 'purchase' => $this->purchase->name,
                 'amount' => round(floatval($this->purchase->amount), 2) . " " . $group->currency,
                 'deleted',

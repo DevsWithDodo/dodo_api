@@ -29,9 +29,7 @@ class PaymentCreatedNotification extends Notification //implements ShouldQueue
     {
         $group = $this->payment->group;
         return NotificationMaker::makeFcmMessage(
-            title: __('notifications.payment.created', [
-                'group' => $group->name
-            ]),
+            title: __('notifications.payment.created'),
             message_parts: [
                 'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
                 'to_user' => Group::nicknameOf($group->id, $this->payment->taker_id),

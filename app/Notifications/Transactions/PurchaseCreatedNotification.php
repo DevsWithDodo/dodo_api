@@ -28,11 +28,14 @@ class PurchaseCreatedNotification extends Notification //implements ShouldQueue
     public function toFcm($notifiable)
     {
         $group = $this->purchase->group;
+        $receivers = $this->purchase->receivers->map(function($receiver) use ($group) {
+            return Group::nicknameOf($group->id, $receiver->receiver_id);
+        });
         return NotificationMaker::makeFcmMessage(
-            title: __('notifications.purchase.created', [
-                'group' => $group->name
-            ]),
+            title: __('notifications.purchase.created'),
             message_parts: [
+                'user' => Group::nicknameOf($group->id, $this->purchase->buyer_id),
+                'to_user' => $receivers->implode(', '),
                 'purchase' => $this->purchase->name,
                 'amount' => round(floatval($this->purchase->amount), 2) . " " . $group->currency,
                 'group' => $group->name,
