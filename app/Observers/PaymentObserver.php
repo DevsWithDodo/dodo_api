@@ -72,7 +72,7 @@ class PaymentObserver
             //notify new taker
             $payment->taker->sendNotification(new PaymentCreatedNotification($payment));
         } else if ($diff != 0) {
-            Group::addToMemberBalance($payment->group_id, $payment->taker_id, $diff);
+            Group::addToMemberBalance($payment->group_id, $payment->taker_id, (-1) * $diff);
             $payment->taker->sendNotification(new PaymentUpdatedNotification($payment));
         }
     }
