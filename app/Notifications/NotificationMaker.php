@@ -30,7 +30,9 @@ class NotificationMaker
                 $message .= " " . self::signs['deleted'];
                 continue;
             }
-            $message .= ($i++ && !in_array($key, ['to_user', 'changed'])) ? "\n" : " ";
+            if($i++) {
+                $message .= (in_array($key, ['to_user', 'changed'])) ? " " : "\n";
+            }
             if ($sign = self::signs[$key] ?? false) {
                 $message .= $sign . " " . $value;
             } else {
