@@ -116,7 +116,7 @@ class UserController extends Controller
             'default_currency' => ['string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'old_password' => 'required_with:new_password|string|password',
             'new_password' => 'string|min:4|confirmed',
-            'password_reminder' => 'required_with:new_password|string',
+            'password_reminder' => 'nullable|string', //deprecated
             'theme' => 'string',
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
@@ -129,7 +129,7 @@ class UserController extends Controller
             'language' => $request->language,
             'default_currency' => $request->default_currency,
             'password' => $request->new_password ? Hash::make($request->new_password) : null,
-            'password_reminder' => $request->new_password ? Crypt::encryptString($request->password_reminder) : null,
+            'password_reminder' => $request->password_reminder ? Crypt::encryptString($request->password_reminder) : null, //deprecated
             'ad_free' => $request->ad_free,
             'gradients_enabled' => $request->gradients_enabled,
             'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
