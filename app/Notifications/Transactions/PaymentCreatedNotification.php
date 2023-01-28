@@ -9,7 +9,7 @@ use NotificationChannels\Fcm\FcmChannel;
 
 use App\Transactions\Payment;
 
-class PaymentDeletedNotification extends Notification //implements ShouldQueue
+class PaymentCreatedNotification extends Notification //implements ShouldQueue
 {
     //use Queueable;
 
@@ -29,12 +29,13 @@ class PaymentDeletedNotification extends Notification //implements ShouldQueue
     {
         $group = $this->payment->group;
         return NotificationMaker::makeFcmMessage(
-            title: __('notifications.payment.deleted'),
+            title: __('notifications.payment.created', [
+                'group' => $group->name
+            ]),
             message_parts: [
                 'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
                 'to_user' => Group::nicknameOf($group->id, $this->payment->taker_id),
                 'amount' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
-                'deleted',
                 'message' => $this->payment->note,
                 'group' => $group->name,
             ],
@@ -44,9 +45,9 @@ class PaymentDeletedNotification extends Notification //implements ShouldQueue
                 'group_name' => $group->name,
                 'currency' => $group->currency,
                 'details' => 'payment',
-                'channel_id' => 'payment_deleted'
+                'channel_id' => 'payment_created'
             ],
-            channel_id: 'payment_deleted'
+            channel_id: 'payment_created'
         );
     }
 }

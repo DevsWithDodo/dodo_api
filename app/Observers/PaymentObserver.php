@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\User;
 use App\Group;
 use App\Transactions\Payment;
-use App\Notifications\Transactions\PaymentNotification;
+use App\Notifications\Transactions\PaymentCreatedNotification;
 use App\Notifications\Transactions\PaymentUpdatedNotification;
 use App\Notifications\Transactions\PaymentDeletedNotification;
 use Illuminate\Support\Facades\Log;
@@ -26,16 +26,8 @@ class PaymentObserver
         Group::addToMemberBalance($payment->group_id, $payment->payer_id, $payment->amount);
         Group::addToMemberBalance($payment->group_id, $payment->taker_id, (-1) * $payment->amount);
 
-        $user = $payment->taker;
-        if (auth('api')->user() && $user->id != auth('api')->user()->id) {
-            try {
-                $user->notify((new PaymentNotification($payment))->locale($user->language));
-            } catch (\Exception $e) {
-                Log::error('FCM error', ['error' => $e]);
-            }
-        }
-
-
+        $payment->taker->sendNotification(new PaymentCreatedNotification($payment));
+        $payment->payer->sendNotification(new PaymentCreatedNotification($payment));
     }
 
     /**
@@ -46,53 +38,42 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
-        if (config('app.debug'))
-            Log::info('payment updated', ["payment" => $payment]);
         $old_payment = $payment->getOriginal();
-        $group = $payment->group;
-        $diff = bcsub($payment->amount, $old_payment['amount']);
+        $diff = bcsub($old_payment['amount'], $payment->amount);
 
-        if ($diff != 0) {
-            //amount is different
-            Group::addToMemberBalance($group->id, $payment->payer_id, $diff);
-            if ($old_payment['taker_id'] == $payment->taker_id) {
-                //taker is the same
-                Group::addToMemberBalance($group->id, $payment->taker_id, (-1) * $diff);
-                $user = $payment->taker;
-                if (auth('api')->user() && $user->id != auth('api')->user()->id) {
-                    try {
-                        $user->notify((new PaymentUpdatedNotification($payment))->locale($user->language));
-                    } catch (\Exception $e) {
-                        Log::error('FCM error', ['error' => $e]);
-                    }
-                }
-            }
+        if (config('app.debug'))
+            Log::info('payment updated', ["payment" => $payment, "old payment" => $payment->getOriginal()]);
+
+        if ($old_payment['payer_id'] != $payment->payer_id) {
+            //modify payer balances
+            Group::addToMemberBalance($payment->group_id, $old_payment['payer_id'], (-1) * $old_payment['amount']);
+            Group::addToMemberBalance($payment->group_id, $payment->payer_id, $payment->amount);
+
+            //notify old payer
+            $payer = User::find($old_payment['payer_id']);
+            if($payer) $payer->sendNotification(new PaymentDeletedNotification($payment));
+
+            //notify new payer
+            $payment->payer->sendNotification(new PaymentCreatedNotification($payment));
+        } else if ($diff != 0) {
+            Group::addToMemberBalance($payment->group_id, $payment->payer_id, $diff);
+            $payment->payer->sendNotification(new PaymentUpdatedNotification($payment));
         }
 
-        if ($old_payment['taker_id'] != $payment->taker_id) {
-            //taker is different
-            Group::addToMemberBalance($group->id, $old_payment['taker_id'], $old_payment['amount']);
-            Group::addToMemberBalance($group->id, $payment->taker_id, (-1) * $payment->amount);
+        if($old_payment['taker_id'] != $payment->taker_id) {
+            //modify taker balances
+            Group::addToMemberBalance($payment->group_id, $old_payment['taker_id'], $old_payment['amount']);
+            Group::addToMemberBalance($payment->group_id, $payment->taker_id, (-1) * $payment->amount);
 
             //notify old taker
-            $user = User::find($old_payment['taker_id']);
-            if (auth('api')->user() && $user->id != auth('api')->user()->id) {
-                try {
-                    $user->notify((new PaymentDeletedNotification($payment))->locale($user->language));
-                } catch (\Exception $e) {
-                    Log::error('FCM error', ['error' => $e]);
-                }
-            }
+            $taker = User::find($old_payment['taker_id']);
+            if($taker) $payer->sendNotification(new PaymentDeletedNotification($payment));
 
             //notify new taker
-            $user = $payment->taker;
-            if (auth('api')->user() && $user->id != auth('api')->user()->id) {
-                try {
-                    $user->notify((new PaymentNotification($payment))->locale($user->language));
-                } catch (\Exception $e) {
-                    Log::error('FCM error', ['error' => $e]);
-                }
-            }
+            $payment->taker->sendNotification(new PaymentCreatedNotification($payment));
+        } else if ($diff != 0) {
+            Group::addToMemberBalance($payment->group_id, $payment->taker_id, $diff);
+            $payment->taker->sendNotification(new PaymentUpdatedNotification($payment));
         }
     }
 
@@ -108,14 +89,8 @@ class PaymentObserver
             Log::info('payment deleted', ["payment" => $payment]);
         Group::addToMemberBalance($payment->group_id, $payment->payer_id, (-1) * $payment->amount);
         Group::addToMemberBalance($payment->group_id, $payment->taker_id, $payment->amount);
-        $user = $payment->taker;
-        if (auth('api')->user() && $user->id != auth('api')->user()->id) {
-            try {
-                $user->notify((new PaymentDeletedNotification($payment))->locale($user->language));
-            } catch (\Exception $e) {
-                Log::error('FCM error', ['error' => $e]);
-            }
-        }
+        $payment->taker->sendNotification(new PaymentDeletedNotification($payment));
+        $payment->payer->sendNotification(new PaymentDeletedNotification($payment));
     }
 
     /**

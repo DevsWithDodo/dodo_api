@@ -10,18 +10,18 @@ use NotificationChannels\Fcm\FcmMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Transactions\Payment;
+use App\Transactions\PurchaseReceiver;
 
 
-class PaymentNotification extends Notification //implements ShouldQueue
+class ReceiverCreatedNotification extends Notification //implements ShouldQueue
 {
     //use Queueable;
 
-    public Payment $payment;
+    public PurchaseReceiver $receiver;
 
-    public function __construct(Payment $payment)
+    public function __construct(PurchaseReceiver $receiver)
     {
-        $this->payment = $payment;
+        $this->receiver = $receiver;
     }
 
     public function via($notifiable)
@@ -31,26 +31,24 @@ class PaymentNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $group = $this->payment->group;
+        $group = $this->receiver->purchase->group;
+        $purchase = $this->receiver->purchase;
         return NotificationMaker::makeFcmMessage(
-            title: __('notifications.payment.created', [
-                'group' => $group->name
-            ]),
+            title: __('notifications.purchase.created'),
             message_parts: [
-                'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
-                'amount' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
-                'message' => $this->payment->note,
-                'group' => $group->name,
+                'purchase' => $purchase->name,
+                'amount' => round(floatval($this->receiver->amount), 2) . " " . $group->currency,
+                'group' => $group->name
             ],
             payload: [
                 'screen' => 'home',
                 'group_id' => $group->id,
                 'group_name' => $group->name,
                 'currency' => $group->currency,
-                'details' => 'payment',
-                'channel_id' => 'payment_created'
+                'details' => 'purchase',
+                'channel_id' => 'purchase_created'
             ],
-            channel_id: 'payment_created'
+            channel_id: 'purchase_created'
         );
     }
 }

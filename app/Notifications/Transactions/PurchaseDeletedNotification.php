@@ -2,25 +2,22 @@
 
 namespace App\Notifications\Transactions;
 
-use Illuminate\Notifications\Notification;
-use NotificationChannels\Fcm\FcmChannel;
-use NotificationChannels\Fcm\FcmMessage;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
-use App\Transactions\PurchaseReceiver;
 use App\Group;
 use App\Notifications\NotificationMaker;
+use Illuminate\Notifications\Notification;
+use NotificationChannels\Fcm\FcmChannel;
 
-class ReceiverDeletedNotification extends Notification //implements ShouldQueue
+use App\Transactions\Purchase;
+
+class PurchaseDeletedNotification extends Notification //implements ShouldQueue
 {
     //use Queueable;
 
-    public PurchaseReceiver $receiver;
+    public Purchase $purchase;
 
-    public function __construct(PurchaseReceiver $receiver)
+    public function __construct(Purchase $purchase)
     {
-        $this->receiver = $receiver;
+        $this->purchase = $purchase;
     }
 
     public function via($notifiable)
@@ -30,14 +27,14 @@ class ReceiverDeletedNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $group = $this->receiver->group;
+        $group = $this->purchase->group;
         return NotificationMaker::makeFcmMessage(
             title: __('notifications.purchase.deleted'),
             message_parts: [
-                'purchase' => $this->receiver->purchase->name,
-                'amount' => round(floatval($this->receiver->amount), 2) . " " . $group->currency,
+                'purchase' => $this->purchase->name,
+                'amount' => round(floatval($this->purchase->amount), 2) . " " . $group->currency,
                 'deleted',
-                'group' => $group->name
+                'group' => $group->name,
             ],
             payload: [
                 'screen' => 'home',

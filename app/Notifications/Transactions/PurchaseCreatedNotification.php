@@ -6,22 +6,18 @@ use App\Group;
 use App\Notifications\NotificationMaker;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
-use NotificationChannels\Fcm\FcmMessage;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-use App\Transactions\PurchaseReceiver;
+use App\Transactions\Purchase;
 
-
-class ReceiverNotification extends Notification //implements ShouldQueue
+class PurchaseCreatedNotification extends Notification //implements ShouldQueue
 {
     //use Queueable;
 
-    public PurchaseReceiver $receiver;
+    public Purchase $purchase;
 
-    public function __construct(PurchaseReceiver $receiver)
+    public function __construct(Purchase $purchase)
     {
-        $this->receiver = $receiver;
+        $this->purchase = $purchase;
     }
 
     public function via($notifiable)
@@ -31,15 +27,15 @@ class ReceiverNotification extends Notification //implements ShouldQueue
 
     public function toFcm($notifiable)
     {
-        $group = $this->receiver->purchase->group;
-        $purchase = $this->receiver->purchase;
+        $group = $this->purchase->group;
         return NotificationMaker::makeFcmMessage(
-            title: __('notifications.purchase.created'),
-            message_parts: [
-                'user' => Group::nicknameOf($group->id, $purchase->buyer_id),
-                'purchase' => $purchase->name,
-                'amount' => round(floatval($this->receiver->amount), 2) . " " . $group->currency,
+            title: __('notifications.purchase.created', [
                 'group' => $group->name
+            ]),
+            message_parts: [
+                'purchase' => $this->purchase->name,
+                'amount' => round(floatval($this->purchase->amount), 2) . " " . $group->currency,
+                'group' => $group->name,
             ],
             payload: [
                 'screen' => 'home',

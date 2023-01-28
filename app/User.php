@@ -25,10 +25,10 @@ class User extends Authenticatable implements HasLocalePreference {
     use Notifiable, HasFactory;
 
     protected $fillable = [
-        'username', //returns guest if null
-        'password',
+        'username', //null on guests
+        'password', //null on guests
         'api_token',
-        'password_reminder',
+        'password_reminder', //deprecated
         'last_active_group',
         'default_currency',
         'fcm_token',
@@ -60,6 +60,7 @@ class User extends Authenticatable implements HasLocalePreference {
     public function getTrialAttribute($value): bool {
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
+            //TODO remove field
             $this->update(['trial' => 0]);
             $this->notify((new TrialEndedNotification())->locale($this->language));
             return false;
@@ -76,10 +77,12 @@ class User extends Authenticatable implements HasLocalePreference {
     }
 
     public function sendNotification($notification) {
-        try {
-            $this->notify($notification->locale($this->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
+        if($this->id != auth('api')->user()?->id){
+            try {
+                $this->notify($notification->locale($this->language));
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
         }
     }
 

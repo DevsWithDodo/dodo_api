@@ -4,6 +4,10 @@ namespace App\Observers;
 
 use App\Transactions\Purchase;
 use App\Group;
+use App\Notifications\Transactions\PurchaseCreatedNotification;
+use App\Notifications\Transactions\PurchaseDeletedNotification;
+use App\Notifications\Transactions\PurchaseUpdatedNotification;
+use App\User;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseObserver
@@ -19,6 +23,7 @@ class PurchaseObserver
         if (config('app.debug'))
             Log::info('purchase created', ["purchase" => $purchase]);
         Group::addToMemberBalance($purchase->group_id, $purchase->buyer_id, $purchase->amount);
+        $purchase->buyer->sendNotification(new PurchaseCreatedNotification($purchase));
     }
 
     /**
@@ -31,11 +36,24 @@ class PurchaseObserver
     {
         $old_purchase = $purchase->getOriginal();
         $group = $purchase->group;
-        $diff = bcsub($purchase->amount, $old_purchase['amount']);
-        if ($diff != 0) {
-            if (config('app.debug'))
-                Log::info('purchase updated', ["purchase" => $purchase]);
-            Group::addToMemberBalance($group->id, $purchase->buyer_id, $diff);
+        if (config('app.debug'))
+            Log::info('purchase updated', ["purchase" => $purchase, "old purchase" => $old_purchase]);
+
+        if($old_purchase['buyer_id'] == $purchase->buyer_id) {
+            $diff = bcsub($purchase->amount, $old_purchase['amount']);
+            if($diff != 0) {
+                Group::addToMemberBalance($group->id, $purchase->buyer_id, $diff);
+                $purchase->buyer->sendNotification(new PurchaseUpdatedNotification($purchase));
+            }
+        } else {
+            Group::addToMemberBalance($purchase->group_id, $old_purchase['buyer_id'], (-1) * $old_purchase['amount']);
+            Group::addToMemberBalance($purchase->group_id, $purchase->buyer_id, $purchase->amount);
+             //notify old buyer
+             $buyer = User::find($old_purchase['buyer_id']);
+             if($buyer) $buyer->sendNotification(new PurchaseDeletedNotification($purchase));
+
+             //notify new buyer
+             $purchase->buyer->sendNotification(new PurchaseCreatedNotification($purchase));
         }
     }
 

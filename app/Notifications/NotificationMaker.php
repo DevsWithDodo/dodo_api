@@ -11,6 +11,7 @@ class NotificationMaker
     const signs = [
         'group' => "👥",
         'user' => "👤",
+        'to_user' => "➡",
         'purchase' => "🛒",
         'amount' => "💰",
         'request_new' => "🙄",
@@ -29,7 +30,7 @@ class NotificationMaker
                 $message .= " " . self::signs['deleted'];
                 continue;
             }
-            if ($i++) $message .= "\n";
+            if ($i++ && !in_array($key, ['to_user', 'changed'])) $message .= "\n";
             if ($sign = self::signs[$key] ?? false) {
                 $message .= $sign . " " . $value;
             } else {

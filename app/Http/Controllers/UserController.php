@@ -42,7 +42,7 @@ class UserController extends Controller
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
-            'password_reminder' => ['required', 'string'],
+            'password_reminder' => 'nullable|string', //deprecated
             'fcm_token' => 'nullable|string',
             'language' => 'required|in:en,hu,it,de',
             'personalised_ads' => 'required|boolean'
@@ -52,7 +52,7 @@ class UserController extends Controller
         $user = User::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'password_reminder' => Crypt::encryptString($request->password_reminder),
+            'password_reminder' => Crypt::encryptString($request->password_reminder), //deprecated
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token ?? null,
             'language' => $request->language,

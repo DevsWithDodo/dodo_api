@@ -6,12 +6,8 @@ use App\Group;
 use App\Notifications\NotificationMaker;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
-use NotificationChannels\Fcm\FcmMessage;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Transactions\Payment;
-
 
 class PaymentUpdatedNotification extends Notification //implements ShouldQueue
 {
@@ -36,8 +32,10 @@ class PaymentUpdatedNotification extends Notification //implements ShouldQueue
             title: __('notifications.payment.updated'),
             message_parts: [
                 'user' => Group::nicknameOf($group->id, $this->payment->payer_id),
+                'to_user' => Group::nicknameOf($group->id, $this->payment->taker_id),
                 'amount' => round(floatval($this->payment->getOriginal('amount')), 2) . " " . $group->currency,
                 'changed' => round(floatval($this->payment->amount), 2) . " " . $group->currency,
+                'message' => $this->payment->note,
                 'group' => $group->name,
             ],
             payload: [
