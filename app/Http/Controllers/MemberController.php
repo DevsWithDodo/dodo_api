@@ -277,8 +277,31 @@ class MemberController extends Controller
         return response()->json(new UserResource($guest), 201);
     }
 
+    /**
+     * Merge a guest's data to a member's data and delete the guest.
+     **/
     public function mergeGuest(Request $request, Group $group)
     {
-        abort(400, 'This feature is not available anymore.');
+        $validator = Validator::make($request->all(), [
+            'member_id' => ['required', 'exists:users,id', new IsMember($group)],
+            'guest_id' => ['required', 'exists:users,id', new IsMember($group)],
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        $guest = User::findOrFail($request->guest_id);
+        $member = User::findOrFail($request->member_id);
+        $this->authorize('merge_guest', [$group, $guest]);
+
+        //the request is valid
+
+        $balance = $group->member($guest->id)->member_data->balance;
+
+        $guest->mergeDataInto($member->id);
+        $group->members()->detach($guest);
+        $guest->delete();
+
+        Group::addToMemberBalance($group->id, $member->id, $balance);
+
+        return response()->json(null, 204);
     }
 }
