@@ -13,24 +13,24 @@ return [
             //group
             'title' => 'New member',
             //user, group
-            'descr' => ':user just landed in :group! Be kind!',
+            'descr' => ':user is the newest bird in :group! Be kind!',
         ],
         'approve' => [
             //group
             'title' => "A user wants to join your group",
             //user, group
-            'descr' => "Approve or deny :user's request.",
+            'descr' => "Approve or deny :user's request in :group.",
         ],
         'approved' => [
             //group
             'title' => 'You became a member of :Group',
-            'descr' => 'An admin approved your join request.'
+            'descr' => 'An admin approved your request to join.'
         ],
         'promoted_to_admin' => [
             //group
             'title' => 'You bacame an admin!',
             //user, group'
-            'descr' => ':user promoted you to be an admin! From now on, you can edit the group\'s details and other members and guests in the group.',
+            'descr' => ':user promoted you to be an admin! From now on, you can edit the group\'s details and other members in the group.',
         ],
     ],
     'group' => [
