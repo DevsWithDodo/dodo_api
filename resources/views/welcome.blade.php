@@ -10,10 +10,10 @@
     <meta property="og:image:width" content="160" />
     <meta property="og:image:height" content="63" />
     <meta property="og:title" content="{{ config('app.name') }}" />
-    <meta property="og:description" content="Money and debt management app designed for groups" />
+    <meta property="og:description" content="Privacy-focused bill splitting" />
 
     <title>{{ config('app.name') }}</title>
-    <link rel="shortcut icon" href="/logo_color.png" type="image/png" />
+    <link rel="shortcut icon" href="/dodo_szines.png" type="image/png" />
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
@@ -26,32 +26,28 @@
 </head>
 
 <body>
-    <div class="flex-center position-ref full-height">
+    <div class="flex-center position-ref full-height main">
         <div class="top-right">
             <a href="https://github.com/machiato32/csocsort_app" target="_blank">
-                <img src="/GitHub_Logo.png" alt="Available on GitHub" height="25px">
+                <img src="/GitHub_Logo.png" alt="Available on GitHub" height="25px" style="filter: contrast(0%) brightness(100%)">
             </a>
         </div>
         <div class="content">
-            <img src="logo_color.png" height="200px">
-            <h1><span class="title">Lender</span></h1>
-            <h2>
-                <p class="large uppercase">Money and debt management app designed for groups</p>
-            </h2>
+            <div style="height: 200px">
+                <img src="dodo_szines.png" style="height: 200px">
+            </div>
+            <div style="display: flex; flex-direction: column">
+                <span class="title">Dodo</span>
+                <span class="large uppercase subtitle">Privacy-focused bill splitting</span>
+            </div>
         </div>
-        <div class="bottom">
+        <div style="display: flex; justify-content: center; flex-wrap: wrap">
             <a class="joinBtn" href="https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
-                <table>
-                    <tr>
-                        <td>
-                            <img src="/google_play_logo.png" height="31px" style="padding: 4px">
-                        </td>
-                        <td>
-                            <span class="join_group">GET IT ON</span><br>
-                            <span class="group_name">Google Play</span><br>
-                        </td>
-                    </tr>
-                </table>
+                <img src="/google_play_logo.png" style="height: 31px">
+                <div style="display: flex; flex-direction:column; justify-content: center;">
+                    <span class="join_group">Get it on</span>
+                    <span class="group_name">Google Play</span>
+                </div>
             </a>
             <!--<a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
                 <table>
@@ -66,31 +62,19 @@
                     </tr>
                 </table>
             </a>-->
-	    <a class="joinBtn" href="https://app.lenderapp.net">
-                <table>
-                    <tr>
-                        <td>
-                            <img src="/logo_color.png" height="38px">
-                        </td>
-                        <td>
-                            <span class="join_group">Use it</span><br>
-                            <span class="group_name">Online</span><br>
-                        </td>
-                    </tr>
-                </table>
+            <a class="joinBtn" href="https://app.lenderapp.net">
+                <img src="/dodo_szines.png" height="35px;">
+                <div style="display: flex; flex-direction:column; justify-content: center;">
+                    <span class="join_group">Use it</span>
+                    <span class="group_name">Online</span>
+                </div>
             </a>
-	    <a class="joinBtn" href="https://apps.microsoft.com/store/detail/lender-finances-for-groups/9NVB4CZJDSQ7?hl=en-us&gl=us">
-                <table>
-                    <tr>
-                        <td>
-                            <img src="/microsoft_logo.png" height="38px">
-                        </td>
-                        <td>
-                            <span class="join_group">Get it from</span><br>
-                            <span class="group_name">Microsoft</span><br>
-                        </td>
-                    </tr>
-                </table>
+            <a class="joinBtn" href="ms-windows-store://pdp/?productid=9NVB4CZJDSQ7">
+                <img src="/microsoft_logo.png" height="31px">
+                <div style="display: flex; flex-direction:column; justify-content: center;">
+                    <span class="join_group">Get it from</span>
+                    <span class="group_name">Microsoft</span>
+                </div>
             </a>
         </div>
     </div>
