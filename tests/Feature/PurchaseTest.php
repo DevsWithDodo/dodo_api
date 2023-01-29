@@ -92,8 +92,11 @@ class PurchaseTest extends TestCase
             foreach ($group->members as $member) {
                 $balance = bcadd($balance,  $member->member_data->balance);
             }
-            $this->assertEqualsWithDelta($purchase->amount,
-                $group->member($buyer->id)->member_data->balance, 0.01);
+            $this->assertEqualsWithDelta(
+                $purchase->amount,
+                $group->member($buyer->id)->member_data->balance,
+                0.01
+            );
             foreach ($group->members->except($buyer->id) as $user) {
                 $this->assertEqualsWithDelta(
                     (0 - ($purchase->amount / ($users->count() - 1))),
@@ -111,7 +114,6 @@ class PurchaseTest extends TestCase
      */
     public function customAmounts()
     {
-        Artisan::call('migrate');
         $group = Group::factory()->create(['currency' => 'HUF']);
         $users = User::factory()->count(4)->create();
         foreach ($users as $user) {
@@ -135,7 +137,7 @@ class PurchaseTest extends TestCase
 
 
         $this->assertEqualsWithDelta(
-            400* (100-(100-25)/2),
+            400 * (100 - (100 - 25) / 2),
             $group->member($users[0]->id)->member_data->balance,
             1
         );
@@ -150,7 +152,7 @@ class PurchaseTest extends TestCase
             1
         );
         $this->assertEqualsWithDelta(
-            400 * -(100-25)/2,
+            400 * - (100 - 25) / 2,
             $group->member($users[3]->id)->member_data->balance,
             1
         );

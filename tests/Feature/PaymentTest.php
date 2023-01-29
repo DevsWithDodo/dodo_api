@@ -51,47 +51,266 @@ class PaymentTest extends TestCase
      * @test
      * Update payment
      */
-    public function Update()
+    public function updateAmount()
     {
-        for ($i = 0; $i < 5; $i++) {
-            Artisan::call('migrate');
-            $group = Group::factory()->create();
-            $users = User::factory()->count(rand(3, 20))->create();
-            foreach ($users as $user) {
-                $group->members()->attach($user->id, ['nickname' => $user->username]);
-            }
-            $payer = $group->members->random();
-            $taker = $group->members->except($payer->id)->random();
-            $taker_2 = $group->members->except($payer->id)->random();
-            $payment = Payment::factory()->make();
-            $payment_2 = Payment::factory()->make();
-            $response = $this->actingAs($payer, 'api')
-                ->postJson(route('payments.store'), [
-                    'note' => $payment->note,
-                    'group' => $group->id,
-                    'taker_id' => $taker->id,
-                    'amount' => $payment->amount
-                ]);
-            $response->assertStatus(204);
-
-            $payment_created = $group->payments->first();
-            $response = $this->actingAs($payment_created->payer, 'api')
-                ->putJson(route('payments.update', $payment_created->id),  [
-                    'note' => $payment_2->name,
-                    'taker_id' => $taker_2->id,
-                    'amount' => $payment_2->amount
-                ]);
-            $response->assertStatus(204);
-
-            $balance = 0;
-            foreach ($group->members as $member) {
-                $balance = bcadd($balance, $member->member_data->balance);
-            }
-            $this->assertEquals($payment_2->amount, $group->member($payer->id)->member_data->balance);
-            $this->assertEquals((-1) * $payment_2->amount, $group->member($taker_2->id)->member_data->balance);
-            if ($taker->id != $taker_2->id)
-                $this->assertEquals(0, $group->member($taker->id)->member_data->balance);
-            $this->assertEquals(0, $balance);
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
         }
+        $payer = $users[0];
+        $taker = $users[1];
+        $payment = Payment::create([
+            'group_id' => $group->id,
+            'payer_id' => $payer->id,
+            'taker_id' => $taker->id,
+            'amount' => 100,
+        ]);
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 150
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            150,
+            $group->member($payer->id)->member_data->balance,
+            1
+        );
+        $this->assertEqualsWithDelta(
+            -150,
+            $group->member($taker->id)->member_data->balance,
+            1
+        );
+
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
+
+    }
+
+    /**
+     * @test
+     * Update payment
+     */
+    public function updatePayer()
+    {
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
+        }
+        $payer = $users[0];
+        $taker = $users[1];
+        $payment = Payment::create([
+            'group_id' => $group->id,
+            'payer_id' => $payer->id,
+            'taker_id' => $taker->id,
+            'amount' => 100,
+        ]);
+
+        $payer = $users[2];
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 150
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            0,
+            $group->member($users[0]->id)->member_data->balance,
+            1
+        );
+
+        $this->assertEqualsWithDelta(
+            150,
+            $group->member($payer->id)->member_data->balance,
+            1
+        );
+        $this->assertEqualsWithDelta(
+            -150,
+            $group->member($taker->id)->member_data->balance,
+            1
+        );
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
+
+    }
+
+    /**
+     * @test
+     * Update payment
+     */
+    public function updateTaker()
+    {
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
+        }
+        $payer = $users[0];
+        $taker = $users[1];
+        $payment = Payment::create([
+            'group_id' => $group->id,
+            'payer_id' => $payer->id,
+            'taker_id' => $taker->id,
+            'amount' => 100,
+        ]);
+
+        $taker = $users[2];
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 150
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            150,
+            $group->member($payer->id)->member_data->balance,
+            1
+        );
+
+        $this->assertEqualsWithDelta(
+            0,
+            $group->member($users[1]->id)->member_data->balance,
+            1
+        );
+        $this->assertEqualsWithDelta(
+            -150,
+            $group->member($taker->id)->member_data->balance,
+            1
+        );
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
+    }
+
+    /**
+     * @test
+     * Update payment
+     */
+    public function updateParticipants()
+    {
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
+        }
+        $payer = $users[0];
+        $taker = $users[1];
+        $payment = Payment::create([
+            'group_id' => $group->id,
+            'payer_id' => $payer->id,
+            'taker_id' => $taker->id,
+            'amount' => 100,
+        ]);
+
+        $payer = $users[2];
+        $taker = $users[3];
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 150
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            150,
+            $group->member($payer->id)->member_data->balance,
+            1
+        );
+
+        $this->assertEqualsWithDelta(
+            0,
+            $group->member($users[0]->id)->member_data->balance,
+            1
+        );
+        $this->assertEqualsWithDelta(
+            0,
+            $group->member($users[1]->id)->member_data->balance,
+            1
+        );
+        $this->assertEqualsWithDelta(
+            -150,
+            $group->member($taker->id)->member_data->balance,
+            1
+        );
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
+    }
+
+    /**
+     * @test
+     * Update payment
+     */
+    public function switchParticipants()
+    {
+        $group = Group::factory()->create(['currency' => 'HUF']);
+        $users = User::factory()->count(4)->create();
+        foreach ($users as $user) {
+            $group->members()->attach($user->id, ['nickname' => $user->username]);
+        }
+        $payer = $users[0];
+        $taker = $users[1];
+        $payment = Payment::create([
+            'group_id' => $group->id,
+            'payer_id' => $payer->id,
+            'taker_id' => $taker->id,
+            'amount' => 100,
+        ]);
+
+        $payer = $users[1];
+        $taker = $users[2];
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 150
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            150,
+            $group->member($payer->id)->member_data->balance,
+            1
+        );
+
+        $this->assertEqualsWithDelta(
+            -150,
+            $group->member($taker->id)->member_data->balance,
+            1
+        );
+
+        $balance = 0;
+        foreach ($group->members as $member) {
+            $balance = bcadd($balance, $member->member_data->balance);
+        }
+        $this->assertEquals(0, $balance);
     }
 }
