@@ -66,7 +66,7 @@ return [
     ],
     'trial_ended' => [
         'title' => 'Trial version ended',
-        'descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Lender are still yours! 😉'
+        'descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Dodo are still yours! 😉'
     ],
     'message_from_developers' => 'Message from the developers',
 ];

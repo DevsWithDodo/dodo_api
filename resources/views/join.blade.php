@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:url" content="{{ Request::url() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://www.lenderapp.net/landscape_preview" />
-    <meta property="og:description" content="Money and debt management app designed for groups." />
+    <meta property="og:image" content="https://www.dodoapp.net/preview" />
+    <meta property="og:description" content="Privacy-focused bill splitting" />
     @if($group == null)
     <meta property="og:title" content="{{ config('app.name') }}" />
     @else
@@ -37,7 +37,7 @@
         @if($group != null)
         window.onload = function() {
             //Deep link URL for users with app already installed on their device
-            window.location = 'lenderapp://lenderapp/join/{{ $group->invitation }}';
+            window.location = 'dodoapp://dodoapp/join/{{ $group->invitation }}';
         }
         @endif
 
@@ -63,12 +63,12 @@
                 @if($group == null)
                 <p class="large uppercase subtitle">Invalid or expired invitation</p>
                 @else
-                <span class="large uppercase subtitle">Privacy-focused bill splitting</span>            
+                <span class="large uppercase subtitle">Privacy-focused bill splitting</span>
                 @endif
             </div>
         </div>
         @if($group != null)
-            <a class="joinBtn" id="joining" href="lenderapp://lenderapp/join/{{ $group->invitation }}" target="_blank">
+            <a class="joinBtn" id="joining" href="dodoapp://dodoapp/join/{{ $group->invitation }}" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="38px"><path d="M11,7L9.6,8.4l2.6,2.6H2v2h10.2l-2.6,2.6L11,17l5-5L11,7z M20,19h-8v2h8c1.1,0,2-0.9,2-2V5c0-1.1-0.9-2-2-2h-8v2h8V19z"/></svg>
                 <div style="display: flex; flex-direction:column; justify-content: center;">
                     <span class="join_group">Join group</span>
@@ -94,7 +94,7 @@
                         <span class="group_name">Google Play</span>
                     </div>
                 </a>
-                <!--<a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
+                <a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
                     <table>
                         <tr>
                             <td>
@@ -106,19 +106,19 @@
                             </td>
                         </tr>
                     </table>
-                </a>-->
-                <a class="joinBtn" href="https://app.lenderapp.net">
-                    <img src="/dodo_szines.png" height="35px;">
-                    <div style="display: flex; flex-direction:column; justify-content: center;">
-                        <span class="join_group">Use it</span>
-                        <span class="group_name">Online</span>
-                    </div>
                 </a>
                 <a class="joinBtn" href="ms-windows-store://pdp/?productid=9NVB4CZJDSQ7">
                     <img src="/microsoft_logo.png" height="31px">
                     <div style="display: flex; flex-direction:column; justify-content: center;">
                         <span class="join_group">Get it from</span>
                         <span class="group_name">Microsoft</span>
+                    </div>
+                </a>
+                <a class="joinBtn" href="https://app.dodoapp.net">
+                    <img src="/dodo_szines.png" height="35px;">
+                    <div style="display: flex; flex-direction:column; justify-content: center;">
+                        <span class="join_group">Use it</span>
+                        <span class="group_name">Online</span>
                     </div>
                 </a>
             </div>

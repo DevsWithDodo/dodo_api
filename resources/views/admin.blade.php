@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Lender - Statistics</title>
+    <title>Dodo - Statistics</title>
     <link rel="shortcut icon" href="/logo_color.png" type="image/png" />
 
     <!-- Fonts -->
@@ -32,11 +32,11 @@
             Active in the last 30/60/90 days: {{\App\Group::activeGroupQuery()->count()}}/{{\App\Group::activeGroupQuery(60)->count()}}/{{\App\Group::activeGroupQuery(90)->count()}}<br>
             Avarage number of members (including guests): {{$boosted_members_avg}} (boosted),
             {{$not_boosted_members_avg}} (not boosted)<br>
-            Avarage number of guests: {{$guests_all_avg}} ({{$guests_avg}} among 
+            Avarage number of guests: {{$guests_all_avg}} ({{$guests_avg}} among
             {{$groups_use_guests}} groups which use them)<br>
             Avarage number of purchases: {{$purchases_avg}}<br>
             Avarage number of payments: {{$payments_avg}}<br>
-            Avarage number of requests: {{$requests_all_avg}} ({{$requests_avg}} among 
+            Avarage number of requests: {{$requests_all_avg}} ({{$requests_avg}} among
             {{$groups_use_requests}} groups which use them)<br>
             Currencies:
             @foreach($currencies as $currency => $count)
@@ -54,7 +54,7 @@
             <span>All: {{$all_users}}</span>
             <span>Guests: {{$guests}}</span>
 
-            <span> in the last day/week/month/year/ever: 
+            <span> in the last day/week/month/year/ever:
             {{$activeLastDay}}/{{$activeLast7}}/{{$activeLast30}}/{{$activeLast365}}/{{$activeEver}}</span>
 
             <span>Number of groups per user:

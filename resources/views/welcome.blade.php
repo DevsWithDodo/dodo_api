@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:url" content="{{ Request::url() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://www.lenderapp.net/landscape_preview" />
+    <meta property="og:image" content="https://www.dodoapp.net/preview" />
     <meta property="og:image:width" content="160" />
     <meta property="og:image:height" content="63" />
     <meta property="og:title" content="{{ config('app.name') }}" />
@@ -28,7 +28,7 @@
 <body>
     <div class="flex-center position-ref full-height main">
         <div class="top-right">
-            <a href="https://github.com/machiato32/csocsort_app" target="_blank">
+            <a href="https://github.com/orgs/DevsWithDodo/repositories" target="_blank">
                 <img src="/GitHub_Logo.png" alt="Available on GitHub" height="25px" style="filter: contrast(0%) brightness(100%)">
             </a>
         </div>
@@ -49,7 +49,7 @@
                     <span class="group_name">Google Play</span>
                 </div>
             </a>
-            <!--<a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
+            <a class="joinBtn" href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634">
                 <table>
                     <tr>
                         <td>
@@ -61,19 +61,19 @@
                         </td>
                     </tr>
                 </table>
-            </a>-->
-            <a class="joinBtn" href="https://app.lenderapp.net">
-                <img src="/dodo_szines.png" height="35px;">
-                <div style="display: flex; flex-direction:column; justify-content: center;">
-                    <span class="join_group">Use it</span>
-                    <span class="group_name">Online</span>
-                </div>
             </a>
             <a class="joinBtn" href="ms-windows-store://pdp/?productid=9NVB4CZJDSQ7">
                 <img src="/microsoft_logo.png" height="31px">
                 <div style="display: flex; flex-direction:column; justify-content: center;">
                     <span class="join_group">Get it from</span>
                     <span class="group_name">Microsoft</span>
+                </div>
+            </a>
+            <a class="joinBtn" href="https://app.dodoapp.net">
+                <img src="/dodo_szines.png" height="35px;">
+                <div style="display: flex; flex-direction:column; justify-content: center;">
+                    <span class="join_group">Use it</span>
+                    <span class="group_name">Online</span>
                 </div>
             </a>
         </div>

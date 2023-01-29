@@ -2,10 +2,10 @@
 
 return [
     'about' => 'About',
-    'thank_you' => 'Thank you for using Lender.',
+    'thank_you' => 'Thank you for using Dodo.',
     'descr' => 'You can view :Group\'s payments, purchases and timeline on different tabs.',
     'n_a_descr' => 'N/A stands for members who left the group.',
-    'support' => 'If you like Lender, please support us with a review!',
+    'support' => 'If you like Dodo, please support us with a review!',
     'preview' => 'You can only access data for the last 30 days. You can boost your group to view the full history in the Dodo Store! ',
     'members' => 'Members',
     'username' => 'Username',

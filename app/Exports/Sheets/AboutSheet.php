@@ -26,7 +26,7 @@ class AboutSheet implements FromCollection, WithTitle, WithHeadings, WithColumnW
     {
         $logo = new Drawing();
         $logo->setName('Logo');
-        $logo->setDescription('Lender Logo');
+        $logo->setDescription('Dodo Logo');
         $logo->setPath(public_path('/logo_color.png'));
         $logo->setHeight(150);
         $logo->setCoordinates('B5');
@@ -70,7 +70,7 @@ class AboutSheet implements FromCollection, WithTitle, WithHeadings, WithColumnW
     public function headings(): array
     {
         return [
-            "Lender"
+            "Dodo"
         ];
     }
 

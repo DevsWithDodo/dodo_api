@@ -65,7 +65,7 @@ return [
     ],
     'trial_ended' => [
         'title' => 'A két hetes próbaidőszakod véget ért',
-        'descr' => 'Vegyél reklámmentességet, színeket és egyéb szuper dodóságokat a Dodó boltban! Ne aggódj, minden hasznos funkciója a Lendernek megmaradt 😉',
+        'descr' => 'Vegyél reklámmentességet, színeket és egyéb szuper dodóságokat a Dodó boltban! Ne aggódj, minden hasznos funkciója a Dodonek megmaradt 😉',
     ],
     'message_from_developers' => 'Üzenet a fejlesztőktől',
 ];

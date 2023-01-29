@@ -33,8 +33,8 @@ Route::get('/join/{token}', function ($token) {
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 Route::get('/admin/send-access-mail', [AdminController::class, 'sendAccessMail'])->name('admin.send-access-mail');
 
-Route::get('/landscape_preview', function () {
-    $path = public_path() . '/lender_preview.png';
+Route::get('/preview', function () {
+    $path = public_path() . '/preview.png';
 
     if (!File::exists($path)) {
         return response()->json(['message' => 'Image not found.'], 404);

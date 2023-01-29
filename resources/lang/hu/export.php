@@ -2,10 +2,10 @@
 
 return [
     'about' => 'Információk',
-    'thank_you' => 'Köszönjük, hogy a Lendert használod.',
+    'thank_you' => 'Köszönjük, hogy a Dodot használod.',
     'descr' => 'A különböző füleken láthatók :Group fizetései, vásárlásai és idővonala.',
     'n_a_descr' => 'Az \'N/A\' a csoportból kilépett felhasználókat jelöli.',
-    'support' => 'Ha tetszik, értékeld a Lendert az alkalmazásboltodban!',
+    'support' => 'Ha tetszik, értékeld a Dodot az alkalmazásboltodban!',
     'preview' => 'Csak az utolsó 30 nap eseményei érhetőek el. A Dodó Boltban vehetsz csoportfejlesztő Dodókat, akik feloldják ezt a korlátot.',
     'members' => 'Csoporttagok',
     'username' => 'Felhasználónév',
