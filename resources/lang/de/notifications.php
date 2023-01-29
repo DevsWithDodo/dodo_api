@@ -13,7 +13,7 @@ return [
             //group
             'title' => 'Neues Mitglied',
             //user, group
-            'descr' => ':user ist gerade in :group gelandet! Seid freundlich!',
+            'descr' => ':user ist der neuste Vogel in der Gruppe :group! Seid freundlich!',
         ],
         'approve' => [
             //group

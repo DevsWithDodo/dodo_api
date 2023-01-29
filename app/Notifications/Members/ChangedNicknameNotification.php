@@ -40,7 +40,7 @@ class ChangedNicknameNotification extends Notification //implements ShouldQueue
             ]),
             message_parts: [
                 'user' => Group::nicknameOf($this->group->id, $this->user->id),
-                __('notifications.nickname_changed.descr'),
+                __('notifications.user.nickname_changed.descr'),
                 'group' => $this->group->name,
             ],
             payload: [

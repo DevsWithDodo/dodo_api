@@ -39,7 +39,7 @@ class PaymentObserver
     public function updated(Payment $payment)
     {
         $old_payment = $payment->getOriginal();
-        $diff = bcsub($old_payment['amount'], $payment->amount);
+        $diff = bcsub($payment->amount, $old_payment['amount']);
 
         if (config('app.debug'))
             Log::info('payment updated', ["payment" => $payment, "old payment" => $payment->getOriginal()]);
@@ -67,7 +67,7 @@ class PaymentObserver
 
             //notify old taker
             $taker = User::find($old_payment['taker_id']);
-            if($taker) $payer->sendNotification(new PaymentDeletedNotification($payment));
+            if($taker) $taker->sendNotification(new PaymentDeletedNotification($payment));
 
             //notify new taker
             $payment->taker->sendNotification(new PaymentCreatedNotification($payment));
