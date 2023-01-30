@@ -13,7 +13,7 @@ return [
             //group
             'title' => 'Neues Mitglied',
             //user, group
-            'descr' => ':user ist gerade in :group gelandet! Seid freundlich!',
+            'descr' => ':user ist der neuste Vogel in der Gruppe :group! Seid freundlich!',
         ],
         'approve' => [
             //group
@@ -66,7 +66,7 @@ return [
     ],
     'trial_ended' => [
         'title' => 'Die Probeversion ist zuende',
-        'descr' => 'Kaufe schöne Farben, entferne die Anzeigen oder booste die Gruppe im Dodo Laden. Keine Sorge, alle wichtigen Funktionen von Lender funktionieren immer noch! 😉'
+        'descr' => 'Kaufe schöne Farben, entferne die Anzeigen oder booste die Gruppe im Dodo Laden. Keine Sorge, alle wichtigen Funktionen von Dodo funktionieren immer noch! 😉'
     ],
     'message_from_developers' => 'Nachricht von den Entwicklern',
 ];

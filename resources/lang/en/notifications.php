@@ -13,24 +13,24 @@ return [
             //group
             'title' => 'New member',
             //user, group
-            'descr' => ':user just landed in :group! Be kind!',
+            'descr' => ':user is the newest bird in :group! Be kind!',
         ],
         'approve' => [
             //group
             'title' => "A user wants to join your group",
             //user, group
-            'descr' => "Approve or deny :user's request.",
+            'descr' => "Approve or deny :user's request in :group.",
         ],
         'approved' => [
             //group
             'title' => 'You became a member of :Group',
-            'descr' => 'An admin approved your join request.'
+            'descr' => 'An admin approved your request to join.'
         ],
         'promoted_to_admin' => [
             //group
             'title' => 'You bacame an admin!',
             //user, group'
-            'descr' => ':user promoted you to be an admin! From now on, you can edit the group\'s details and other members and guests in the group.',
+            'descr' => ':user promoted you to be an admin! From now on, you can edit the group\'s details and other members in the group.',
         ],
     ],
     'group' => [
@@ -66,7 +66,7 @@ return [
     ],
     'trial_ended' => [
         'title' => 'Trial version ended',
-        'descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Lender are still yours! 😉'
+        'descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Dodo are still yours! 😉'
     ],
     'message_from_developers' => 'Message from the developers',
 ];

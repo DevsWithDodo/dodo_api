@@ -31,7 +31,7 @@ class ReportBug extends Mailable
      */
     public function build()
     {
-        return $this->subject('Lender Bug')
+        return $this->subject('Dodo Bug')
             ->markdown('mails.bugreport');
     }
 }

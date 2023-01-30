@@ -35,7 +35,7 @@ class ReceiverUpdatedNotification extends Notification //implements ShouldQueue
         return NotificationMaker::makeFcmMessage(
             title: __('notifications.purchase.updated'),
             message_parts: [
-                'user' => Group::nicknameOf($group->id, $purchase->buyer_id),
+                'user' => Group::nicknameOf($group->id, $this->receiver->purchase->buyer_id),
                 'purchase' => $purchase->name,
                 'amount' => round(floatval($this->receiver->getOriginal('amount')), 2) . " " . $group->currency,
                 'changed' => round(floatval($this->receiver->amount), 2) . " " . $group->currency,

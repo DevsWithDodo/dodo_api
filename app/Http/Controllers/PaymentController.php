@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Rules\IsMember;
 use Carbon\Carbon;
 
 use App\Http\Resources\Payment as PaymentResource;
 
-use App\Transactions\Reactions\PaymentReaction;
 use App\Transactions\Payment;
 use App\Group;
 use App\User;
@@ -18,19 +18,34 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth('api')->user();
+
         $group = Group::findOrFail($request->group);
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
+
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'nullable|date',
+            'until_date' => 'nullable|date',
+            'category' => ['nullable', Rule::in($group->categories)],
+            'user_id' => ['nullable', new IsMember($group)],
+            'limit' => 'nullable|numeric|min:0'
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date ?? '2000-01-01');
         $until_date = Carbon::parse($request->until_date ?? now())->addDay();
 
+        $user_id = $request->user_id ?? auth('api')->user()->id;
+
         $payments = $group->payments()
             ->whereBetween('updated_at', [$from_date,$until_date])
-            ->where(function ($query) use ($user) {
-                return $query->where('taker_id', $user->id)
-                    ->orWhere('payer_id', $user->id);
-            })
+            ->where(function ($query) use ($user_id) {
+                return $query->where('taker_id', $user_id)
+                    ->orWhere('payer_id', $user_id);
+            });
+
+        if ($request->category) $payments = $payments->where('category', $request->category);
+
+        $payments = $payments
             ->orderBy('updated_at', 'desc')
             ->with('reactions')
             ->limit($request->limit)
@@ -40,23 +55,28 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-        $payer = auth('api')->user();
         $group = Group::findOrFail($request->group);
         $validator = Validator::make($request->all(), [
+            'payer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'not_in:' . $payer->id, new IsMember($group)],
+            'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
-        $taker = User::findOrFail($request->taker_id);
 
-        $this->authorize('view', $group);
+        $this->authorize('member', $group);
 
+        $currency = $request->currency ?? $group->currency;
         Payment::create([
-            'amount' => $request->amount,
+            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
+            'original_amount' => $request->amount,
+            'original_currency' => $currency,
             'group_id' => $group->id,
-            'taker_id' => $taker->id,
-            'payer_id' => $payer->id,
+            'taker_id' => $request->taker_id,
+            'payer_id' => $request->payer_id ?? auth('api')->user()->id,
+            'category' => $request->category,
             'note' => $request->note ?? null
         ]);
         return response()->json(null, 204);
@@ -64,23 +84,35 @@ class PaymentController extends Controller
 
     public function update(Request $request, Payment $payment)
     {
-        $this->authorize('update', $payment);
-        $payer = auth('api')->user();
+        $group = $payment->group;
+        $this->authorize('member', $group);
         $validator = Validator::make($request->all(), [
+            'payer_id' => ['nullable', new IsMember($group)],
+            'currency' => ['nullable', Rule::in(CurrencyController::CurrencyList())],
+            'category' => ['nullable', Rule::in($group->categories)],
             'amount' => 'required|numeric|min:0',
-            'taker_id' => ['required', 'exists:users,id', 'not_in:' . $payer->id, new IsMember($payment->group)],
+            'taker_id' => ['required', new IsMember($group)],
             'note' => 'nullable|string|min:1|max:50'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $payment->update($request->only('amount', 'taker_id', 'note'));
+        $currency = $request->currency ?? $group->currency;
+        $payment->update([
+            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
+            'original_amount' => $request->amount,
+            'original_currency' => $currency,
+            'taker_id' => $request->taker_id,
+            'payer_id' => $request->payer_id ?? auth('api')->user()->id,
+            'category' => $request->category,
+            'note' => $request->note ?? null
+        ]);
 
         return response()->json(null, 204);
     }
 
     public function delete(Payment $payment)
     {
-        $this->authorize('delete', $payment);
+        $this->authorize('member', $payment->group);
         $payment->delete();
         return response()->json(null, 204);
     }
@@ -94,8 +126,10 @@ class PaymentController extends Controller
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $user = auth('api')->user();
-        $reaction = PaymentReaction::where('user_id', $user->id)
-            ->where('payment_id', $request->payment_id)
+        $payment = Payment::find($request->payment_id);
+        $this->authorize('member', $payment->group);
+        $reaction = $payment->reactions()
+            ->where('user_id', $user->id)
             ->first();
 
         //Create, update, or delete reaction
@@ -103,11 +137,10 @@ class PaymentController extends Controller
             if ($reaction->reaction != $request->reaction)
                 $reaction->update(['reaction' => $request->reaction]);
             else $reaction->delete();
-        } else PaymentReaction::create([
+        } else $payment->reactions()->create([
             'reaction' => $request->reaction,
             'user_id' => $user->id,
-            'payment_id' => $request->payment_id,
-            'group_id' => Payment::find($request->payment_id)->group_id
+            'group_id' => $payment->group_id
         ]);
 
         return response()->json(null, 204);

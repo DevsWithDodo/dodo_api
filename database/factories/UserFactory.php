@@ -25,7 +25,7 @@ class UserFactory extends Factory
     {
         return [
             'username' => $this->faker->unique()->userName,
-            'password' => ($this->faker->boolean(20) ? Hash::make('1234') : null),
+            'password' => Hash::make('1234'),
             'password_reminder' => Crypt::encryptString($this->faker->word),
             'default_currency' => "HUF"
         ];

@@ -29,7 +29,7 @@ class AdminAccess extends Mailable
      */
     public function build()
     {
-        return $this->subject('Lender admin site access')
+        return $this->subject('Dodo admin site access')
             ->markdown('mails.admin_access', ['url' => $this->url]);
     }
 }

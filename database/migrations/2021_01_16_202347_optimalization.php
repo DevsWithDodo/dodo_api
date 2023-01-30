@@ -38,15 +38,15 @@ class Optimalization extends Migration
         foreach (PurchaseReceiver::all() as $receiver) {
             $receiver->update(['group_id' => $receiver->purchase->group_id]);
         }
-        foreach (PaymentReaction::all() as $reaction) {
-            $reaction->update(['group_id' => $reaction->payment->group_id]);
-        }
+        // foreach (PaymentReaction::all() as $reaction) {
+        //     $reaction->update(['group_id' => $reaction->payment->group_id]);
+        // }
         foreach (PurchaseReceiver::all() as $reaction) {
             $reaction->update(['group_id' => $reaction->purchase->group_id]);
         }
-        foreach (RequestReaction::all() as $reaction) {
-            $reaction->update(['group_id' => $reaction->request->group_id]);
-        }
+        // foreach (RequestReaction::all() as $reaction) {
+        //     $reaction->update(['group_id' => $reaction->request->group_id]);
+        // }
     }
 
     /**

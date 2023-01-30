@@ -2,10 +2,12 @@
 
 namespace App\Transactions;
 
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\App;
-use Log;
 
 class Payment extends Model
 {
@@ -13,13 +15,7 @@ class Payment extends Model
 
     protected $table = 'payments';
 
-    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note'];
-
-    protected $dispatchesEvents = [
-        'creating' => \App\Events\Payments\PaymentCreatedEvent::class,
-        'updating' => \App\Events\Payments\PaymentUpdatedEvent::class,
-        'deleting' => \App\Events\Payments\PaymentDeletedEvent::class
-    ];
+    protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note', 'original_amount', 'original_currency', 'category'];
 
     public function getNoteAttribute($value)
     {
@@ -29,23 +25,28 @@ class Payment extends Model
         return $value;
     }
 
-    public function payer()
+    public function getEdtiableAttribute()
+    {
+       return $this->group->members()->whereIn('id', [$this->taker_id, $this->payer_id])->count() == 2;
+    }
+
+    public function payer(): BelongsTo
     {
         return $this->belongsTo('App\User', 'payer_id');
     }
 
-    public function taker()
+    public function taker(): BelongsTo
     {
         return $this->belongsTo('App\User', 'taker_id');
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo('App\Group', 'group_id');
     }
 
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->hasMany('App\Transactions\Reactions\PaymentReaction', 'payment_id');
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 }

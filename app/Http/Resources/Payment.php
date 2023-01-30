@@ -17,10 +17,14 @@ class Payment extends JsonResource
             'taker_id' => $this->taker_id,
             'taker_nickname' => Group::nicknameOf($this->group_id, $this->taker_id),
             'amount' => round(floatval($this->amount), 2),
+            'original_amount' => round(floatval($this->original_amount), 2),
+            'original_currency' => $this->original_currency,
+            'category' => $this->category,
             'note' => $this->note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'reactions' => Reaction::collection($this->reactions)
+            'reactions' => Reaction::collection($this->reactions),
+            'editable' => $this->editable
         ];
     }
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Lender - Privacy Policy</title>
+    <title>Dodo - Privacy Policy</title>
     <link rel="shortcut icon" href="/logo_color.png" type="image/png" />
 
     <!-- Fonts -->
@@ -20,12 +20,12 @@
 <body>
     <div class="flex-center position-ref">
         <div class="content">
-            <div class="title">Lender</div>
+            <div class="title">Dodo</div>
             <p class="large uppercase" style="font-weight: bold">Our very own privacy policy</p>
             <div
                 style="background-color: white; color:black; padding:40px;border-radius: 10px;opacity: 0.9;text-align:left; max-width:60%;margin:0 auto;font-size:20px;font-weight:400;text-align:justify">
                 <h2>Privacy Policy Notice</h2>
-                This privacy policy notice is served by Lender under this website (www.lenderapp.net).
+                This privacy policy notice is served by Dodo under this website (www.dodoapp.net).
                 The purpose of this policy is to explain to you how we control, process, handle and
                 protect your personal information while you use our app or our website.
                 If you do not agree to the following policy you may wish to cease
@@ -33,14 +33,14 @@
                 us.
                 <h3>Policy key definitions</h3>
                 <ul>
-                    <li>"Lender app" refer to the app which can can be found on <a
+                    <li>"Dodo app" refer to the app which can can be found on <a
                             href="https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla"
                             target=" __blank" style="color: black">Google Play</a> or on App Store (soon).</li>
-                    <li>"our", "us", or "we" refer to the business, the developers and administrators of the Lender app
+                    <li>"our", "us", or "we" refer to the business, the developers and administrators of the Dodo app
                         and this website</li>
-                    <li>"you", "the user" "the users" refer to the person(s) using Lender app and this website</li>
+                    <li>"you", "the user" "the users" refer to the person(s) using Dodo app and this website</li>
                     <li>"group" refer
-                        to the groups which you can create and join in the Lender app</li>
+                        to the groups which you can create and join in the Dodo app</li>
                     <li>"member" refer to the above groups' members</li>
                     <li>GDPR means General Data Protection Regulation</li>
                     <li>Cookies mean small files stored on a users computer or device</li>
@@ -81,11 +81,11 @@
                         experience for you.</li>
                     <li><b>Other user data</b>
                         We store your currencies, your nicknames, and your language set to make
-                        you customize Lender as you wish.
+                        you customize Dodo as you wish.
                         We store the group you last viewed to make your experience better.</li>
                     <li><b>Statistics</b>
                         We can create anonymous usage statistics (eg. avarage group size, what are the favourite color
-                        themes) to see which of our feautures are popular and to make Lender better.</li>
+                        themes) to see which of our feautures are popular and to make Dodo better.</li>
                 </ol>
                 <h4>Who can see my data?</h4>
                 Your username, nicknames and the data mentioned in point 3. in the above list can be seen by other
@@ -98,7 +98,7 @@
                 <b>We do not send / sell any of the mentioned data above to any third party.</b>
                 <br><br>
                 We keep your information for as long as you have a registered account with us.
-                You can delete your account and all your personal data in the Lender app's profile settings.
+                You can delete your account and all your personal data in the Dodo app's profile settings.
                 Note that if you leave a group, your transactions will remain visible without your name/nickname
                 attached to them.
                 <hr>
@@ -191,10 +191,10 @@
                     </li>
                 </ul>
                 <h2>Contact</h2>
-                Dominik Katkó, <a href="mailto:admin@lenderapp.net" target="__blank"
-                    style="color: black">admin@lenderapp.net</a>,<br>
-                Sámuel Szajbély, <a href="mailto:developer@lenderapp.net" target="__blank"
-                    style="color: black">developer@lenderapp.net</a>,<br>
+                Dominik Katkó, <a href="mailto:admin@dodoapp.net" target="__blank"
+                    style="color: black">admin@dodoapp.net</a>,<br>
+                Sámuel Szajbély, <a href="mailto:developer@dodoapp.net" target="__blank"
+                    style="color: black">developer@dodoapp.net</a>,<br>
             </div>
             <p>Updated: 2020.01.26.</p>
         </div>

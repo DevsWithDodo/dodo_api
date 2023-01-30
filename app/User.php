@@ -9,18 +9,26 @@ use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
 use App\Notifications\TrialEndedNotification;
+use App\Transactions\Payment;
+use App\Transactions\Purchase;
+use App\Transactions\PurchaseReceiver;
+use Illuminate\Database\Eloquent\Builder;
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Log;
 
-class User extends Authenticatable implements HasLocalePreference
-{
+class User extends Authenticatable implements HasLocalePreference {
     use Notifiable, HasFactory;
 
     protected $fillable = [
-        'username', //returns guest if null
-        'password',
+        'username', //null on guests
+        'password', //null on guests
         'api_token',
-        'password_reminder',
+        'password_reminder', //deprecated
         'last_active_group',
         'default_currency',
         'fcm_token',
@@ -39,22 +47,20 @@ class User extends Authenticatable implements HasLocalePreference
     ];
 
 
-    public function getUsernameAttribute($value): string
-    {
+    public function getUsernameAttribute($value): string {
         return $value ?? __('notifications.guest');
     }
 
-    public function getIsGuestAttribute()
-    {
+    public function getIsGuestAttribute() {
         return $this->password == null;
     }
     /**
      * Decides if the user is registered within the last two weeks.
      */
-    public function getTrialAttribute($value): bool
-    {
+    public function getTrialAttribute($value): bool {
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
+            //TODO remove field
             $this->update(['trial' => 0]);
             $this->notify((new TrialEndedNotification())->locale($this->language));
             return false;
@@ -62,14 +68,22 @@ class User extends Authenticatable implements HasLocalePreference
         return true;
     }
 
-    public function getAdFreeAttribute($value)
-    {
+    public function getAdFreeAttribute($value) {
         return $this->trial ? 1 : $value;
     }
 
-    public function getGradientsEnabledAttribute($value)
-    {
+    public function getGradientsEnabledAttribute($value) {
         return $this->trial ? 1 : $value;
+    }
+
+    public function sendNotification($notification) {
+        if($this->id != auth('api')->user()?->id){
+            try {
+                $this->notify($notification->locale($this->language));
+            } catch (\Exception $e) {
+                Log::error('FCM error', ['error' => $e]);
+            }
+        }
     }
 
     /**
@@ -77,8 +91,7 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string the token
      */
-    public function generateToken()
-    {
+    public function generateToken() {
         $this->api_token = Str::random(60);
         $this->save();
 
@@ -90,8 +103,7 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string
      */
-    public function routeNotificationForFcm()
-    {
+    public function routeNotificationForFcm() {
         return $this->fcm_token;
     }
 
@@ -100,13 +112,11 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string
      */
-    public function preferredLocale()
-    {
+    public function preferredLocale() {
         return $this->language;
     }
 
-    public function groups()
-    {
+    public function groups(): BelongsToMany {
         return $this
             ->belongsToMany('App\Group', 'group_user')
             ->as('member_data')
@@ -114,13 +124,35 @@ class User extends Authenticatable implements HasLocalePreference
             ->where('approved', true)
             ->withTimestamps();
     }
+    public function purchases(): HasMany {
+        return $this->hasMany(Purchase::class, 'buyer_id');
+    }
+
+    public function purchaseReceivers(): HasMany {
+        return $this->hasMany(PurchaseReceiver::class, 'receiver_id');
+    }
+
+    public function receivedPurchases() {
+        return $this->purchaseReceivers()->with('purchase');
+    }
+
+    public function payments(): HasMany {
+        return $this->hasMany(Payment::class, 'payer_id');
+    }
+
+    public function requests(): HasMany {
+        return $this->hasMany(Request::class, 'requester_id');
+    }
+
+    public function reactions(): HasMany {
+        return $this->hasMany(Reaction::class, 'user_id');
+    }
 
     /**
      * Change the guest's id to the user id in the database
      * @param $user_id the id to change
      */
-    public function mergeDataInto($user_id)
-    {
+    public function mergeDataInto($user_id) {
         DB::table('purchases')->where('buyer_id', $this->id)->update(['buyer_id' => $user_id]);
         DB::table('purchase_receivers')->where('receiver_id', $this->id)->update(['receiver_id' => $user_id]);
         DB::table('payments')->where('payer_id', $this->id)->update(['payer_id' => $user_id]);
@@ -131,8 +163,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Returns the user's total balance calculated from it's groups and their currencies.
      */
-    public function totalBalance()
-    {
+    public function totalBalance() {
         $this->load('groups');
         $result = 0;
         foreach ($this->groups as $group) {
@@ -143,5 +174,36 @@ class User extends Authenticatable implements HasLocalePreference
             );
         }
         return $result;
+    }
+
+    /**
+     * @param $lastActive the time in days since the user was last active.
+     * Setting it to -1 will return the users that have ever been active.
+     * @return Collection the users that were active in the last $lastActive days
+     */
+    public static function activeUserQuery($lastActive = 30): Builder {
+        return User::where(function ($query) use ($lastActive) {
+            if ($lastActive == -1) {
+                $query
+                    ->has('purchases')
+                    ->orHas('payments')
+                    ->orHas('requests')
+                    ->orHas('reactions');
+            } else {
+            }
+            $query
+                ->whereHas('purchases', function ($query) use ($lastActive) {
+                    $query->where('updated_at', '>', now()->subDays($lastActive));
+                })
+                ->orWhereHas('payments', function ($query) use ($lastActive) {
+                    $query->where('updated_at', '>', now()->subDays($lastActive));
+                })
+                ->orWhereHas('requests', function ($query) use ($lastActive) {
+                    $query->where('updated_at', '>', now()->subDays($lastActive));
+                })
+                ->orWhereHas('reactions', function ($query) use ($lastActive) {
+                    $query->where('updated_at', '>', now()->subDays($lastActive));
+                });
+        });
     }
 }

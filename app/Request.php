@@ -2,9 +2,12 @@
 
 namespace App;
 
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Represents the items on the shopping lists.
@@ -17,18 +20,18 @@ class Request extends Model
 
     protected $fillable = ['name', 'group_id', 'requester_id'];
 
-    public function requester()
+    public function requester(): BelongsTo
     {
         return $this->belongsTo('App\User', 'requester_id');
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo('App\Group', 'group_id');
     }
 
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->hasMany('App\Transactions\Reactions\RequestReaction', 'request_id');
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 }

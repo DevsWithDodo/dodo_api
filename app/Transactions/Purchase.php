@@ -2,9 +2,13 @@
 
 namespace App\Transactions;
 
+use App\Http\Controllers\CurrencyController;
+use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Purchase extends Model
 {
@@ -12,82 +16,100 @@ class Purchase extends Model
 
     protected $table = 'purchases';
 
-    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount'];
+    protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency', 'category'];
 
-    protected $dispatchesEvents = [
-        'creating' => \App\Events\Purchases\PurchaseCreatedEvent::class,
-        'updating' => \App\Events\Purchases\PurchaseUpdatedEvent::class,
-        'deleting' => \App\Events\Purchases\PurchaseDeletedEvent::class
-    ];
-
-    /**
-     * Divides the purchase's amount without residue.
-     * Deletes/updates existing receivers, and creates new ones according to the arguments.
-     * @param array $receivers receiver user ids
-     * @return void
-     * */
-    public function createReceivers(array $receivers)
+    public function getEdtiableAttribute()
     {
-        $this->load('receivers');
-        $receivers = array_unique($receivers);
+        $receiver_ids = array_merge($this->receivers->pluck('receiver_id')->toArray());
+        return $this->group->members()->whereIn('id', $receiver_ids)->count() == count($receiver_ids)
+            && $this->group->members()->where('id', $this->buyer_id)->exists();
+    }
 
-        //delete old receivers
-        $old_receivers = [];
-        $old_receiver_users = [];
-        foreach ($this->receivers as $receiver) {
-            if (!(in_array($receiver->receiver_id, $receivers))) {
-                $receiver->delete();
-            } else {
-                if (isset($old_receivers[$receiver->receiver_id])) {
-                    self::withoutEvents(function () use ($receiver) {
-                        $receiver->delete();
-                    });
-                }
-                $old_receivers[$receiver->receiver_id] = $receiver;
-                $old_receiver_users[] = $receiver->receiver_id;
-            }
-        }
-        if (count($receivers) == 0) {
-            echo "Deleting purchase (" . $this->name . ", " . $this->amount . ") in group " . $this->group->id . " because it has no receivers.\n";
-            Log::info("Deleting purchase because it has no receivers.", ['purchase' => $this]);
-            $this->delete();
-            return;
-        }
-        $amount_divided = bcdiv($this->amount, count($receivers));
-        $remainder = bcsub($this->amount, bcmul($amount_divided, count($receivers)));
-        foreach ($receivers as $receiver_user) {
-            if (in_array($receiver_user, $old_receiver_users)) {
-                //update receiver
-                $old_receivers[$receiver_user]->update([
-                    'amount' => bcadd($amount_divided, $remainder)
-                ]);
-            } else {
-                //create receiver
-                PurchaseReceiver::create([
-                    'amount' => bcadd($amount_divided, $remainder),
-                    'receiver_id' => $receiver_user,
-                    'purchase_id' => $this->id,
-                    'group_id' => $this->group_id
-                ]);
-            }
-            $remainder = 0;
-        }
+    public static function createWithReceivers(array $purchase_data) {
+        $purchase = new Purchase();
+        $purchase->group_id = $purchase_data['group_id'];
+        $purchase->updateWithReceivers($purchase_data);
+        return $purchase;
+    }
+
+    public function updateWithReceivers(array $purchase_data) {
+        $this->name = $purchase_data['name'];
+        $this->buyer_id = $purchase_data['buyer_id'];
+        $this->original_currency = $purchase_data['original_currency'];
+        $this->amount = CurrencyController::exchangeCurrency($purchase_data['original_currency'], $purchase_data['group_currency'], $purchase_data['amount']);
+        $this->original_amount = $purchase_data['amount'];
+        $this->category = $purchase_data['category'] ?? null;
+        $this->save();
+
+        $this->syncReceivers($purchase_data['receivers'], $purchase_data['original_currency'], $purchase_data['group_currency']);
+        $this->touch();
     }
 
     /**
-     * Deletes, recalculates, and recreates the receivers of the purchase.
-     * Should be used only for testing purposes as this can take a while.
+     * Converts and divides the purchase's amount without residue.
+     * Deletes/updates existing receivers, and creates new ones according to the arguments.
+     * @param array $receivers array of receivers with "user_id" and (original) "amount"|null
+     * @param string $original_currency
+     * @param string $group_currency
+     *
      * @return void
      * */
-    public function recalculateReceivers()
+    public function syncReceivers(array $receivers, $original_currency, $group_currency)
     {
-        $receivers = $this->receivers->map(function ($item, $key) {
-            return $item->user->id;
-        });
-        $this->receivers()->delete();
-        $this->withoutEvents(function () use ($receivers) {
-            $this->createReceivers($receivers->toArray());
-        });
+        $this->load('receivers');
+        //convert custom amount to group currency
+        $receivers = array_map(fn($r) => [
+            'user_id' => $r['user_id'],
+            'amount' => isset($r['amount']) ? CurrencyController::exchangeCurrency($original_currency, $group_currency, $r['amount']) : null,
+            'original_amount' => $r['amount'] ?? null
+        ], $receivers);
+        $receiver_user_ids = array_column($receivers, 'user_id');
+        $old_receivers_to_update = [];
+        //handle old receivers
+        foreach ($this->receivers as $receiver) {
+            if(in_array($receiver->receiver_id, $receiver_user_ids)) {
+                $old_receivers_to_update[$receiver->receiver_id] = $receiver;
+            } else {
+                $receiver->delete();
+            }
+        }
+        //calculate amount to be divided
+        $custom_receivers = array_filter($receivers, fn($r) => isset($r['amount']));
+        $custom_amount_sum = array_reduce($custom_receivers, fn($carry, $r) => bcadd($carry, $r['amount']), 0);
+        $amount_to_be_divided = bcsub($this->amount, $custom_amount_sum);
+        $divide_count = count($receivers) - count($custom_receivers);
+        if(!(count($custom_receivers) < count($receivers))) {
+            abort(400, "All receivers have custom amounts.");
+        }
+        $amount_divided = bcdiv($amount_to_be_divided, $divide_count);
+        $remainder = bcsub($amount_to_be_divided, bcmul($amount_divided, $divide_count));
+        foreach ($receivers as $receiver_data) {
+            //create or update receiver
+            if (isset($old_receivers_to_update[$receiver_data['user_id']])) {
+                $receiver = $old_receivers_to_update[$receiver_data['user_id']];
+            } else {
+                $receiver = new PurchaseReceiver([
+                    'purchase_id' => $this->id,
+                    'receiver_id' => $receiver_data['user_id'],
+                    'group_id' => $this->group_id,
+                    'receiver_id' => $receiver_data['user_id'],
+                ]);
+            }
+            if(isset($receiver_data['amount'])) {
+                //set custom amount
+                $receiver->amount = $receiver_data['amount'];
+                $receiver->original_amount = $receiver_data['original_amount'];
+                $receiver->custom_amount = true;
+            } else {
+                //set divided amount, add remainder to first receiver_data
+                $amount = bcadd($amount_divided, $remainder);
+                $receiver->amount = $amount;
+                $receiver->original_amount = CurrencyController::exchangeCurrency($group_currency, $original_currency, $amount);
+                $receiver->custom_amount = false;
+                $remainder = 0;
+            }
+            $receiver->save();
+        }
     }
 
     public function delete()
@@ -98,23 +120,23 @@ class Purchase extends Model
         return parent::delete();
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo('App\Group');
     }
 
-    public function buyer()
+    public function buyer(): BelongsTo
     {
         return $this->belongsTo('App\User', 'buyer_id');
     }
 
-    public function receivers()
+    public function receivers(): HasMany
     {
         return $this->hasMany('App\Transactions\PurchaseReceiver');
     }
 
-    public function reactions()
+    public function reactions(): MorphMany
     {
-        return $this->hasMany('App\Transactions\Reactions\PurchaseReaction', 'purchase_id');
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 }

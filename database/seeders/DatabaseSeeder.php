@@ -22,14 +22,17 @@ class DatabaseSeeder extends Seeder
         $csocsort = Group::factory()->create([
             'name' => 'Csocsort',
             'boosted' => 1,
-            'admin_approval' => 1
+            'admin_approval' => 1,
+            'currency' => 'HUF'
         ]);
-        $other_group = Group::factory()->create();
+        $other_group = Group::factory()->create([
+            'currency' => 'EUR'
+        ]);
         $dominik = User::factory()->create([
             'username' => 'dominik',
             'password' => Hash::make('1234'),
             'ad_free' => 1,
-            'trial' => 0
+            'trial' => 0,
         ]);
         $samu = User::factory()->create([
             'username' => 'samu',
@@ -60,15 +63,6 @@ class DatabaseSeeder extends Seeder
                     'group_id' => $csocsort->id,
                     'buyer_id' => $user->id
                 ]);
-            foreach ($purchases as $purchase) {
-                $ids = [];
-                foreach ($csocsort->members as $member) {
-                    if (rand(0, 1) == 0)
-                        $ids[] = $member->id;
-                }
-                if (count($ids) == 0) $ids[] = $csocsort->members->first()->id;
-                $purchase->createReceivers($ids);
-            }
             //payment
             Payment::factory()->count(rand(3, 10))
                 ->create([

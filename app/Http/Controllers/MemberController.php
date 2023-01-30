@@ -10,57 +10,67 @@ use App\Rules\UniqueNickname;
 use App\Notifications\Members\ChangedNicknameNotification;
 use App\Notifications\Members\PromotedToAdminNotification;
 use App\Notifications\Groups\JoinedGroupNotification;
-use App\Notifications\Transactions\PaymentNotification;
 use App\Http\Resources\Group as GroupResource;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Member as MemberResource;
 use App\Http\Resources\Guest as GuestResource;
-use Illuminate\Support\Facades\Log;
 
 use App\Transactions\Payment;
 use App\User;
 use App\Group;
 use App\Notifications\Members\ApprovedJoinGroupNotification;
 use App\Notifications\Members\ApproveMemberNotification;
+use DB;
 
 class MemberController extends Controller
 {
     public function show(Group $group)
     {
-        $user = auth('api')->user();
-        $this->authorize('view', $group);
-        return new MemberResource($group->members->find($user));
+        $this->authorize('member', $group);
+        return new MemberResource($group->members->find(auth('api')->user()));
     }
 
     public function store(Request $request)
     {
-        $user = auth('api')->user();
         $group = Group::firstWhere('invitation', $request->invitation_token);
         if ($group == null) abort(404, __('errors.invalid_invitation'));
 
         $validator = Validator::make($request->all(), [
             'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
+            'merge_with_member_id' => ['nullable', new IsMember($group)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $this->authorize('join', $group);
 
+        $user = auth('api')->user();
         $group->members()->attach($user, [
             'nickname' => $request->nickname,
             'is_admin' => false,
             'approved' => !$group->admin_approval
         ]);
 
-        try {
-            if ($group->admin_approval) {
-                foreach ($group->admins->except([$user->id]) as $admin)
-                    $admin->notify((new ApproveMemberNotification($group, $user))->locale($admin->language));
-            } else {
-                foreach ($group->members->except([$user->id]) as $member)
-                    $member->notify((new JoinedGroupNotification($group, $user))->locale($member->language));
-            }
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
+        if(isset($request->merge_with_member_id)){
+            //merge a guest data into the new member
+            $guest = User::findOrFail($request->merge_with_member_id);
+            $this->authorize('merge_guest', [$group, $guest]);
+
+            DB::transaction(function () use ($group, $user, $guest) {
+                $balance = $group->member($guest->id)->member_data->balance;
+                $guest->mergeDataInto($user->id);
+                $group->members()->detach($guest);
+                $guest->delete();
+                Group::addToMemberBalance($group->id, $user->id, $balance);
+            });
+
+        }
+
+        if ($group->admin_approval) {
+            foreach ($group->admins->except([$user->id]) as $admin)
+                $admin->sendNotification((new ApproveMemberNotification($group, $user)));
+        } else {
+            foreach ($group->members->except([$user->id]) as $member)
+                $member->sendNotification((new JoinedGroupNotification($group, $user)));
         }
 
         if ($group->admin_approval) {
@@ -85,12 +95,8 @@ class MemberController extends Controller
 
         $member_to_update->member_data->update(['nickname' => $request->nickname]);
 
-        try {
-            if ($user->id != $member_to_update->id)
-                $member_to_update->notify((new ChangedNicknameNotification($group, $user, $request->nickname))->locale($member_to_update->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        if ($user->id != $member_to_update->id)
+            $member_to_update->sendNotification((new ChangedNicknameNotification($group, $user, $request->nickname)));
 
         return response()->json(null, 204);
     }
@@ -110,12 +116,8 @@ class MemberController extends Controller
         $group->member($member->id)
             ->member_data->update(['is_admin' => $request->admin]);
 
-        try {
-            if ($request->admin && $member->id != $user->id)
-                $member->notify((new PromotedToAdminNotification($group, $user))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        if ($request->admin && $member->id != $user->id)
+            $member->sendNotification((new PromotedToAdminNotification($group, $user)));
 
         //make everyone an admin if there is no admin left
         if ($group->admins()->count() == 0)
@@ -154,7 +156,7 @@ class MemberController extends Controller
                     $balance_divided = bcdiv($balance, ($group->members->count() - 1));
                     $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
                     foreach ($group->members->except([$user->id]) as $member) {
-                        $payment = Payment::create([
+                        Payment::create([
                             'amount' => (-1) * bcadd($balance_divided, $remainder),
                             'group_id' => $group->id,
                             'taker_id' => $member->id,
@@ -221,17 +223,9 @@ class MemberController extends Controller
         if ($request->approve) {
             $user->member_data->update(['approved' => true]);
             $user->update(['last_active_group' => $group->id]);
-            try {
-                foreach ($group->members->except($user->id) as $member)
-                    $member->notify((new JoinedGroupNotification($group, $user))->locale($member->language));
-            } catch (\Exception $e) {
-                Log::error('FCM error', ['error' => $e]);
-            }
-            try {
-                $user->notify((new ApprovedJoinGroupNotification($group))->locale($user->language));
-            } catch (\Exception $e) {
-                Log::error('FCM error', ['error' => $e]);
-            }
+            foreach ($group->members->except($user->id) as $member)
+                $member->sendNotification((new JoinedGroupNotification($group, $user)));
+            $user->sendNotification((new ApprovedJoinGroupNotification($group)));
         } else {
             $group->unapprovedMembers()->detach($user);
         }
@@ -242,13 +236,13 @@ class MemberController extends Controller
      */
     public function guests(Group $group)
     {
-        $this->authorize('edit', $group);
+        $this->authorize('member', $group);
         return GuestResource::collection($group->guests);
     }
 
     public function hasGuests(Group $group)
     {
-        $this->authorize('edit', $group);
+        $this->authorize('member', $group);
         return response()->json(['data' => ($group->guests->count() > 0 ? 1 : 0)]);
     }
 
@@ -276,13 +270,9 @@ class MemberController extends Controller
             'is_admin' => false
         ]);
 
-        try {
-            foreach ($group->members as $member)
-                if ($member->id != $guest->id)
-                    $member->notify((new JoinedGroupNotification($group, $guest))->locale($member->language));
-        } catch (\Exception $e) {
-            Log::error('FCM error', ['error' => $e]);
-        }
+        foreach ($group->members as $member)
+            if ($member->id != $guest->id)
+                $member->sendNotification((new JoinedGroupNotification($group, $guest)));
 
         return response()->json(new UserResource($guest), 201);
     }

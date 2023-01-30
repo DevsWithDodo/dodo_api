@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\User as UserResource;
 
 use App\User;
-
+use Carbon\Carbon;
+use URL;
 
 class UserController extends Controller
 {
@@ -27,13 +27,22 @@ class UserController extends Controller
         return 'username';
     }
 
+    public function validateUsername(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+        return response()->json(null, 204);
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'username' => ['required', 'string', 'regex:/^[a-z0-9#.]{3,15}$/', 'unique:users,username'],
             'default_currency' => ['required', 'string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'password' => ['required', 'string', 'min:4', 'confirmed'],
-            'password_reminder' => ['required', 'string'],
+            'password_reminder' => 'nullable|string', //deprecated
             'fcm_token' => 'nullable|string',
             'language' => 'required|in:en,hu,it,de',
             'personalised_ads' => 'required|boolean'
@@ -43,7 +52,7 @@ class UserController extends Controller
         $user = User::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'password_reminder' => Crypt::encryptString($request->password_reminder),
+            'password_reminder' => Crypt::encryptString($request->password_reminder), //deprecated
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token ?? null,
             'language' => $request->language,
@@ -107,7 +116,7 @@ class UserController extends Controller
             'default_currency' => ['string', 'size:3', Rule::in(CurrencyController::currencyList())],
             'old_password' => 'required_with:new_password|string|password',
             'new_password' => 'string|min:4|confirmed',
-            'password_reminder' => 'required_with:new_password|string',
+            'password_reminder' => 'nullable|string', //deprecated
             'theme' => 'string',
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
@@ -120,7 +129,7 @@ class UserController extends Controller
             'language' => $request->language,
             'default_currency' => $request->default_currency,
             'password' => $request->new_password ? Hash::make($request->new_password) : null,
-            'password_reminder' => $request->new_password ? Crypt::encryptString($request->password_reminder) : null,
+            'password_reminder' => $request->password_reminder ? Crypt::encryptString($request->password_reminder) : null, //deprecated
             'ad_free' => $request->ad_free,
             'gradients_enabled' => $request->gradients_enabled,
             'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
@@ -148,6 +157,90 @@ class UserController extends Controller
         } catch (DecryptException $e) {
             return abort(500, 'Decryption error.');
         }
+    }
+
+    public function forgotPassword(Request $request, string $username)
+    {
+        $user = User::where('username', $request->username)->firstOrFail();
+
+        if($request->hasValidSignature()) {
+            $validator = Validator::make($request->all(), [
+                'password' => ['required', 'string', 'min:4', 'confirmed'],
+            ]);
+            if ($validator->fails()) abort(400, $validator->errors()->first());
+            $user->update(['password' => Hash::make($request->password)]);
+            return response()->json(null, 204);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'group_count' => ['required', 'numeric', 'min:0'],
+            'currency' => ['required', Rule::in(CurrencyController::CurrencyList())],
+            'groups' => 'required|array|size:'.min(max($request->group_count, 1), 3),
+            'groups.*.name' => 'required|string',
+            'groups.*.nickname' => 'nullable|string',
+            'groups.*.balance' => 'nullable|numeric',
+            'groups.*.last_transaction_amount' => 'nullable|numeric',
+            'groups.*.last_transaction_date' => 'nullable|date',
+        ]);
+        if ($validator->fails()) abort(400, $validator->errors()->first());
+
+        $fails = 0;
+
+        $this->testKnowledgeNumber($user->groups->count(), $request->group_count, $fails);
+        $this->testKnowledgeString($user->default_currency, $request->currency, $fails);
+
+        foreach ($request->groups as $group_data) {
+            $group = $user->groups()->firstWhere('name', $group_data['name']);
+            if(!$group){
+                $fails = $fails + 2;
+                continue;
+            }
+            $member_data = $group->member($user->id)->member_data;
+            $this->testKnowledgeString($member_data->nickname, $group_data['nickname'], $fails);
+            $this->testKnowledgeNumber($member_data->balance, $group_data['balance'], $fails, 1);
+
+            $last_payment = $group->payments()->where(function ($query) use ($user) {
+                $query->where('payer_id', $user->id)->orWhere('taker_id', $user->id);
+            })->orderBy('created_at', 'desc')->first();
+
+            $last_purchase_paid = $group->purchases()->where('payer_id', $user->id)->orderBy('created_at', 'desc')->first();
+            $last_purchase_received = $group->purchaseReceivers()->where('receiver_id', $user->id)->orderBy('created_at', 'desc')->first();
+
+            $purchase_date_fail = 0;
+            $this->testKnowledgeDate($last_payment?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_paid?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $this->testKnowledgeDate($last_purchase_received?->updated_at, $group_data['last_transaction_date'], $purchase_date_fail, 1);
+            $purchase_amount_fail = 0;
+            $this->testKnowledgeNumber($last_payment?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_paid?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            $this->testKnowledgeNumber($last_purchase_received?->amount, $group_data['last_transaction_amount'], $purchase_amount_fail, 1);
+            if($purchase_date_fail == 3) $fails++;
+            if($purchase_amount_fail == 3) $fails++;
+        }
+
+        if($fails <= min($request->group_count, 1)) {
+            return response()->json([
+                'url' => URL::temporarySignedRoute('user.forgot_password', now()->addMinutes(5), ['username' => $user->username])
+            ]);
+        } else {
+            return abort(400, 'The given data is incorrect.');
+        }
+
+    }
+
+    private function testKnowledgeString($expected, $given, &$fails)
+    {
+       if($expected && $expected != $given) $fails++;
+    }
+
+    private function testKnowledgeNumber($expected, $given, &$fails, $delta = 0)
+    {
+        if($expected &&abs($expected - $given) > $delta) $fails++;
+    }
+
+    private function testKnowledgeDate($expected, $given, &$fails, $delta = 0)
+    {
+        if($expected && Carbon::parse($expected)->diff(Carbon::parse($given))->days > $delta) $fails++;
     }
 
     public function balance(Request $request)
