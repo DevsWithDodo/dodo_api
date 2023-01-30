@@ -23,6 +23,43 @@ class PolymorphicReactions extends Migration
             $table->morphs('reactionable');
             $table->timestamps();
         });
+
+        DB::cursor('SELECT * FROM purchase_reactions', function ($row) {
+            DB::table('reactions')->insert([
+                'reaction' => $row->reaction,
+                'user_id' => $row->user_id,
+                'group_id' => $row->group_id,
+                'reactionable_id' => $row->purchase_id,
+                'reactionable_type' => 'App\Transactions\Purchase',
+                'created_at' => $row->created_at,
+                'updated_at' => $row->updated_at,
+            ]);
+        });
+
+        DB::cursor('SELECT * FROM payment_reactions', function ($row) {
+            DB::table('reactions')->insert([
+                'reaction' => $row->reaction,
+                'user_id' => $row->user_id,
+                'group_id' => $row->group_id,
+                'reactionable_id' => $row->payment_id,
+                'reactionable_type' => 'App\Transactions\Payment',
+                'created_at' => $row->created_at,
+                'updated_at' => $row->updated_at,
+            ]);
+        });
+
+        DB::cursor('SELECT * FROM request_reactions', function ($row) {
+            DB::table('reactions')->insert([
+                'reaction' => $row->reaction,
+                'user_id' => $row->user_id,
+                'group_id' => $row->group_id,
+                'reactionable_id' => $row->request_id,
+                'reactionable_type' => 'App\Request',
+                'created_at' => $row->created_at,
+                'updated_at' => $row->updated_at,
+            ]);
+        });
+
         Schema::dropIfExists('purchase_reactions');
         Schema::dropIfExists('payment_reactions');
         Schema::dropIfExists('request_reactions');
