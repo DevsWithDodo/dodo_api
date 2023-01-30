@@ -112,22 +112,6 @@ class Purchase extends Model
         }
     }
 
-    /**
-     * Deletes, recalculates, and recreates the receivers of the purchase.
-     * Should be used only for testing purposes as this can take a while.
-     * @return void
-     * */
-    public function recalculateReceivers()
-    {
-        $receivers = $this->receivers->map(function ($item, $key) {
-            return $item->user->id;
-        });
-        $this->receivers()->delete();
-        $this->withoutEvents(function () use ($receivers) {
-            $this->createReceivers($receivers->toArray());
-        });
-    }
-
     public function delete()
     {
         foreach ($this->receivers as $receiver) {
