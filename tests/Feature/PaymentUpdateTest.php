@@ -8,7 +8,7 @@ use App\Transactions\Payment;
 use App\Group;
 use App\User;
 
-class PaymentTest extends TestCase
+class PaymentUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -29,6 +29,8 @@ class PaymentTest extends TestCase
             'payer_id' => $this->users[0]->id,
             'taker_id' => $this->users[1]->id,
             'amount' => 100,
+            'original_amount' => 100,
+            'currency' => 'HUF'
         ]);
     }
 
@@ -51,12 +53,74 @@ class PaymentTest extends TestCase
         $this->assertEqualsWithDelta(
             150,
             $this->group->member($payer->id)->member_data->balance,
-            1
+            0.1
         );
         $this->assertEqualsWithDelta(
             -150,
             $this->group->member($taker->id)->member_data->balance,
-            1
+            0.1
+        );
+
+        $this->checkBalanceSum();
+    }
+
+    /**
+     * @test
+     * Update payment
+     */
+    public function updateCurrency()
+    {
+        $payer = $this->users[0];
+        $taker = $this->users[1];
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $this->payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 100,
+                'currency' => 'EUR'
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            100*400,
+            $this->group->member($payer->id)->member_data->balance,
+            0.1
+        );
+        $this->assertEqualsWithDelta(
+            -100*400,
+            $this->group->member($taker->id)->member_data->balance,
+            0.1
+        );
+
+        $this->checkBalanceSum();
+    }
+
+        /**
+     * @test
+     * Update payment
+     */
+    public function updateCurrencyAndAmount()
+    {
+        $payer = $this->users[0];
+        $taker = $this->users[1];
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $this->payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 5,
+                'currency' => 'EUR'
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            5*400,
+            $this->group->member($payer->id)->member_data->balance,
+            0.1
+        );
+        $this->assertEqualsWithDelta(
+            -5*400,
+            $this->group->member($taker->id)->member_data->balance,
+            0.1
         );
 
         $this->checkBalanceSum();
@@ -95,22 +159,21 @@ class PaymentTest extends TestCase
         $this->assertEqualsWithDelta(
             0,
             $this->group->member($this->users[0]->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->assertEqualsWithDelta(
             150,
             $this->group->member($payer->id)->member_data->balance,
-            1
+            0.1
         );
         $this->assertEqualsWithDelta(
             -150,
             $this->group->member($taker->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->checkBalanceSum();
-
     }
 
     /**
@@ -133,18 +196,18 @@ class PaymentTest extends TestCase
         $this->assertEqualsWithDelta(
             150,
             $this->group->member($payer->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->assertEqualsWithDelta(
             0,
             $this->group->member($this->users[1]->id)->member_data->balance,
-            1
+            0.1
         );
         $this->assertEqualsWithDelta(
             -150,
             $this->group->member($taker->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->checkBalanceSum();
@@ -171,23 +234,23 @@ class PaymentTest extends TestCase
         $this->assertEqualsWithDelta(
             150,
             $this->group->member($payer->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->assertEqualsWithDelta(
             0,
             $this->group->member($this->users[0]->id)->member_data->balance,
-            1
+            0.1
         );
         $this->assertEqualsWithDelta(
             0,
             $this->group->member($this->users[1]->id)->member_data->balance,
-            1
+            0.1
         );
         $this->assertEqualsWithDelta(
             -150,
             $this->group->member($taker->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->checkBalanceSum();
@@ -214,15 +277,59 @@ class PaymentTest extends TestCase
         $this->assertEqualsWithDelta(
             150,
             $this->group->member($payer->id)->member_data->balance,
-            1
+            0.1
         );
 
         $this->assertEqualsWithDelta(
             -150,
             $this->group->member($taker->id)->member_data->balance,
-            1
+            0.1
+        );
+    }
+
+        /**
+     * @test
+     * Update payment
+     */
+    public function updateEverything()
+    {
+
+        $payer = $this->users[2];
+        $taker = $this->users[3];
+
+        $response = $this->actingAs($payer, 'api')
+            ->putJson(route('payments.update', $this->payment->id), [
+                'payer_id' => $payer->id,
+                'taker_id' => $taker->id,
+                'amount' => 15,
+                'currency' => 'EUR'
+            ]);
+        $response->assertStatus(204);
+
+        $this->assertEqualsWithDelta(
+            0,
+            $this->group->member($this->users[0]->id)->member_data->balance,
+            0.1
+        );
+        $this->assertEqualsWithDelta(
+            0,
+            $this->group->member($this->users[1]->id)->member_data->balance,
+            0.1
         );
 
+        $this->assertEqualsWithDelta(
+            15*400,
+            $this->group->member($payer->id)->member_data->balance,
+            0.1
+        );
+
+        $this->assertEqualsWithDelta(
+            -15*400,
+            $this->group->member($taker->id)->member_data->balance,
+            0.1
+        );
+
+        $this->checkBalanceSum();
     }
 
     private function checkBalanceSum()
