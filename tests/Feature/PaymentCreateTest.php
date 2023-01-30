@@ -3,10 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Tests\TestHelper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Transactions\Payment;
-use Illuminate\Support\Facades\Artisan;
 use App\Group;
 use App\User;
 

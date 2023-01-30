@@ -29,6 +29,7 @@ class Purchase extends Model
         $purchase = new Purchase();
         $purchase->group_id = $purchase_data['group_id'];
         $purchase->updateWithReceivers($purchase_data);
+        return $purchase;
     }
 
     public function updateWithReceivers(array $purchase_data) {
