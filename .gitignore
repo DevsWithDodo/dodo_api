@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /storage/app/*.json
+/storage/tempdir
 /vendor
 .env
 .env.backup
