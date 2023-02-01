@@ -28,6 +28,7 @@ class TimelineSheet implements FromCollection, WithTitle, WithMapping, WithHeadi
             __('export.payer'),
             "   ",
             __('export.amount') . " (" . $this->group->currency . ")",
+            __('export.amount'),
             __('export.taker'),
             __('export.note'),
             __('export.date')
@@ -52,6 +53,7 @@ class TimelineSheet implements FromCollection, WithTitle, WithMapping, WithHeadi
                     ($this->group->isMember($row->buyer_id) ? $row->buyer->username : 'N/A'),
                     "🛒",
                     $receiver->amount,
+                    $receiver->original_amount . " " . $row->original_currency,
                     ($this->group->isMember($receiver->receiver_id) ? $receiver->user->username : 'N/A'),
                     $row->name,
                     $row->created_at
@@ -63,6 +65,7 @@ class TimelineSheet implements FromCollection, WithTitle, WithMapping, WithHeadi
                 ($this->group->isMember($row->payer_id) ? $row->payer->username : 'N/A'),
                 "💰",
                 $row->amount,
+                $row->original_amount . " " . $row->original_currency,
                 ($this->group->isMember($row->taker_id) ? $row->taker->username : 'N/A'),
                 $row->note,
                 $row->created_at

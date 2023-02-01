@@ -27,6 +27,7 @@ class PurchasesSheet implements FromCollection, WithTitle, WithMapping, WithHead
         return [
             __('export.name'),
             __('export.amount') . " (" . $this->group->currency . ")",
+            __('export.amount'),
             __('export.buyer'),
             __('export.receivers'),
             __('export.date')
@@ -53,6 +54,7 @@ class PurchasesSheet implements FromCollection, WithTitle, WithMapping, WithHead
         $data[] = [
             $purchase->name,
             $purchase->amount,
+            $purchase->original_amount . " " . $purchase->original_currency,
             ($this->group->isMember($purchase->buyer_id) ? $purchase->buyer->username : 'N/A'),
             implode(", ", $receivers),
             $purchase->created_at

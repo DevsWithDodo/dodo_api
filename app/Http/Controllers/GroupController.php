@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\CurrencyController;
 use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
@@ -16,7 +15,6 @@ use App\Http\Resources\Group as GroupResource;
 use App\Group;
 use DB;
 use Illuminate\Support\Facades\App;
-use Kreait\Firebase\Database\Transaction;
 
 class GroupController extends Controller
 {

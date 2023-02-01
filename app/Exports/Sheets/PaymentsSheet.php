@@ -28,6 +28,7 @@ class PaymentsSheet implements FromCollection, WithTitle, WithMapping, WithHeadi
             __('export.payer'),
             __('export.taker'),
             __('export.amount') . " (" . $this->group->currency . ")",
+            __('export.amount'),
             __('export.note'),
             __('export.date')
         ];
@@ -49,6 +50,7 @@ class PaymentsSheet implements FromCollection, WithTitle, WithMapping, WithHeadi
             ($this->group->isMember($payment->payer_id) ? $payment->payer->username : 'N/A'),
             ($this->group->isMember($payment->taker_id) ? $payment->taker->username : 'N/A'),
             $payment->amount,
+            $payment->original_amount . " " . $payment->original_currency,
             $payment->note,
             $payment->created_at
         ];
