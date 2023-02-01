@@ -80,7 +80,7 @@ class GroupController extends Controller
             $user->decrement('available_boosts');
             $group->update(['boosted' => true]);
         });
-        
+
         foreach ($group->members->except($user->id) as $member) {
             $member->sendNotification((new GroupBoostedNotification($group, $user)));
         }
@@ -119,15 +119,15 @@ class GroupController extends Controller
     public function exportXls(Group $group, Request $request)
     {
         if (!$request->hasValidSignature()) abort(401, "Unauthorized.");
-        
+
         App::setLocale($request->language);
         return Excel::download(new GroupExport($group), $group->name . '.xlsx');
     }
 
     public function exportPdf(Group $group, Request $request)
     {
-        if (!$request->hasValidSignature()) abort(401, "Unauthorized."); 
-        
+        if (!$request->hasValidSignature()) abort(401, "Unauthorized.");
+
         App::setLocale($request->language);
         $purchases = $group->purchases()
                         ->orderBy('purchases.updated_at', 'desc')
@@ -137,7 +137,7 @@ class GroupController extends Controller
                         ->orderBy('payments.updated_at', 'desc')
                         ->with('payer')
                         ->get();
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => storage_path('tempdir')]);
         $mpdf->WriteHTML(view('pdf', ['purchases' => $purchases, 'payments' => $payments, 'group' => $group]));
         return $mpdf->Output($group->name, 'I');
 

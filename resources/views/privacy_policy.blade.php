@@ -5,7 +5,7 @@
     <meta charset="utf-8">
 
     <title>Dodo - Privacy Policy</title>
-    <link rel="shortcut icon" href="/logo_color.png" type="image/png" />
+    <link rel="shortcut icon" href="/dodo_szines.png" type="image/png" />
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">

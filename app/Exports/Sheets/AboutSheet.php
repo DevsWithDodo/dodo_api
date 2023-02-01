@@ -27,7 +27,7 @@ class AboutSheet implements FromCollection, WithTitle, WithHeadings, WithColumnW
         $logo = new Drawing();
         $logo->setName('Logo');
         $logo->setDescription('Dodo Logo');
-        $logo->setPath(public_path('/logo_color.png'));
+        $logo->setPath(public_path('/dodo_szines.png'));
         $logo->setHeight(150);
         $logo->setCoordinates('B5');
 
