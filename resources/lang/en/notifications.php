@@ -64,9 +64,5 @@ return [
         //user, store, group
         'descr' => 'You have been notified that :user is shopping in :store right now. Write something to :group\'s shopping list if you need something!',
     ],
-    'trial_ended' => [
-        'title' => 'Trial version ended',
-        'descr' => 'Buy some beautiful colors or group boosting Dodos in the Dodo store! Don\'t worry, all the useful features of Dodo are still yours! 😉'
-    ],
     'message_from_developers' => 'Message from the developers',
 ];

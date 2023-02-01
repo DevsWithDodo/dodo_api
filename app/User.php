@@ -60,10 +60,8 @@ class User extends Authenticatable implements HasLocalePreference {
     public function getTrialAttribute($value): bool {
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
-            //TODO remove field
             $this->update(['trial' => 0]);
-            $this->notify((new TrialEndedNotification())->locale($this->language));
-            return false;
+            return null;
         }
         return true;
     }

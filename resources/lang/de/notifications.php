@@ -64,9 +64,5 @@ return [
         //user, store, group
         'descr' => ':user kauft gerade i :store ein. Schreib etwas auf den Einkaufszettel von :group wenn du was brauchst!',
     ],
-    'trial_ended' => [
-        'title' => 'Die Probeversion ist zuende',
-        'descr' => 'Kaufe schöne Farben, entferne die Anzeigen oder booste die Gruppe im Dodo Laden. Keine Sorge, alle wichtigen Funktionen von Dodo funktionieren immer noch! 😉'
-    ],
     'message_from_developers' => 'Nachricht von den Entwicklern',
 ];
