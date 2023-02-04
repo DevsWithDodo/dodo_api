@@ -18,13 +18,6 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency', 'category'];
 
-    // protected $casts = [
-    //     'original_amount' => 'encrypted',
-    //     'original_currency' => 'encrypted',
-    //     'amount' => 'encrypted',
-    //     'name' => 'encrypted',
-    // ];
-
     public function getNameAttribute($value)
     {
         return ($value == null ? null : decrypt($value));

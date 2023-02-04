@@ -15,11 +15,6 @@ class PurchaseReceiver extends Model
 
     public $timestamps = false;
 
-    // protected $casts = [
-    //     'original_amount' => 'encrypted',
-    //     'amount' => 'encrypted',
-    // ];
-
    public function getAmountAttribute($value)
    {
        return ($value == null ? null : decrypt($value));

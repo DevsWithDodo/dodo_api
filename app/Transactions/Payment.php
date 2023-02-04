@@ -16,14 +16,6 @@ class Payment extends Model
     protected $table = 'payments';
 
     protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note', 'original_amount', 'original_currency', 'category'];
-
-    //  protected $casts = [
-    //      'original_amount' => 'encrypted',
-    //      'original_currency' => 'encrypted',
-    //      'amount' => 'encrypted',
-    //      'note' => 'encrypted',
-    //  ];
-
     
     public function getAmountAttribute($value)
     {
