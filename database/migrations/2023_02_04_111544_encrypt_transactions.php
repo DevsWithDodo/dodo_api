@@ -1,5 +1,6 @@
 <?php
 
+use App\Member;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -66,6 +67,16 @@ class EncryptTransactions extends Migration
         };
         PurchaseReceiver::setEventDispatcher($dispatcher);
 
+        Schema::table('group_user', function (Blueprint $table) {
+            $table->text('nickname')->change();
+            $table->text('balance')->change();
+        });
+
+        foreach (Member::all() as $member) {
+            $member->nickname = encrypt($member->getOriginal('nickname'));
+            $member->balance = encrypt($member->getOriginal('balance'));
+            $member->save(['timestamps' => false]);
+        };
         
     }
 

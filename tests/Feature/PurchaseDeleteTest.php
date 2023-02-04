@@ -22,7 +22,7 @@ class PurchaseDeleteTest extends TestCase
         $this->group = Group::factory()->create(['currency' => 'HUF']);
         $this->users = User::factory()->count(4)->create();
         foreach ($this->users as $user) {
-            $this->group->members()->attach($user->id, ['nickname' => $user->username]);
+            $this->group->members()->attach($user->id, ['nickname' => encrypt($user->username), 'balance' => encrypt('0')]);
         }
         $purchase_data = [];
         $purchase_data['amount'] = 100;

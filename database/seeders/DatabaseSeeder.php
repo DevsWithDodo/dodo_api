@@ -41,16 +41,19 @@ class DatabaseSeeder extends Seeder
         ]);
         foreach ([$csocsort, $other_group] as $group) {
             $group->members()->attach($dominik->id, [
-                'nickname' => $dominik->username, 'is_admin' => true
+                'nickname' => encrypt($dominik->username), 'is_admin' => true,
+                'balance' => encrypt('0')
             ]);
             $group->members()->attach($samu->id, [
-                'nickname' => $samu->username, 'is_admin' => true
+                'nickname' => encrypt($samu->username), 'is_admin' => true,
+                'balance' => encrypt('0')
             ]);
 
             $users = User::factory()->count(5)->create();
             $users->each(function ($user) use ($group) {
                 $group->members()->attach($user->id, [
-                    'nickname' => $user->username
+                    'nickname' => encrypt($user->username),
+                    'balance' => encrypt('0')
                 ]);
                 $user->generateToken();
             });

@@ -45,9 +45,10 @@ class MemberController extends Controller
 
         $user = auth('api')->user();
         $group->members()->attach($user, [
-            'nickname' => $request->nickname,
+            'nickname' => encrypt($request->nickname),
             'is_admin' => false,
-            'approved' => !$group->admin_approval
+            'approved' => !$group->admin_approval,
+            'balance' => encrypt('0')
         ]);
 
         if(isset($request->merge_with_member_id)){
@@ -93,7 +94,7 @@ class MemberController extends Controller
 
         $this->authorize('edit_member', [$group, $member_to_update]);
 
-        $member_to_update->member_data->update(['nickname' => $request->nickname]);
+        $member_to_update->member_data->update(['nickname' => encrypt($request->nickname)]);
 
         if ($user->id != $member_to_update->id)
             $member_to_update->sendNotification((new ChangedNicknameNotification($group, $user, $request->nickname)));
@@ -266,7 +267,8 @@ class MemberController extends Controller
         $guest->generateToken(); // login
 
         $group->members()->attach($guest, [
-            'nickname' => $request->username,
+            'nickname' => encrypt($request->username),
+            'balance' => encrypt('0'),
             'is_admin' => false
         ]);
 
@@ -294,13 +296,15 @@ class MemberController extends Controller
 
         //the request is valid
 
-        $balance = $group->member($guest->id)->member_data->balance;
+        DB::transaction(function () use ($group, $member, $guest) {
+            $balance = $group->member($guest->id)->member_data->balance;
 
-        $guest->mergeDataInto($member->id);
-        $group->members()->detach($guest);
-        $guest->delete();
+            $guest->mergeDataInto($member->id);
+            $group->members()->detach($guest);
+            $guest->delete();
 
-        Group::addToMemberBalance($group->id, $member->id, $balance);
+            Group::addToMemberBalance($group->id, $member->id, $balance);
+        });
 
         return response()->json(null, 204);
     }

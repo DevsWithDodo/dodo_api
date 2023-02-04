@@ -24,14 +24,13 @@ class ForgotPasswordTest extends TestCase
         $users = User::factory()->count(2)->create(['default_currency' => 'EUR']);
         $this->user = $users[0];
         foreach ($users as $user) {
-            $this->group->members()->attach($user->id, ['nickname' => $user->username]);
+            $this->group->members()->attach($user->id, ['nickname' => encrypt($user->username), 'balance' => encrypt('0')]);
         }
         Payment::factory()->count(5)->create([
             'group_id' => $this->group->id,
             'payer_id' => $users[0]->id,
             'taker_id' => $users[1]->id
         ]);
-        $this->group->recalculateBalances();
     }
 
     /**
