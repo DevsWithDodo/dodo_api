@@ -17,8 +17,33 @@ class Payment extends Model
 
     protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note', 'original_amount', 'original_currency', 'category'];
 
+     protected $casts = [
+         'original_amount' => 'encrypted',
+         'original_currency' => 'encrypted',
+         'amount' => 'encrypted',
+         'note' => 'encrypted',
+     ];
+
+    
+    public function getAmountAttribute($value)
+    {
+        return ($value == null ? null : decrypt($value));
+    }
+   
+    public function getOriginalAmountAttribute($value)
+    {
+        return ($value == null ? null : decrypt($value));
+    }
+
+    
+    public function getOriginalCurrencyAttribute($value)
+    {
+        return ($value == null ? null : decrypt($value));
+    }
+
     public function getNoteAttribute($value)
     {
+        return ($value == null ? null : decrypt($value));
         App::setLocale(auth('api')->user()?->language ?? "en");
         if ($value == '$$legacy_money$$') return __('general.legacy_money');
         if ($value == '$$auto_payment$$') return __('general.auto_payment');
