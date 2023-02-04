@@ -27,12 +27,13 @@ class EncryptTransactions extends Migration
         $dispatcher = Payment::getEventDispatcher();
         Payment::unsetEventDispatcher();
         foreach (Payment::all() as $payment) {
+            $payment->timestamps = false;
             $payment->original_amount = encrypt($payment->getRawOriginal('original_amount'));
             $payment->original_currency = encrypt($payment->getRawOriginal('original_currency'));
             $payment->amount = encrypt($payment->getRawOriginal('amount'));
             $payment->note = encrypt($payment->getRawOriginal('note'));
-            $payment->updated_at = DB::raw('updated_at');
             $payment->save();
+            $payment->timestamps = true;
         };
         Payment::setEventDispatcher($dispatcher);
 
@@ -46,12 +47,13 @@ class EncryptTransactions extends Migration
         $dispatcher = Purchase::getEventDispatcher();
         Purchase::unsetEventDispatcher();
         foreach (Purchase::all() as $purchase) {
+            $purchase->timestamps = false;
             $purchase->original_amount = encrypt($purchase->getRawOriginal('original_amount'));
             $purchase->original_currency = encrypt($purchase->getRawOriginal('original_currency'));
             $purchase->amount = encrypt($purchase->getRawOriginal('amount'));
             $purchase->name = encrypt($purchase->getRawOriginal('name'));
-            $purchase->updated_at = DB::raw('updated_at');
             $purchase->save();
+            $purchase->timestamps = true;
         };
         Purchase::setEventDispatcher($dispatcher);
 
@@ -63,10 +65,11 @@ class EncryptTransactions extends Migration
         $dispatcher = PurchaseReceiver::getEventDispatcher();
         PurchaseReceiver::unsetEventDispatcher();
         foreach (PurchaseReceiver::all() as $purchase_receiver) {
+            $purchase_receiver->timestamps = false;
             $purchase_receiver->original_amount = encrypt($purchase_receiver->getRawOriginal('original_amount'));
             $purchase_receiver->amount = encrypt($purchase_receiver->getRawOriginal('amount'));
-            $purchase_receiver->updated_at = DB::raw('updated_at');
             $purchase_receiver->save();
+            $purchase_receiver->timestamps = true;
         };
         PurchaseReceiver::setEventDispatcher($dispatcher);
 
@@ -76,10 +79,11 @@ class EncryptTransactions extends Migration
         });
 
         foreach (Member::all() as $member) {
+            $member->timestamps = false;
             $member->nickname = encrypt($member->getRawOriginal('nickname'));
             $member->balance = encrypt($member->getRawOriginal('balance'));
-            $member->updated_at = DB::raw('updated_at');
             $member->save();
+            $member->timestamps = true;
         };
         
     }
