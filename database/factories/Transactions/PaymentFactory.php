@@ -24,6 +24,7 @@ class PaymentFactory extends Factory
     {
         return [
             'amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
+            'original_amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
             'note' => encrypt($this->faker->word),
             'created_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440)),
             'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440))

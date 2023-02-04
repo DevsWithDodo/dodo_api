@@ -17,12 +17,12 @@ class Payment extends Model
 
     protected $fillable = ['amount', 'group_id', 'taker_id', 'payer_id', 'note', 'original_amount', 'original_currency', 'category'];
 
-     protected $casts = [
-         'original_amount' => 'encrypted',
-         'original_currency' => 'encrypted',
-         'amount' => 'encrypted',
-         'note' => 'encrypted',
-     ];
+    //  protected $casts = [
+    //      'original_amount' => 'encrypted',
+    //      'original_currency' => 'encrypted',
+    //      'amount' => 'encrypted',
+    //      'note' => 'encrypted',
+    //  ];
 
     
     public function getAmountAttribute($value)
@@ -43,16 +43,16 @@ class Payment extends Model
 
     public function getNoteAttribute($value)
     {
-        return ($value == null ? null : decrypt($value));
+        $value = ($value == null ? null : decrypt($value));
         App::setLocale(auth('api')->user()?->language ?? "en");
         if ($value == '$$legacy_money$$') return __('general.legacy_money');
         if ($value == '$$auto_payment$$') return __('general.auto_payment');
         return $value;
     }
 
-    public function getEdtiableAttribute()
+    public function getEditableAttribute()
     {
-       return $this->group->members()->whereIn('id', [$this->taker_id, $this->payer_id])->count() == 2;
+       return $this->group->members()->whereIn('users.id', [$this->taker_id, $this->payer_id])->count() == 2;
     }
 
     public function payer(): BelongsTo
