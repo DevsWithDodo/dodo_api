@@ -22,14 +22,14 @@ class PaymentDeleteTest extends TestCase
         $this->group = Group::factory()->create(['currency' => 'HUF']);
         $this->users = User::factory()->count(4)->create();
         foreach ($this->users as $user) {
-            $this->group->members()->attach($user->id, ['nickname' => $user->username]);
+            $this->group->members()->attach($user->id, ['nickname' => encrypt($user->username), 'balance' => encrypt('0')]);
         }
         $this->payment = Payment::create([
             'group_id' => $this->group->id,
             'payer_id' => $this->users[0]->id,
             'taker_id' => $this->users[1]->id,
-            'amount' => 100,
-            'original_amount' => 100,
+            'amount' => encrypt('100'),
+            'original_amount' => encrypt('100'),
             'currency' => 'HUF'
         ]);
     }

@@ -116,7 +116,8 @@ class User extends Authenticatable implements HasLocalePreference {
 
     public function groups(): BelongsToMany {
         return $this
-            ->belongsToMany('App\Group', 'group_user')
+            ->belongsToMany(Group::class)
+            ->using(Member::class)
             ->as('member_data')
             ->withPivot('nickname', 'is_admin', 'balance', 'approved')
             ->where('approved', true)

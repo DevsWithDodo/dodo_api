@@ -70,14 +70,14 @@ class PaymentController extends Controller
 
         $currency = $request->currency ?? $group->currency;
         Payment::create([
-            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
-            'original_amount' => $request->amount,
-            'original_currency' => $currency,
+            'amount' => encrypt(CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount)),
+            'original_amount' => encrypt($request->amount),
+            'original_currency' => encrypt($currency),
             'group_id' => $group->id,
             'taker_id' => $request->taker_id,
             'payer_id' => $request->payer_id ?? auth('api')->user()->id,
             'category' => $request->category,
-            'note' => $request->note ?? null
+            'note' => encrypt($request->note)
         ]);
         return response()->json(null, 204);
     }
@@ -98,13 +98,13 @@ class PaymentController extends Controller
 
         $currency = $request->currency ?? $group->currency;
         $payment->update([
-            'amount' => CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount),
-            'original_amount' => $request->amount,
-            'original_currency' => $currency,
+            'amount' => encrypt(CurrencyController::exchangeCurrency($currency, $group->currency, $request->amount)),
+            'original_amount' => encrypt($request->amount),
+            'original_currency' => encrypt($currency),
             'taker_id' => $request->taker_id,
             'payer_id' => $request->payer_id ?? auth('api')->user()->id,
             'category' => $request->category,
-            'note' => $request->note ?? null
+            'note' => encrypt($request->note)
         ]);
 
         return response()->json(null, 204);

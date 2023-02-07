@@ -22,14 +22,14 @@ class PaymentUpdateTest extends TestCase
         $this->group = Group::factory()->create(['currency' => 'HUF']);
         $this->users = User::factory()->count(4)->create();
         foreach ($this->users as $user) {
-            $this->group->members()->attach($user->id, ['nickname' => $user->username]);
+            $this->group->members()->attach($user->id, ['nickname' => encrypt($user->username), 'balance' => encrypt('0')]);
         }
         $this->payment = Payment::create([
             'group_id' => $this->group->id,
             'payer_id' => $this->users[0]->id,
             'taker_id' => $this->users[1]->id,
-            'amount' => 100,
-            'original_amount' => 100,
+            'amount' => encrypt('100'),
+            'original_amount' => encrypt('100'),
             'currency' => 'HUF'
         ]);
     }
@@ -132,20 +132,7 @@ class PaymentUpdateTest extends TestCase
      */
     public function updatePayer()
     {
-        $this->group = Group::factory()->create(['currency' => 'HUF']);
-        $this->users = User::factory()->count(4)->create();
-        foreach ($this->users as $user) {
-            $this->group->members()->attach($user->id, ['nickname' => $user->username]);
-        }
-        $payer = $this->users[0];
         $taker = $this->users[1];
-        $this->payment = Payment::create([
-            'group_id' => $this->group->id,
-            'payer_id' => $payer->id,
-            'taker_id' => $taker->id,
-            'amount' => 100,
-        ]);
-
         $payer = $this->users[2];
 
         $response = $this->actingAs($payer, 'api')

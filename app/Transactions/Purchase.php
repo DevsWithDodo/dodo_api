@@ -18,11 +18,31 @@ class Purchase extends Model
 
     protected $fillable = ['name', 'group_id', 'buyer_id', 'amount', 'original_amount', 'original_currency', 'category'];
 
-    public function getEdtiableAttribute()
+    public function getNameAttribute($value)
+    {
+        return ($value == null ? null : decrypt($value));
+    }
+
+   public function getAmountAttribute($value)
+   {
+       return ($value == null ? null : decrypt($value));
+   }
+
+   public function getOriginalAmountAttribute($value)
+   {
+       return ($value == null ? null : decrypt($value));
+   }
+
+   public function getOriginalCurrencyAttribute($value)
+   {
+       return ($value == null ? null : decrypt($value));
+   }
+
+    public function getEditableAttribute()
     {
         $receiver_ids = array_merge($this->receivers->pluck('receiver_id')->toArray());
-        return $this->group->members()->whereIn('id', $receiver_ids)->count() == count($receiver_ids)
-            && $this->group->members()->where('id', $this->buyer_id)->exists();
+        return $this->group->members()->whereIn('users.id', $receiver_ids)->count() == count($receiver_ids)
+            && $this->group->members()->where('users.id', $this->buyer_id)->exists();
     }
 
     public static function createWithReceivers(array $purchase_data) {
@@ -33,11 +53,11 @@ class Purchase extends Model
     }
 
     public function updateWithReceivers(array $purchase_data) {
-        $this->name = $purchase_data['name'];
+        $this->name = encrypt($purchase_data['name']);
         $this->buyer_id = $purchase_data['buyer_id'];
-        $this->original_currency = $purchase_data['original_currency'];
-        $this->amount = CurrencyController::exchangeCurrency($purchase_data['original_currency'], $purchase_data['group_currency'], $purchase_data['amount']);
-        $this->original_amount = $purchase_data['amount'];
+        $this->original_currency = encrypt($purchase_data['original_currency']);
+        $this->amount = encrypt(CurrencyController::exchangeCurrency($purchase_data['original_currency'], $purchase_data['group_currency'], $purchase_data['amount']));
+        $this->original_amount = encrypt($purchase_data['amount']);
         $this->category = $purchase_data['category'] ?? null;
         $this->save();
 
@@ -91,20 +111,19 @@ class Purchase extends Model
                 $receiver = new PurchaseReceiver([
                     'purchase_id' => $this->id,
                     'receiver_id' => $receiver_data['user_id'],
-                    'group_id' => $this->group_id,
-                    'receiver_id' => $receiver_data['user_id'],
+                    'group_id' => $this->group_id
                 ]);
             }
             if(isset($receiver_data['amount'])) {
                 //set custom amount
-                $receiver->amount = $receiver_data['amount'];
-                $receiver->original_amount = $receiver_data['original_amount'];
+                $receiver->amount = encrypt($receiver_data['amount']);
+                $receiver->original_amount = encrypt($receiver_data['original_amount']);
                 $receiver->custom_amount = true;
             } else {
                 //set divided amount, add remainder to first receiver_data
                 $amount = bcadd($amount_divided, $remainder);
-                $receiver->amount = $amount;
-                $receiver->original_amount = CurrencyController::exchangeCurrency($group_currency, $original_currency, $amount);
+                $receiver->amount = encrypt($amount);
+                $receiver->original_amount = encrypt(CurrencyController::exchangeCurrency($group_currency, $original_currency, $amount));
                 $receiver->custom_amount = false;
                 $remainder = 0;
             }

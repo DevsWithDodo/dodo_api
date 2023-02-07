@@ -59,7 +59,8 @@ class Group extends Model
     public function members(): BelongsToMany
     {
         return $this
-            ->belongsToMany('App\User', 'group_user')
+            ->belongsToMany(User::class)
+            ->using(Member::class)
             ->as('member_data')
             ->withPivot('nickname', 'is_admin', 'balance', 'approved')
             ->where('approved', true)
@@ -69,11 +70,11 @@ class Group extends Model
     public function unapprovedMembers(): BelongsToMany
     {
         return $this
-            ->belongsToMany('App\User', 'group_user')
+            ->belongsToMany(User::class)
+            ->using(Member::class)
+            ->using(Member::class)
             ->as('member_data')
-            ->withPivot('nickname', 'is_admin', 'balance', 'approved')
-            ->where('approved', false)
-            ->withTimestamps();
+            ->where('approved', false);
     }
 
     /**
@@ -120,8 +121,8 @@ class Group extends Model
      */
     public static function addToMemberBalance($group_id, $user_id, $amount)
     {
-        $old_balance = DB::table('group_user')->where('group_id', $group_id)->where('user_id', $user_id)->get('balance')->first()->balance;
-        DB::table('group_user')->where('group_id', $group_id)->where('user_id', $user_id)->update(['balance' => bcadd($old_balance, $amount)]);
+        $old_balance = Member::where('group_id', $group_id)->where('user_id', $user_id)->get('balance')->first()->balance;
+        Member::where('group_id', $group_id)->where('user_id', $user_id)->update(['balance' => encrypt(bcadd($old_balance, $amount))]);
         if (config('app.debug'))
             Log::info('updated member balance', ['user id' => $user_id, 'amount' => $amount, 'old balance' => $old_balance]);
     }
@@ -192,7 +193,7 @@ class Group extends Model
             foreach ($purchases_received as $purchase_received) {
                 $balance = bcsub($balance, $purchase_received->amount);
             }
-            $member->member_data->update(['balance' => $balance]);
+            $member->member_data->update(['balance' => encrypt($balance)]);
         }
     }
 

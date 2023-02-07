@@ -15,6 +15,16 @@ class PurchaseReceiver extends Model
 
     public $timestamps = false;
 
+   public function getAmountAttribute($value)
+   {
+       return ($value == null ? null : decrypt($value));
+   }
+
+   public function getOriginalAmountAttribute($value)
+   {
+       return ($value == null ? null : decrypt($value));
+   }
+
     public function user()
     {
         return $this->belongsTo('App\User', 'receiver_id');

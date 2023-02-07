@@ -22,7 +22,8 @@ class PurchaseReceiverFactory extends Factory
     public function definition()
     {
         return [
-            'amount' => $this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)
+            'amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
+            'original_amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
         ];
     }
 }
