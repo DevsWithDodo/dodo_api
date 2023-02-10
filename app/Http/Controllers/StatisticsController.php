@@ -85,7 +85,7 @@ class StatisticsController extends Controller
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
-            ->select(['purchase_receivers.amount as receiver_amount', 'updated_at'])
+            ->select(['purchase_receivers.amount', 'updated_at'])
             ->get();
 
         $bought = $received = [];
@@ -106,7 +106,7 @@ class StatisticsController extends Controller
                     $date->format('Y-m-d'),
                     $date->addDay()->format('Y-m-d')
                 ])
-                ->sum('receiver_amount');
+                ->sum('amount');
             $current_date->addDay();
         }
 

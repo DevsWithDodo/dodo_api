@@ -44,17 +44,21 @@ class GroupController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
-        $group = Group::create([
-            'name' => $request->group_name,
-            'currency' => $request->currency,
-            'invitation' => Str::random(20),
-            'admin_approval' => $request->admin_approval ?? false
-        ]);
+        $group = DB::transaction(function () use ($request) {
+            $group = Group::create([
+                'name' => $request->group_name,
+                'currency' => $request->currency,
+                'invitation' => Str::random(20),
+                'admin_approval' => $request->admin_approval ?? false
+            ]);
 
-        $group->members()->attach(auth('api')->user()->id, [
-            'nickname' => $request->member_nickname,
-            'is_admin' => true //set to true on first member
-        ]);
+            $group->members()->attach(auth('api')->user()->id, [
+                'nickname' => encrypt($request->member_nickname),
+                'balance' => encrypt("0"),
+                'is_admin' => true //set to true on first member
+            ]);
+            return $group;
+        });
 
         return response()->json(new GroupResource($group), 201);
     }
