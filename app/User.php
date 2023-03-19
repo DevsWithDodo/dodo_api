@@ -57,7 +57,7 @@ class User extends Authenticatable implements HasLocalePreference {
     /**
      * Decides if the user is registered within the last two weeks.
      */
-    public function getTrialAttribute($value): bool {
+    public function getTrialAttribute($value) {
         if (!($value)) return false;
         if ($this->created_at->addWeeks(2) < now()) {
             $this->update(['trial' => 0]);

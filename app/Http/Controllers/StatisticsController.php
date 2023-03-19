@@ -8,6 +8,7 @@ use Carbon\Carbon;
 
 use App\Group;
 use App\Transactions\PurchaseReceiver;
+use Illuminate\Validation\Rule;
 
 class StatisticsController extends Controller
 {
@@ -18,13 +19,17 @@ class StatisticsController extends Controller
         $validator = Validator::make($request->all(), [
             'from_date' => 'required|date_format:Y-m-d',
             'until_date' => 'required|date_format:Y-m-d',
+            'category' => ['nullable', Rule::in($group->categories)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date)->toImmutable();
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
-        $payments_collection = $group->payments()
+        $payments_collection = $group->payments();
+        if(isset($request->category))
+            $payments_collection->where('category', $request->category);
+        $payments_collection
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
@@ -64,13 +69,17 @@ class StatisticsController extends Controller
         $validator = Validator::make($request->all(), [
             'from_date' => 'required|date_format:Y-m-d',
             'until_date' => 'required|date_format:Y-m-d',
+            'category' => ['nullable', Rule::in($group->categories)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date)->toImmutable();
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
-        $purchases_collection = $group->purchases()
+        $purchases_collection = $group->purchases();
+        if(isset($request->category))
+            $purchases_collection->where('category', $request->category);
+        $purchases_collection
             ->where('buyer_id', $user_id)
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),

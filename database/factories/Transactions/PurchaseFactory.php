@@ -23,12 +23,24 @@ class PurchaseFactory extends Factory
      */
     public function definition()
     {
+        $categories = [
+            'food',
+            'groceries',
+            'transport',
+            'entertainment',
+            'shopping',
+            'health',
+            'bills',
+            'other'
+        ];
+
         return [
             'amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
             'original_amount' => encrypt($this->faker->randomFloat($nbMaxDecimals = 2, $min = 10, $max = 200)),
             'name' => encrypt($this->faker->text(20)),
             'created_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440)),
-            'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440))
+            'updated_at' => Carbon::now()->subDays(rand(0, 30))->subMinutes(rand(1, 1440)),
+            'category' => $categories[array_rand($categories)]
         ];
     }
 
