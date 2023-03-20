@@ -146,11 +146,13 @@ class MemberController extends Controller
             else {
                 if($balance < 0) {
                     Payment::create([
-                        'amount' => (-1)*$balance,
+                        'amount' => encrypt((-1)*$balance),
+                        'original_amount' => encrypt((-1)*$balance),
+                        'original_currency' => encrypt($group->currency),
                         'group_id' => $group->id,
                         'payer_id' => $member_to_delete->id,
                         'taker_id' => $group->members->except([$user->id])->first()->id,
-                        'note' => '$$legacy_money$$'
+                        'note' => encrypt('$$legacy_money$$')
                     ]);
                 }
                 if($balance > 0) {
@@ -158,11 +160,13 @@ class MemberController extends Controller
                     $remainder = bcsub($balance, bcmul($balance_divided, $group->members->count() - 1));
                     foreach ($group->members->except([$user->id]) as $member) {
                         Payment::create([
-                            'amount' => (-1) * bcadd($balance_divided, $remainder),
+                            'amount' => encrypt((-1) * bcadd($balance_divided, $remainder)),
+                            'original_amount' => encrypt((-1) * bcadd($balance_divided, $remainder)),
+                            'original_currency' => encrypt($group->currency),
                             'group_id' => $group->id,
                             'taker_id' => $member->id,
                             'payer_id' => $user->id,
-                            'note' => '$$legacy_money$$'
+                            'note' => encrypt('$$legacy_money$$')
                         ]);
                         $remainder = 0;
                     }
@@ -171,11 +175,13 @@ class MemberController extends Controller
         } else { //kicking
             if ($balance != 0) {
                 Payment::create([
-                    'amount' => (-1) * $balance,
+                    'amount' => encrypt((-1) * $balance),
+                    'original_amount' => encrypt((-1) * $balance),
+                    'original_currency' => encrypt($group->currency),
                     'group_id' => $group->id,
                     'taker_id' => $user->id,
                     'payer_id' => $member_to_delete->id,
-                    'note' => '$$legacy_money$$'
+                    'note' => encrypt('$$legacy_money$$')
                 ]);
             }
         }
