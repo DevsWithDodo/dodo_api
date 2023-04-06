@@ -77,9 +77,12 @@ class StatisticsController extends Controller
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
         $purchases_collection = $group->purchases();
-        if(isset($request->category))
+        $receivers_collection = $group->purchaseReceivers()->join('purchases', 'purchases.id', '=', 'purchase_receivers.purchase_id');
+        if(isset($request->category)){
             $purchases_collection->where('category', $request->category);
-        $purchases_collection
+            $receivers_collection->where('category', $request->category);
+        }
+        $purchases_collection = $purchases_collection
             ->where('buyer_id', $user_id)
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
@@ -87,9 +90,8 @@ class StatisticsController extends Controller
             ])
             ->select(['amount', 'updated_at'])
             ->get();
-        $receivers_collection = PurchaseReceiver::join('purchases', 'purchases.id', '=', 'purchase_receivers.purchase_id')
+        $receivers_collection = $receivers_collection
             ->where('receiver_id', $user_id)
-            ->where('purchases.group_id', $group->id)
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
@@ -135,20 +137,27 @@ class StatisticsController extends Controller
         $validator = Validator::make($request->all(), [
             'from_date' => 'required|date_format:Y-m-d',
             'until_date' => 'required|date_format:Y-m-d',
+            'category' => ['nullable', Rule::in($group->categories)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
         $from_date  = Carbon::parse($request->from_date)->toImmutable();
         $until_date = Carbon::parse($request->until_date)->toImmutable();
 
-        $purchases_collection = $group->purchases()
+        $purchases_collection = $group->purchases();
+        $payments_collection = $group->payments();
+        if(isset($request->category)){
+            $purchases_collection->where('category', $request->category);
+            $payments_collection->where('category', $request->category);
+        }
+        $purchases_collection = $purchases_collection
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
             ])
             ->get();
 
-        $payments_collection = $group->payments()
+        $payments_collection = $payments_collection
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
