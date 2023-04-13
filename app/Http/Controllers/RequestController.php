@@ -40,7 +40,7 @@ class RequestController extends Controller
 
         foreach ($group->members->except($user->id) as $member)
             $member->sendNotification((new RequestNotification($shopping_request)));
-        return response()->json(null, 204);
+        return $shopping_request;
     }
 
     public function update(Request $request, ShoppingRequest $shopping_request)
@@ -53,7 +53,7 @@ class RequestController extends Controller
 
         $shopping_request->update(['name' => $request->name]);
 
-        return response()->json(null, 204);
+        return $shopping_request;
     }
 
     public function restore($shopping_request)
@@ -63,7 +63,7 @@ class RequestController extends Controller
 
         $shopping_request->restore();
 
-        return response()->json(null, 204);
+        return $shopping_request;
     }
     public function delete(ShoppingRequest $shopping_request)
     {
