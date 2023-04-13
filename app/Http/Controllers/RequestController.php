@@ -13,17 +13,14 @@ use App\Notifications\Requests\ShoppingNotification;
 use App\Request as ShoppingRequest;
 use App\Group;
 
-class RequestController extends Controller
-{
-    public function index(Request $request)
-    {
+class RequestController extends Controller {
+    public function index(Request $request) {
         $group = Group::findOrFail($request->group);
         $this->authorize('member', $group);
         return RequestResource::collection($group->requests()->with('reactions')->get());
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $user = auth('api')->user();
         $group = Group::with('members')->findOrFail($request->group);
         $validator = Validator::make($request->all(), [
@@ -40,11 +37,10 @@ class RequestController extends Controller
 
         foreach ($group->members->except($user->id) as $member)
             $member->sendNotification((new RequestNotification($shopping_request)));
-        return $shopping_request;
+        return RequestResource::make($shopping_request);
     }
 
-    public function update(Request $request, ShoppingRequest $shopping_request)
-    {
+    public function update(Request $request, ShoppingRequest $shopping_request) {
         $this->authorize('update', $shopping_request);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2|max:255',
@@ -53,20 +49,18 @@ class RequestController extends Controller
 
         $shopping_request->update(['name' => $request->name]);
 
-        return $shopping_request;
+        return RequestResource::make($shopping_request);
     }
 
-    public function restore($shopping_request)
-    {
+    public function restore($shopping_request) {
         $shopping_request = ShoppingRequest::withTrashed()->findOrFail($shopping_request);
         $this->authorize('delete', $shopping_request);
 
         $shopping_request->restore();
 
-        return $shopping_request;
+        return RequestResource::make($shopping_request);
     }
-    public function delete(ShoppingRequest $shopping_request)
-    {
+    public function delete(ShoppingRequest $shopping_request) {
         $this->authorize('delete', $shopping_request);
         $user = auth('api')->user();
 
@@ -77,8 +71,7 @@ class RequestController extends Controller
         return response()->json(null, 204);
     }
 
-    public function reaction(Request $request)
-    {
+    public function reaction(Request $request) {
         $validator = Validator::make($request->all(), [
             'request_id' => 'required|exists:requests,id',
             'reaction' => 'required|string|min:1|max:1'
@@ -109,8 +102,7 @@ class RequestController extends Controller
     /**
      * Send a notification to the group members that the user is currently shopping.
      */
-    public function sendShoppingNotification(Request $request, Group $group)
-    {
+    public function sendShoppingNotification(Request $request, Group $group) {
         $user = auth('api')->user();
         $this->authorize('member', $group);
         $validator = Validator::make($request->all(), [
