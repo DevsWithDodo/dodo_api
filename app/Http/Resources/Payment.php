@@ -18,7 +18,7 @@ class Payment extends JsonResource
             'taker_nickname' => Group::nicknameOf($this->group_id, $this->taker_id),
             'amount' => round(floatval($this->amount), 2),
             'original_amount' => round(floatval($this->original_amount), 2),
-            'original_currency' => $this->original_currency,
+            'original_currency' => $this->original_currency ?? $this->group->currency,
             'category' => $this->category,
             'note' => $this->note,
             'created_at' => $this->created_at,
