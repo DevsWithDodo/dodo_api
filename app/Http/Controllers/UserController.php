@@ -45,7 +45,8 @@ class UserController extends Controller
             'password_reminder' => 'nullable|string', //deprecated
             'fcm_token' => 'nullable|string',
             'language' => 'required|in:en,hu,it,de',
-            'personalised_ads' => 'required|boolean'
+            'personalised_ads' => 'required|boolean',
+            'payment_details' => 'nullable|json'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
@@ -56,7 +57,8 @@ class UserController extends Controller
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token ?? null,
             'language' => $request->language,
-            'personalised_ads' => $request->personalised_ads
+            'personalised_ads' => $request->personalised_ads,
+            'payment_details' => $request->payment_details ? encrypt($request->payment_details) : null,
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
@@ -121,7 +123,8 @@ class UserController extends Controller
             'ad_free' => 'boolean',
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
-            'personalised_ads' => 'in:off,on'
+            'personalised_ads' => 'in:off,on',
+            'payment_details' => 'nullable|json'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $data = collect([
@@ -134,7 +137,8 @@ class UserController extends Controller
             'gradients_enabled' => $request->gradients_enabled,
             'available_boosts' => $request->boosts ? $user->available_boosts + $request->boosts : null,
             'color_theme' => $request->theme,
-            'personalised_ads' => $request->personalised_ads
+            'personalised_ads' => $request->personalised_ads,
+            'payment_details' => $request->payment_details ? encrypt($request->payment_details) : null,
         ])->filter()->all();
         if (count($data) == 0) abort(400, "The given data to update is empty.");
         if (array_key_exists('personalised_ads', $data)) $data['personalised_ads'] = $data['personalised_ads'] == 'on';

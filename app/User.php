@@ -38,7 +38,8 @@ class User extends Authenticatable implements HasLocalePreference {
         'gradients_enabled', //true if trial is active
         'available_boosts',
         'trial',
-        'personalised_ads'
+        'personalised_ads',
+        'payment_details'
         //is_guest
     ];
 
@@ -54,6 +55,11 @@ class User extends Authenticatable implements HasLocalePreference {
     public function getIsGuestAttribute() {
         return $this->password == null;
     }
+
+    public function getPaymentDetailsAttribute($value) {
+        return $value ? decrypt($value) : null;
+    }
+    
     /**
      * Decides if the user is registered within the last two weeks.
      */
