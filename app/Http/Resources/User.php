@@ -18,7 +18,8 @@ class User extends JsonResource
             'trial' => $this->trial ? 1 : 0,
             'gradients_enabled' => $this->gradients_enabled ? 1 : 0,
             'available_boosts' => $this->available_boosts ? 1 : 0,
-            'personalised_ads' => $this->personalised_ads ? 1 : 0
+            'personalised_ads' => $this->personalised_ads ? 1 : 0,
+            'payment_details' => $this->payment_details,
         ];
     }
 }
