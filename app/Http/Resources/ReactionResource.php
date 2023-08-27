@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Group;
 
-class Reaction extends JsonResource
+class ReactionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

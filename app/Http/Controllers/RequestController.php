@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
-use App\Http\Resources\Request as RequestResource;
+use App\Http\Resources\RequestResource as RequestResource;
 use App\Notifications\Requests\FulfilledRequestNotification;
 use App\Notifications\Requests\RequestNotification;
 use App\Notifications\Requests\ShoppingNotification;

@@ -10,10 +10,10 @@ use App\Rules\UniqueNickname;
 use App\Notifications\Members\ChangedNicknameNotification;
 use App\Notifications\Members\PromotedToAdminNotification;
 use App\Notifications\Groups\JoinedGroupNotification;
-use App\Http\Resources\Group as GroupResource;
-use App\Http\Resources\User as UserResource;
-use App\Http\Resources\Member as MemberResource;
-use App\Http\Resources\Guest as GuestResource;
+use App\Http\Resources\GroupResource as GroupResource;
+use App\Http\Resources\UserResource as UserResource;
+use App\Http\Resources\MemberResource as MemberResource;
+use App\Http\Resources\GuestResource as GuestResource;
 
 use App\Transactions\Payment;
 use App\User;

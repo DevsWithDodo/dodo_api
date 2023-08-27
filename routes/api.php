@@ -26,6 +26,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('user',     [UserController::class, 'update'])->name('user.update');
     Route::post('logout',  [UserController::class, 'logout'])->name('user.logout');
     Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
+    Route::post('user/verify_password', [UserController::class, 'verifyPassword'])->name('user.verify_password');
 
     Route::get('balance',  [UserController::class, 'balance'])->name('user.balance');
 

@@ -12,20 +12,17 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 use App\Http\Controllers\CurrencyController;
-use App\Http\Resources\User as UserResource;
+use App\Http\Resources\UserResource as UserResource;
 
 use App\User;
+use App\UserStatus;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use URL;
 
 class UserController extends Controller
 {
     use AuthenticatesUsers;
-
-    public function username()
-    {
-        return 'username';
-    }
 
     public function validateUsername(Request $request)
     {
@@ -64,9 +61,30 @@ class UserController extends Controller
         return response()->json(new UserResource($user), 201);
     }
 
+    public function verifyPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        if (Hash::check($request->password, $request->user()->password)) {
+            /** @var UserStatus */
+            $userStatus = Auth::user()->status;
+            $userStatus->update([
+                'pin_verified_at' => now(),
+                'pin_verification_count' => $userStatus->pin_verification_count + 1,
+            ]);
+            return $userStatus;
+        }
+        abort(400, __('validation.incorrect_password'));
+    }
+
     public function login(Request $request)
     {
-        $this->validateLogin($request);
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
         if ($this->attemptLogin($request)) {
             $user = $request->user();
@@ -80,14 +98,6 @@ class UserController extends Controller
             return new UserResource($user);
         }
         abort(400, __('validation.incorrect_username_or_password'));
-    }
-
-    protected function validateLogin(Request $request)
-    {
-        $request->validate([
-            $this->username() => 'required|string',
-            'password' => 'required|string',
-        ]);
     }
 
     public function logout(Request $request)
@@ -124,7 +134,8 @@ class UserController extends Controller
             'gradients_enabled' => 'boolean',
             'boosts' => 'integer|min:0',
             'personalised_ads' => 'in:off,on',
-            'payment_details' => 'nullable|json'
+            'payment_details' => 'nullable|json',
+            'trial_status' => 'in:seen,trial,expired',
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
         $data = collect([
@@ -140,10 +151,12 @@ class UserController extends Controller
             'personalised_ads' => $request->personalised_ads,
             'payment_details' => $request->payment_details ? encrypt($request->payment_details) : null,
         ])->filter()->all();
-        if (count($data) == 0) abort(400, "The given data to update is empty.");
         if (array_key_exists('personalised_ads', $data)) $data['personalised_ads'] = $data['personalised_ads'] == 'on';
 
         $user->update($data);
+        if ($request->has('trial_status')) {
+            $user->status->update(['trial_status' => $request->trial_status]);
+        }
         return response()->json(null, 204);
     }
 

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class User extends JsonResource
+class UserResource extends JsonResource
 {
     public function toArray($request)
     {
@@ -20,6 +20,7 @@ class User extends JsonResource
             'available_boosts' => $this->available_boosts ? 1 : 0,
             'personalised_ads' => $this->personalised_ads ? 1 : 0,
             'payment_details' => $this->payment_details,
+            'status' => $this->status,
         ];
     }
 }

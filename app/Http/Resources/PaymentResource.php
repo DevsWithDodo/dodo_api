@@ -3,10 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Reaction;
+use App\Http\Resources\ReactionResource;
 use App\Group;
 
-class Payment extends JsonResource
+class PaymentResource extends JsonResource
 {
     public function toArray($request)
     {
@@ -23,7 +23,7 @@ class Payment extends JsonResource
             'note' => $this->note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'reactions' => Reaction::collection($this->reactions),
+            'reactions' => ReactionResource::collection($this->reactions),
             'editable' => $this->editable
         ];
     }
