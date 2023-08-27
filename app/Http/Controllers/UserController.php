@@ -18,6 +18,7 @@ use App\User;
 use App\UserStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Log;
 use URL;
 
 class UserController extends Controller
@@ -85,9 +86,10 @@ class UserController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
+        Log::info($request);
 
-        if ($this->attemptLogin($request)) {
-            $user = $request->user();
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            $user = Auth::user();
             if ($user->api_token === null) {
                 $user->generateToken();
             }
