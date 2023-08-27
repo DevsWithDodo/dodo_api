@@ -3,10 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Reaction;
+use App\Http\Resources\ReactionResource;
 use App\Group;
 
-class Request extends JsonResource
+class RequestResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -23,7 +23,7 @@ class Request extends JsonResource
             'requester_nickname' => Group::nicknameOf($this->group_id, $this->requester_id),
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
-            'reactions' => Reaction::collection($this->reactions)
+            'reactions' => ReactionResource::collection($this->reactions)
         ];
     }
 }

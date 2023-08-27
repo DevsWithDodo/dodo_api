@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Group;
 
-class PurchaseReceiver extends JsonResource
+class PurchaseReceiverResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

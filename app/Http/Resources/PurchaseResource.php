@@ -2,12 +2,12 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\PurchaseReceiver;
-use App\Http\Resources\Reaction;
+use App\Http\Resources\PurchaseReceiverResource;
+use App\Http\Resources\ReactionResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Group;
 
-class Purchase extends JsonResource
+class PurchaseResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -28,8 +28,8 @@ class Purchase extends JsonResource
             'original_total_amount' => round(floatval($this->original_amount), 2),
             'original_currency' => $this->original_currency ?? $this->group->currency,
             'category' => $this->category,
-            'receivers' => PurchaseReceiver::collection($this->receivers),
-            'reactions' => Reaction::collection($this->reactions),
+            'receivers' => PurchaseReceiverResource::collection($this->receivers),
+            'reactions' => ReactionResource::collection($this->reactions),
             'editable' => $this->editable
         ];
     }

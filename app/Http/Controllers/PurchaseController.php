@@ -9,7 +9,7 @@ use App\Rules\IsMember;
 use Carbon\Carbon;
 
 use App\Transactions\Purchase;
-use App\Http\Resources\Purchase as PurchaseResource;
+use App\Http\Resources\PurchaseResource as PurchaseResource;
 use App\Http\Controllers\CurrencyController;
 
 use App\Group;

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Member extends JsonResource
+class MemberResource extends JsonResource
 {
     public function toArray($request)
     {
@@ -14,7 +14,8 @@ class Member extends JsonResource
             'nickname' => $this->member_data->nickname,
             'balance' => floatval($this->member_data->balance),
             'is_admin' => $this->member_data->is_admin,
-            'is_guest' => $this->is_guest ? 1 : 0
+            'is_guest' => $this->is_guest ? 1 : 0,
+            'payment_details' => $this->payment_details,
         ];
     }
 }

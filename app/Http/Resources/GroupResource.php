@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Member;
+use App\Http\Resources\MemberResource;
 
-class Group extends JsonResource
+class GroupResource extends JsonResource
 {
     public function toArray($request)
     {
@@ -16,7 +16,7 @@ class Group extends JsonResource
             'admin_approval' => $this->admin_approval,
             'invitation' => $this->invitation,
             'boosted' => $this->boosted,
-            'members' => Member::collection($this->members),
+            'members' => MemberResource::collection($this->members),
             'custom_categories' => $this->custom_categories,
         ];
     }

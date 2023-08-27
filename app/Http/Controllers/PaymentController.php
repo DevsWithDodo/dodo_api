@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 use App\Rules\IsMember;
 use Carbon\Carbon;
 
-use App\Http\Resources\Payment as PaymentResource;
+use App\Http\Resources\PaymentResource as PaymentResource;
 
 use App\Transactions\Payment;
 use App\Group;

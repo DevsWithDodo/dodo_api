@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\CurrencyController;
 use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
-use App\Http\Resources\Group as GroupResource;
+use App\Http\Resources\GroupResource as GroupResource;
 use App\Group;
 use DB;
 use Illuminate\Support\Facades\App;
