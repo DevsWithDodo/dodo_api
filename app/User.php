@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 use App\Http\Controllers\CurrencyController;
-use App\Notifications\TrialEndedNotification;
 use App\Transactions\Payment;
 use App\Transactions\Purchase;
 use App\Transactions\PurchaseReceiver;
@@ -17,12 +16,30 @@ use App\Transactions\Reactions\Reaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Log;
 
 class User extends Authenticatable implements HasLocalePreference {
     use Notifiable, HasFactory;
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->status()->create([
+                'pin_verified_at' => now(),
+                'pin_verification_count' => 0,
+                'trial_status' => $user->trial ? 'trial' : 'seen',
+            ]);
+        });
+
+        static::updating(function ($user) {
+            if ($user->isDirty('trial') && $user->trial == false) {
+                $user->status->update(['trial_status' => 'expired']);
+            }
+        });
+    }
 
     protected $fillable = [
         'username', //null on guests
@@ -47,6 +64,13 @@ class User extends Authenticatable implements HasLocalePreference {
         'password', 'password_reminder',
     ];
 
+    protected $casts = [
+        'trial' => 'boolean',
+        'ad_free' => 'boolean',
+        'gradients_enabled' => 'boolean',
+        'personalised_ads' => 'boolean',
+        'payment_details' => 'array'
+    ];
 
     public function getUsernameAttribute($value): string {
         return $value ?? __('notifications.guest');
@@ -151,6 +175,10 @@ class User extends Authenticatable implements HasLocalePreference {
 
     public function reactions(): HasMany {
         return $this->hasMany(Reaction::class, 'user_id');
+    }
+
+    public function status(): HasOne {
+        return $this->hasOne(UserStatus::class);
     }
 
     /**
