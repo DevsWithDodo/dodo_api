@@ -35,7 +35,13 @@
                 <ul>
                     <li>"Dodo app" refers to the app which can be found on <a
                             href="https://play.google.com/store/apps/details?id=csocsort.hu.machiato32.csocsort_szamla"
-                            target="__blank" style="color: black">Google Play</a> or on App Store (soon).</li>
+                            target="__blank" style="color: black">Google Play</a>, on the <a 
+                            href="https://apps.apple.com/us/app/lender-finances-for-groups/id1558223634"
+                            target="__blank" style="color: black">App Store</a>, on the <a 
+                            href="https://apps.microsoft.com/store/detail/dodo-secure-bill-splitting/9NVB4CZJDSQ7?hl=en-us&gl=us"
+                            target="__blank" style="color: black">Windows Store</a> and on <a 
+                            href="https://app.dodoapp.net"
+                            target="__blank" style="color: black">Web</a></li>
                     <li>"our", "us", or "we" refer to the business, the developers and administrators of the Dodo app
                         and this website</li>
                     <li>"you", "the user" "the users" refer to the person(s) using Dodo app and this website</li>
