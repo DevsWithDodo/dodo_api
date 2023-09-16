@@ -78,7 +78,7 @@
                         you customize Dodo as you wish.
                         We store the group you last viewed to make your experience better.</li>
                     <li><b>Payment methods</b>
-                        We offer a new feature where users can add payment methods to facilitate transactions with other users. You are not obliged to add payment methods, but it can enhance your experience on our platform.</li>
+                        Users can add payment methods to facilitate transactions with other users. You are not obliged to add payment methods, but it can enhance your experience on our platform.</li>
                     <li><b>Statistics</b>
                         We can create anonymous usage statistics (eg. average group size, what are the favorite color
                         themes) to see which of our features are popular and to make Dodo better.</li>
