@@ -1,11 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-
-use App\Group;
-use App\Http\Controllers\AdminController;
-use App\Mail\AdminAccess;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,35 +12,39 @@ use App\Mail\AdminAccess;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+use Illuminate\Support\Facades\Route;
 
-Route::get('/privacy-policy', function () {
-    return view('privacy_policy');
-});
+Route::fallback(fn () => view('welcome'));
 
-Route::get('/join/{token}', function ($token) {
-    return view('join', ['group' => Group::firstWhere('invitation', $token)]);
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-Route::get('/admin/send-access-mail', [AdminController::class, 'sendAccessMail'])->name('admin.send-access-mail');
+// Route::get('/privacy-policy', function () {
+//     return view('privacy_policy');
+// });
 
-Route::get('/preview', function () {
-    $path = public_path() . '/preview.png';
+// Route::get('/join/{token}', function ($token) {
+//     return view('join', ['group' => Group::firstWhere('invitation', $token)]);
+// });
 
-    if (!File::exists($path)) {
-        return response()->json(['message' => 'Image not found.'], 404);
-    }
+// Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+// Route::get('/admin/send-access-mail', [AdminController::class, 'sendAccessMail'])->name('admin.send-access-mail');
 
-    $file = File::get($path);
-    $type = File::mimeType($path);
+// Route::get('/preview', function () {
+//     $path = public_path() . '/preview.png';
 
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
+//     if (!File::exists($path)) {
+//         return response()->json(['message' => 'Image not found.'], 404);
+//     }
 
-    return $response;
-});
+//     $file = File::get($path);
+//     $type = File::mimeType($path);
 
-Auth::routes();
+//     $response = Response::make($file, 200);
+//     $response->header("Content-Type", $type);
+
+//     return $response;
+// });
+
+// Auth::routes();

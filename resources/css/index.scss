@@ -1,0 +1,49 @@
+* {
+    font-family: Roboto, sans-serif;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #1398B5;
+    --secondary: #F7C000;
+    --on-primary: #FFFFFF;
+    --on-secondary: #FFFFFF;
+    --secondary-container: #FFDF95;
+    --on-secondary-container: #251A00;
+    --background: #FBFCFE;
+    --surface: #EEF4F7;
+    --on-surface: #191C1D;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+body {
+    display: flex;
+    
+    margin: 0;
+    min-height: 100vh;
+    
+    font-size: 15px;
+
+    background-color: #FFFFFF;
+}
+
+#app {
+    flex: 1;
+}
+
+button {
+    cursor: pointer;
+}
+
+.link {
+    font-size: 13px;
+    color: var(--v-quiz-blue);
+    cursor: pointer;
+}
+.link.small {
+    font-size: 12px;
+}

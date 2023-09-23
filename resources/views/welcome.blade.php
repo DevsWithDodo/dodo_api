@@ -19,20 +19,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
 
     <!-- Styles -->
-    <link href="{{ asset('style.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('style.css') }}" rel="stylesheet"> --}}
     <link rel="stylesheet" type="text/css" href="{{ asset('cookie-consent.css') }}" async />
     <script src="{{ asset('cookie-consent.js') }}" async></script>
-
+    @viteReactRefresh
+    @vite("resources/js/index.tsx")
 </head>
 
 <body>
-    <div class="flex-center position-ref full-height main">
-        @include('components.github')
-        <div class="content">
-            @include('components.logo')
-        </div>
-        @include('components.links')
-    </div>
+    <div id="app"></div>
 </body>
 
 </html>
