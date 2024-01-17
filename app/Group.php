@@ -25,7 +25,7 @@ class Group extends Model
 
     public function getMemberLimitAttribute()
     {
-        return $this->boosted ? 30 : 8;
+        return 100;
     }
 
     public function getCategoriesAttribute(): array

@@ -87,7 +87,6 @@ class UserController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
-        Log::info($request);
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $user = Auth::user();
