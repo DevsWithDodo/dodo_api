@@ -43,7 +43,7 @@ class UserController extends Controller
             'password_reminder' => 'nullable|string', //deprecated
             'fcm_token' => 'nullable|string',
             'language' => 'required|in:en,hu,it,de',
-            'personalised_ads' => 'required|boolean',
+            'personalised_ads' => 'boolean',
             'payment_details' => 'nullable|json'
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
@@ -55,8 +55,9 @@ class UserController extends Controller
             'default_currency' => $request->default_currency,
             'fcm_token' => $request->fcm_token ?? null,
             'language' => $request->language,
-            'personalised_ads' => $request->personalised_ads,
+            'personalised_ads' => $request->personalised_ads ?? false,
             'payment_details' => $request->payment_details ? encrypt($request->payment_details) : null,
+            'trial' => true,
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
