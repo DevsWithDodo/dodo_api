@@ -35,6 +35,7 @@ class User extends Authenticatable implements HasLocalePreference {
         });
 
         static::updating(function ($user) {
+            $user->refresh();
             if ($user->isDirty('trial') && $user->trial == false) {
                 $user->status->update(['trial_status' => 'expired']);
             }
