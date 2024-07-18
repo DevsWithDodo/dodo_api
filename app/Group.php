@@ -116,7 +116,7 @@ class Group extends Model
      * Add the desired amount to the member's balance.
      * @param int $group_id
      * @param int $user_id the member's id
-     * @param float $amount the amount to be added
+     * @param string $amount the amount to be added
      * @return void
      */
     public static function addToMemberBalance($group_id, $user_id, $amount)
