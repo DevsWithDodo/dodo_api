@@ -35,7 +35,6 @@ class User extends Authenticatable implements HasLocalePreference {
         });
 
         static::updating(function ($user) {
-            $user->refresh();
             if ($user->isDirty('trial') && $user->trial == false) {
                 $user->status->update(['trial_status' => 'expired']);
             }
@@ -84,18 +83,6 @@ class User extends Authenticatable implements HasLocalePreference {
     public function getPaymentDetailsAttribute($value) {
         return $value ? decrypt($value) : null;
     }
-    
-    /**
-     * Decides if the user is registered within the last two weeks.
-     */
-    public function getTrialAttribute($value) {
-        if (!($value)) return false;
-        if ($this->created_at->addWeeks(2) < now()) {
-            $this->update(['trial' => 0]);
-            return null;
-        }
-        return true;
-    }
 
     public function getAdFreeAttribute($value) {
         return $this->trial ? 1 : $value;
@@ -120,10 +107,10 @@ class User extends Authenticatable implements HasLocalePreference {
      *
      * @return string the token
      */
-    public function generateToken() {
-        $this->api_token = Str::random(60);
+    public function generateToken(): string {
+	    $token = Str::random(60);
+        $this->api_token = $token;
         $this->save();
-
         return $this->api_token;
     }
 

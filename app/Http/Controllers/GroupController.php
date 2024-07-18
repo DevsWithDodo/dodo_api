@@ -144,4 +144,17 @@ class GroupController extends Controller
         return $mpdf->Output($group->name, 'I');
 
     }
+
+    public function getFromInvitation(string $invitation) {
+        $group = Group::firstWhere('invitation', $invitation);
+        if ($group === null) {
+            return abort(422, __('errors.invalid_invitation'));
+        }
+        return $group->only([
+            'id',
+            'name',
+            'currency',
+            'admin_approval'
+        ]);
+    }
 }
