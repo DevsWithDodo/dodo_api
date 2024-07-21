@@ -29,7 +29,7 @@ class StatisticsController extends Controller
         $payments_collection = $group->payments();
         if(isset($request->category))
             $payments_collection->where('category', $request->category);
-        $payments_collection
+        $payments_collection = $payments_collection
             ->whereBetween('updated_at', [
                 $from_date->format('Y-m-d'),
                 $until_date->addDay()->format('Y-m-d')
