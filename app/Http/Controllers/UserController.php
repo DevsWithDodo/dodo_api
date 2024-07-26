@@ -128,7 +128,7 @@ class UserController extends Controller
             'username' => 'string|regex:/^[a-z0-9#.]{3,15}$/|unique:users,username',
             'language' => 'string|in:en,hu,it,de',
             'default_currency' => ['string', 'size:3', Rule::in(CurrencyController::currencyList())],
-            'old_password' => 'required_with:new_password|string|password',
+            'old_password' => 'required_with:new_password|string',
             'new_password' => 'string|min:4|confirmed',
             'password_reminder' => 'nullable|string', //deprecated
             'theme' => 'string',

@@ -36,20 +36,26 @@ class StatisticsController extends Controller
             ])
             ->get();
 
+        $payments_collection = $payments_collection->map(fn ($payment) => [
+            'amount' => $payment->amount,
+            'payer_id' => $payment->payer_id,
+            'taker_id' => $payment->taker_id,
+            'updated_at' => substr($payment->updated_at, 0, 10) // Take only the date part
+        ]);
+
+        $payments_collection = $payments_collection->groupBy('updated_at');
+
 
         $payed = $taken = [];
         $current_date = $from_date->toMutable();
-
+        
         while ($current_date <= $until_date) {
-            $date = $current_date->format('Y-m-d');
-            $current_payments = $payments_collection
-                ->whereBetween('updated_at', [
-                    $current_date->format('Y-m-d'),
-                    $current_date->addDay()->format('Y-m-d')
-                ]);
+            $date = $current_date->toImmutable();
 
-            $payed[$date] = $current_payments->where('payer_id', $user_id)->sum('amount');
-            $taken[$date] = $current_payments->where('taker_id', $user_id)->sum('amount');
+            $payed[$date->format('Y-m-d')] = ($payments_collection[$date->format('Y-m-d')] ?? null)?->where('payer_id', $user_id)->sum('amount') ?? 0;
+
+            $taken[$date->format('Y-m-d')] = ($payments_collection[$date->format('Y-m-d')] ?? null)?->where('taker_id', $user_id)->sum('amount') ?? 0;
+            $current_date->addDay();
         }
 
         return response()->json(['data' => [
@@ -98,26 +104,29 @@ class StatisticsController extends Controller
             ])
             ->select(['purchase_receivers.amount', 'updated_at'])
             ->get();
+        
+        $purchases_collection = $purchases_collection->map(fn ($purchase) => [
+            'amount' => $purchase->amount,
+            'updated_at' => substr($purchase->updated_at, 0, 10) // Take only the date part
+        ]);
+
+        $receivers_collection = $receivers_collection->map(fn ($receiver) => [
+            'amount' => $receiver->amount,
+            'updated_at' => substr($receiver->updated_at, 0, 10) // Take only the date part
+        ]);
+
+        $purchases_collection = $purchases_collection->groupBy('updated_at');
+        $receivers_collection = $receivers_collection->groupBy('updated_at');
 
         $bought = $received = [];
         $current_date = $from_date->toMutable();
-
+        
         while ($current_date <= $until_date) {
             $date = $current_date->toImmutable();
 
-            $bought[$date->format('Y-m-d')] = $purchases_collection
-                ->whereBetween('updated_at', [
-                    $date->format('Y-m-d'),
-                    $date->addDay()->format('Y-m-d')
-                ])
-                ->sum('amount');
+            $bought[$date->format('Y-m-d')] = ($purchases_collection[$date->format('Y-m-d')] ?? null)?->sum('amount') ?? 0;
 
-            $received[$date->format('Y-m-d')] = $receivers_collection
-                ->whereBetween('updated_at', [
-                    $date->format('Y-m-d'),
-                    $date->addDay()->format('Y-m-d')
-                ])
-                ->sum('amount');
+            $received[$date->format('Y-m-d')] = ($receivers_collection[$date->format('Y-m-d')] ?? null)?->sum('amount') ?? 0;
             $current_date->addDay();
         }
 
@@ -164,25 +173,28 @@ class StatisticsController extends Controller
             ])
             ->get();
 
+        $purchases_collection = $purchases_collection->map(fn ($purchase) => [
+            'amount' => $purchase->amount,
+            'updated_at' => substr($purchase->updated_at, 0, 10) // Take only the date part
+        ]);
+
+        $payments_collection = $payments_collection->map(fn ($payment) => [
+            'amount' => $payment->amount,
+            'updated_at' => substr($payment->updated_at, 0, 10) // Take only the date part
+        ]);
+
+        $purchases_collection = $purchases_collection->groupBy('updated_at');
+        $payments_collection = $payments_collection->groupBy('updated_at');
+
         $payments = $purchases = [];
         $current_date   = $from_date->toMutable();
 
         while ($current_date <= $until_date) {
             $date = $current_date->toImmutable();
 
-            $payments[$date->format('Y-m-d')] = $payments_collection
-                ->whereBetween('updated_at', [
-                    $date->format('Y-m-d'),
-                    $date->addDay()->format('Y-m-d')
-                ])
-                ->sum('amount');
+            $payments[$date->format('Y-m-d')] = ($payments_collection[$date->format('Y-m-d')] ?? null)?->sum('amount') ?? 0;
 
-            $purchases[$date->format('Y-m-d')] = $purchases_collection
-                ->whereBetween('updated_at', [
-                    $date->format('Y-m-d'),
-                    $date->addDay()->format('Y-m-d')
-                ])
-                ->sum('amount');
+            $purchases[$date->format('Y-m-d')] = ($purchases_collection[$date->format('Y-m-d')] ?? null)?->sum('amount') ?? 0;
             $current_date->addDay();
         }
 
