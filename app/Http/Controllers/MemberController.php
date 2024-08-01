@@ -36,7 +36,7 @@ class MemberController extends Controller
         if ($group == null) abort(404, __('errors.invalid_invitation'));
 
         $validator = Validator::make($request->all(), [
-            'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
+            'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id, $request->merge_with_member_id)],
             'merge_with_member_id' => ['nullable', new IsMember($group)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());

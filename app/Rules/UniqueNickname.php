@@ -9,12 +9,14 @@ class UniqueNickname implements Rule
 {
     /**
      * Create a new rule instance.
-     * @param mixed $group_id
+     * @param int $group_id
+     * @param int|null $except_member_id
      * @return void
      */
-    public function __construct($group_id)
+    public function __construct($group_id, $except_member_id)
     {
         $this->group = Group::find($group_id);
+        $this->except_member_id = $except_member_id;
     }
 
     /**
@@ -26,7 +28,10 @@ class UniqueNickname implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->group->members->where('member_data.nickname', $value)->count() == 0;
+        return $this->group->members
+                ->where('member_data.nickname', $value)
+                ->except([$this->except_member_id])
+                ->count() == 0;
     }
 
     /**
