@@ -56,12 +56,17 @@ class User extends Authenticatable implements HasLocalePreference {
         'available_boosts',
         'trial',
         'personalised_ads',
-        'payment_details'
+        'payment_details',
+        'google_id',
+        'apple_id'
         //is_guest
     ];
 
     protected $hidden = [
-        'password', 'password_reminder',
+        'password', 
+        'password_reminder',
+        'google_id',
+        'apple_id'
     ];
 
     protected $casts = [
@@ -72,12 +77,20 @@ class User extends Authenticatable implements HasLocalePreference {
         'payment_details' => 'array'
     ];
 
-    public function getUsernameAttribute($value): string {
-        return $value ?? __('notifications.guest');
+    public function getGoogleConnectedAttribute(): bool {
+        return $this->google_id !== null;
+    }
+
+    public function getAppleConnectedAttribute(): bool {
+        return $this->apple_id !== null;
+    }
+
+    public function getHasPasswordAttribute(): bool {
+        return $this->password !== null;
     }
 
     public function getIsGuestAttribute() {
-        return $this->password == null;
+        return $this->password == null && $this->google_id === null && $this->apple_id === null;
     }
 
     public function getPaymentDetailsAttribute($value) {
@@ -185,7 +198,6 @@ class User extends Authenticatable implements HasLocalePreference {
      * Returns the user's total balance calculated from it's groups and their currencies.
      */
     public function totalBalance() {
-        $this->load('groups');
         $result = 0;
         foreach ($this->groups as $group) {
             $result += CurrencyController::exchangeCurrency(
