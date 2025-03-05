@@ -20,10 +20,6 @@ use Carbon\Carbon;
 use Google_Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\UnencryptedToken;
-use Log;
 use URL;
 
 class UserController extends Controller
