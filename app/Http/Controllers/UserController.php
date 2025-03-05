@@ -13,17 +13,23 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 use App\Http\Controllers\CurrencyController;
 use App\Http\Resources\UserResource as UserResource;
-
+use App\Services\AppleAuthenticationService;
 use App\User;
 use App\UserStatus;
 use Carbon\Carbon;
+use Google_Client;
 use Illuminate\Support\Facades\Auth;
-use Log;
+use Illuminate\Support\Facades\Http;
 use URL;
 
 class UserController extends Controller
 {
     use AuthenticatesUsers;
+
+    public function __construct(private AppleAuthenticationService $appleAuthService)
+    {
+        
+    }
 
     public function validateUsername(Request $request)
     {
@@ -61,6 +67,122 @@ class UserController extends Controller
         ]);
         $user->generateToken(); // login
         return response()->json(new UserResource($user), 201);
+    }
+
+    public function registerWithToken(Request $request) {
+        $data = $request->validate([
+            'token_type' => 'required|in:google,apple',
+            'id_token' => 'required_if:token_type,google|string',
+            'auth_code' => 'required_if:token_type,apple|string',
+            'device_type' => 'required|in:android,ios,web',
+            'fcm_token' => 'nullable|string',
+            'language' => 'required|in:en,hu,it,de',
+        ]);
+
+        if ($data['token_type'] === 'google') {
+            $client = new Google_Client([
+                'client_id' => config('oauth.google.client_id')
+            ]);
+            $payload = $client->verifyIdToken($data['id_token']);
+        }
+        else if ($data['token_type'] === 'apple') {
+            $payload = $this->appleAuthService->verifyAuthCode($data['device_type'], $data['auth_code']);
+        }
+
+        if (!$payload) {
+            abort(400, __('validation.invalid_token'));
+        }
+        // Hash the user ID as it directly links to user data, the id is long enough and unique, so salt is not needed
+        $hashedUserId = hash('sha256', $payload['sub']); 
+        
+        if (($user = User::firstWhere($data['token_type'] . '_id', $hashedUserId)) !== null) {
+            $user->update([
+                'fcm_token' => $data['fcm_token'] ?? null,
+                'language' => $data['language'],
+            ]);
+        } else {
+            try {
+                // Get currency from user's IP
+                $defaultCurrency = Http::get('http://ip-api.com/json/' . $request->ip() . '?fields=status,message,currency')->json()['currency'];
+            } catch (\Exception $e) {
+                $defaultCurrency = 'EUR';
+            }
+            $user = User::create([
+                'default_currency' => $defaultCurrency,
+                'fcm_token' => $data['fcm_token'] ?? null,
+                'language' => $data['language'],
+                'trial' => true,
+                'google_id' => $data['token_type'] === 'google' ? $hashedUserId : null,
+                'apple_id' => $data['token_type'] === 'apple' ? $hashedUserId : null,
+            ]);
+        }
+        $user->generateToken();
+
+        return new UserResource($user);
+    }
+
+    public function linkSocialLogin(Request $request) {
+        $data = $request->validate([
+            'token_type' => 'required|in:google,apple',
+            'id_token' => 'required_if:token_type,google|string',
+            'auth_code' => 'required_if:token_type,apple|string',
+            'device_type' => 'required|in:android,ios,web',
+        ]);
+
+        if ($data['token_type'] === 'google') {
+            $client = new Google_Client([
+                'client_id' => config('oauth.google.client_id')
+            ]);
+            $payload = $client->verifyIdToken($data['id_token']);
+        }
+        else if ($data['token_type'] === 'apple') {
+            $payload = $this->appleAuthService->verifyAuthCode($data['device_type'], $data['auth_code']);
+        }
+
+        if (!$payload) {
+            abort(400, __('validation.invalid_token'));
+        }
+        // Hash the user ID as it directly links to user data, the id is long enough and unique, so salt is not needed
+        $hashedUserId = hash('sha256', $payload['sub']);
+
+        $user = Auth::user();
+        
+        if (($otherUser = User::firstWhere($data['token_type'] . '_id', $hashedUserId)) !== null) {
+            if ($user->groups->pluck('id')->intersect($otherUser->groups->pluck('id'))->isNotEmpty()) {
+                abort(400, __('validation.already-linked'));
+            }
+            $otherUser->mergeIntoUser($user);
+            $otherUser->delete();
+        }
+        $user->update([
+            $data['token_type'] . '_id' => $hashedUserId,
+        ]);        
+
+        return new UserResource($user);
+    }
+
+    public function createPassword(Request $request) {
+        $request->validate([
+            'password' => 'required|string|min:4|confirmed',
+        ]);
+
+        $user = $request->user();
+        if ($user->has_password) {
+            abort(400, __('validation.password_already_set'));
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $user;
+    }
+
+    public function signInWithAppleCallback(Request $request) {
+        $packageName = config('oauth.apple.android_package_name');
+        return redirect(
+            "intent://callback?code={$request->get('code')}&id_token={$request->get('id_token')}#Intent;package=$packageName;scheme=signinwithapple;end"
+        );
     }
 
     public function verifyPassword(Request $request)

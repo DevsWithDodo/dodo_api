@@ -18,7 +18,8 @@ Route::post('register',                  [UserController::class, 'register'])->n
 Route::post('login',                     [UserController::class, 'login'])->name('user.login');
 Route::get('password_reminder',          [UserController::class, 'passwordReminder'])->name('user.password_reminder');
 Route::put('forgot_password/{username}', [UserController::class, 'forgotPassword'])->name('user.forgot_password');
-
+Route::post('register-with-token', [UserController::class, 'registerWithToken'])->name('user.register-with-token');
+Route::post('/callbacks/sign-in-with-apple', [UserController::class, 'signInWithAppleCallback'])->name('user.sign-in-with-apple');
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
@@ -27,6 +28,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('logout',  [UserController::class, 'logout'])->name('user.logout');
     Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
     Route::post('user/verify_password', [UserController::class, 'verifyPassword'])->name('user.verify_password');
+    Route::post('user/link_social_login', [UserController::class, 'linkSocialLogin'])->name('user.link_social_login');
+    // Route::post('user/create_password', [UserController::class, 'createPassword'])->name('user.create_password');
 
     Route::get('balance',  [UserController::class, 'balance'])->name('user.balance');
 

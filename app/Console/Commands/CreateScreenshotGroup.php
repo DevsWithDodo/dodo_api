@@ -99,6 +99,8 @@ class CreateScreenshotGroup extends Command {
         ]);
 
         $date = Carbon::now()->subMonths(2);
+        $group->created_at = $date->subDay();
+        $group->save();
 
         $purchase = Purchase::createWithReceivers([
             'group_id' => $group->id,
