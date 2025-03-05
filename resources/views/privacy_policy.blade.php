@@ -21,7 +21,7 @@
     <div class="flex-center position-ref">
         <div class="content">
             <div class="title">Dodo</div>
-            <p class="large uppercase" style="font-weight: bold">Our very own privacy policy</p>
+            <p class="subtitle large uppercase" style="font-weight: bold">Our very own privacy policy</p>
             <div
                 style="background-color: white; color:black; padding:40px;border-radius: 10px;opacity: 0.9;text-align:left; max-width:60%;margin:0 auto;font-size:20px;font-weight:400;text-align:justify">
                 <h2>Privacy Policy Notice</h2>
@@ -68,20 +68,56 @@
                         Also, in the case where you have a special request for us, we can identify you by your username.
                         Your username is also logged with your sent bug reports.
                     </li>
+                    <li><b>Group guests' nicknames</b>
+                        Guest member nicknames are stored solely to facilitate group functionality and are not linked to a 
+                        registered account. This data is visible only to group members.
+                    </li>
                     <li><b>Transactions' and shopping lists' data</b>
                         We store the data you provided (name, note, amount, parties, and reactions of transactions;
                         shopping requests in shopping lists) to calculate
                         your balances, to show these to the belonging members in the groups and to create a better user
-                        experience for you.</li>
+                        experience for you.
+                    </li>
                     <li><b>Other user data</b>
                         We store your currencies, your nicknames, and your language set to make
                         you customize Dodo as you wish.
-                        We store the group you last viewed to make your experience better.</li>
+                        We store the group you last viewed to make your experience better.
+                    </li>
                     <li><b>Payment methods</b>
-                        Users can add payment methods to facilitate transactions with other users. You are not obliged to add payment methods, but it can enhance your experience on our platform.</li>
+                        Users can add payment methods to facilitate transactions with other users. You are not obliged 
+                        to add payment methods, but it can enhance your experience on our platform. Payment methods are 
+                        stored as text provided by the user and are not validated or verified by us. Users are responsible 
+                        for ensuring the accuracy and validity of the information entered.
+                    </li>
+                    <li><b>Receipt Scanning Feature</b>
+                        Users can scan receipts using their device's camera to extract information such as item names, amounts, 
+                        and totals. You are not obliged to scan receipts in order to use the app, but it can enhance your experience.
+                        This feature relies on Google Gemini's processing capabilities. The receipt photos are 
+                        transmitted directly from the user's device to Google Gemini for processing and are not sent to or 
+                        stored on our servers.<br>
+                        The receipt data is processed solely to extract information for the user's convenience and is not shared 
+                        with other group members unless the user explicitly saves the extracted information within the app.
+                        Even in this case, only processed receipt data (such as the name of the store, total cost, or cost per user) 
+                        is stored on our servers, receipt items are not.
+                    </li>
+                    <li><b>Sign-Up and Login via Google or Apple OAuth</b>
+                        Users can sign up or log in using their Google or Apple accounts via OAuth. 
+                        This feature does not request any permissions from the user's Google or Apple account. 
+                        However, Google and Apple provide the user's email address and a unique user ID for authentication purposes.
+                        <ul>
+                            <li>
+                                The email address is not stored or used by Dodo.
+                            </li>
+                            <li>
+                                The unique user ID is stored in a hashed format on our servers for added security. This ID is used solely for account creation and login authentication.
+                            </li>
+                        </ul>
+                    </li>
+
                     <li><b>Statistics</b>
-                        We can create anonymous usage statistics (eg. average group size, what are the favorite color
-                        themes) to see which of our features are popular and to make Dodo better.</li>
+                        We can create anonymous usage statistics (eg. average group size, what the favorite color
+                        themes are) to see which of our features are popular and to make Dodo better.
+                    </li>
                 </ol>
                 <h4>Who can see my data?</h4>
                 Your username, nicknames, and the data mentioned in point 3. in the above list can be seen by other
@@ -130,7 +166,11 @@
                 <h2>Data security and protection</h2>
                 We ensure the security of any personal information we hold by using secure data
                 storage technologies and precise procedures in how we store, access, and manage
-                that information. Our methods meet the GDPR compliance requirement.
+                that information.<br>
+                For accounts created using Google or Apple OAuth, the unique user ID provided during authentication 
+                is stored in a hashed format to ensure it cannot directly identify users even in case of a data breach. 
+                No additional personal data, such as email addresses, is stored by Dodo.<br>                
+                Our methods meet the GDPR compliance requirement.
             
                 <h2>Third parties</h2>
                 We are using some additional services hosted by third parties.
@@ -168,6 +208,24 @@
                 our services.<br>
                 <a href="https://policies.google.com/privacy?hl=en" target="__blank" style="color: black">Google's
                     Privacy Policy Notice can be found here.</a>
+
+                <h4>Receipt Processing</h4>
+                The receipt scanning feature uses Google Gemini's APIs through the intermediary of Firebase Vertex AI to process receipt images. 
+                The interaction occurs directly between the user's device and Google Gemini's servers. Receipt images are not 
+                stored by Dodo or transmitted through our servers.<br>
+                Firebase Vertex AI's privacy policy can be found <a href="https://firebase.google.com/support/privacy" target="__blank" style="color: black">here</a>.<br>
+                Google's privacy policy can be found <a href="https://policies.google.com/privacy?hl=en" target="__blank" style="color: black">here</a>.
+
+                <h4>OAuth Authentication</h4>
+                Our app allows users to sign up and log in using Google or Apple accounts through OAuth. 
+                These services provide us with a unique user ID and the user's email address to 
+                facilitate account creation or authentication. We do not use the user's email address and store the
+                user ID in a hashed format.<br>
+                For more information about how these third parties handle your data, 
+                you can refer to their respective privacy policies.<br>
+                Apple's privacy policy can be found <a href="https://www.apple.com/legal/privacy/en-ww/" target="__blank" style="color: black">here</a>.<br>
+                Google's privacy policy can be found <a href="https://policies.google.com/privacy?hl=en" target="__blank" style="color: black">here</a>.
+
             
                 <h2>Resources & further information</h2>
                 <ul>
@@ -186,7 +244,7 @@
                 Sámuel Szajbély, <a href="mailto:developer@dodoapp.net" target="__blank"
                     style="color: black">developer@dodoapp.net</a>,<br>
             </div>
-            <p>Updated: 2023.09.16.</p>
+            <p>Updated: 2025.01.09.</p>
         </div>
     </div>
 </body>

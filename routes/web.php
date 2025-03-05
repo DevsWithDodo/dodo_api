@@ -48,5 +48,3 @@ Route::get('/preview', function () {
 
     return $response;
 });
-
-Auth::routes();

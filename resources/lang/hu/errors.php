@@ -14,5 +14,6 @@ return [
     'balance_negative' => 'Ne hagyd cserben barátaidat! Az egyenleged nem lehet negatív.',
     'leave_groups' => 'Lépj ki az összes csoportodból, mielőtt búcsút intesz nekünk.',
     'update_deleted' => 'Nem lehet törölni vagy módosítani olyan tranzakciókat, amelyek kilépett csoporttagokat tartalmaznak.',
-    'invalid_invitation' => 'Ez a meghívó érvénytelen.'
+    'invalid_invitation' => 'Ez a meghívó érvénytelen.',
+    'admin_approval_deprecated' => 'A Dodo új verziójában az új tagok automatikusan bekerülnek a csoportba. Ne aggódj, a csoportod így is biztonságban van, csak meghívóval tudnak új tagok csatlakozni!',
 ];

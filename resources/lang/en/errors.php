@@ -14,5 +14,6 @@ return [
     'balance_negative' => 'Don\'t let your friends down! Your balance must be positive.',
     'leave_groups' => 'Please leave all your groups before proceeding. They will miss you.',
     'update_deleted' => 'You cannot edit or delete a transaction with deleted members.',
-    'invalid_invitation' => 'This invitation token is invalid.'
+    'invalid_invitation' => 'This invitation token is invalid.',
+    'admin_approval_deprecated' => 'In the current version of Dodo, new members are always allowed to join the group. Don\'t worry, your group is still safe as it can only be joined by invitation.',
 ];

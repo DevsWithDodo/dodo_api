@@ -14,5 +14,6 @@ return [
     'balance_negative' => 'Dein Kontostand muss positiv sein, damit du die Gruppe verlassen kannst.',
     'leave_groups' => 'Zuerst musst du alle deine Gruppen verlassen. Sie werden dich vermissen.',
     'update_deleted' => 'Transaktionen mit entfernten Mitgliedern können nicht geändert oder gelöscht werden.',
-    'invalid_invitation' => 'Diese Einladung ist nicht gültig.'
+    'invalid_invitation' => 'Diese Einladung ist nicht gültig.',
+    'admin_approval_deprecated' => 'In der aktuellen Version von Dodo können neue Mitglieder immer der Gruppe beitreten. Keine Sorge, deine Gruppe ist trotzdem sicher, da sie nur durch Einladung beigetreten werden kann.',
 ];

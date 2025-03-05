@@ -100,9 +100,13 @@ class GroupController extends Controller
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
 
+        if ($request->has('admin_approval')) {
+            return abort(400, __('errors.admin_approval_deprecated'));
+        }
+
         $user = auth('api')->user();
         $old_name = $group->name;
-        $group->update($request->only('name', 'currency', 'admin_approval'));
+        $group->update($request->only('name', 'currency'));
 
         if ($old_name != $group->name)
             foreach ($group->members->except($user->id) as $member)
@@ -146,7 +150,7 @@ class GroupController extends Controller
     }
 
     public function getFromInvitation(string $invitation) {
-        $group = Group::firstWhere('invitation', $invitation);
+        $group = Group::with('guests:id,group_user.nickname')->firstWhere('invitation', $invitation);
         if ($group === null) {
             return abort(422, __('errors.invalid_invitation'));
         }
@@ -154,7 +158,8 @@ class GroupController extends Controller
             'id',
             'name',
             'currency',
-            'admin_approval'
+            'admin_approval',
+            'guests'
         ]);
     }
 }

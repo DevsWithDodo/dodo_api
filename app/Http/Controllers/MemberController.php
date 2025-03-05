@@ -21,6 +21,7 @@ use App\Group;
 use App\Notifications\Members\ApprovedJoinGroupNotification;
 use App\Notifications\Members\ApproveMemberNotification;
 use DB;
+use Illuminate\Support\Facades\Log;
 
 class MemberController extends Controller
 {
@@ -36,7 +37,7 @@ class MemberController extends Controller
         if ($group == null) abort(404, __('errors.invalid_invitation'));
 
         $validator = Validator::make($request->all(), [
-            'nickname' => ['required', 'string', 'min:1', 'max:15', new UniqueNickname($group->id)],
+            'nickname' => ['required', 'string', 'min:1', 'max:15', $request->merge_with_member_id ? '' : new UniqueNickname($group->id)],
             'merge_with_member_id' => ['nullable', new IsMember($group)]
         ]);
         if ($validator->fails()) abort(400, $validator->errors()->first());
