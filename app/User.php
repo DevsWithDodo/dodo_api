@@ -184,6 +184,7 @@ class User extends Authenticatable implements HasLocalePreference {
 
     /**
      * Change the guest's id to the user id in the database
+     * This function is used when a guest creates an account
      * @param $user_id the id to change
      */
     public function mergeDataInto($user_id) {
@@ -192,6 +193,20 @@ class User extends Authenticatable implements HasLocalePreference {
         DB::table('payments')->where('payer_id', $this->id)->update(['payer_id' => $user_id]);
         DB::table('payments')->where('taker_id', $this->id)->update(['taker_id' => $user_id]);
         DB::table('requests')->where('requester_id', $this->id)->update(['requester_id' => $user_id]);
+    }
+
+    /**
+     * Merges the user's data into another user
+     * This function is used when a user connects a social account which already existed.
+     */
+    public function mergeIntoUser(User $user) {
+        if ($this->is_guest) {
+            throw new \Exception('Use the mergeDataInto function instead');
+        }
+        DB::transaction(function () use ($user) {
+            DB::table('group_user')->where('user_id', $this->id)->update(['user_id' => $user->id]);
+            $this->mergeDataInto($user->id);
+        });
     }
 
     /**

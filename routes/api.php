@@ -29,7 +29,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('user',  [UserController::class, 'delete'])->name('user.delete');
     Route::post('user/verify_password', [UserController::class, 'verifyPassword'])->name('user.verify_password');
     Route::post('user/link_social_login', [UserController::class, 'linkSocialLogin'])->name('user.link_social_login');
-    Route::post('user/create_password', [UserController::class, 'createPassword'])->name('user.create_password');
+    // Route::post('user/create_password', [UserController::class, 'createPassword'])->name('user.create_password');
 
     Route::get('balance',  [UserController::class, 'balance'])->name('user.balance');
 

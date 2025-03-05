@@ -147,18 +147,22 @@ class UserController extends Controller
             abort(400, __('validation.invalid_token'));
         }
         // Hash the user ID as it directly links to user data, the id is long enough and unique, so salt is not needed
-        $hashedUserId = hash('sha256', $payload['sub']); 
-        
-        if (User::firstWhere($data['token_type'] . '_id', $hashedUserId) !== null) {
-            abort(400, __('validation.already_linked'));
-        }
+        $hashedUserId = hash('sha256', $payload['sub']);
 
-        $user = $request->user();
+        $user = Auth::user();
+        
+        if (($otherUser = User::firstWhere($data['token_type'] . '_id', $hashedUserId)) !== null) {
+            if ($user->groups->pluck('id')->intersect($otherUser->groups->pluck('id'))->isNotEmpty()) {
+                abort(400, __('validation.already-linked'));
+            }
+            $otherUser->mergeIntoUser($user);
+            $otherUser->delete();
+        }
         $user->update([
             $data['token_type'] . '_id' => $hashedUserId,
-        ]);
+        ]);        
 
-        return $user;
+        return new UserResource($user);
     }
 
     public function createPassword(Request $request) {
