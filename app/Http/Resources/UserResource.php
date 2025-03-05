@@ -21,6 +21,10 @@ class UserResource extends JsonResource
             'personalised_ads' => $this->personalised_ads ? 1 : 0,
             'payment_details' => $this->payment_details,
             'status' => $this->status,
+            'has_groups' => $this->groups()->count() > 0,
+            'google_connected' => $this->google_connected ? 1 : 0,
+            'apple_connected' => $this->apple_connected ? 1 : 0,
+            'has_password' => $this->has_password ? 1 : 0,
         ];
     }
 }
