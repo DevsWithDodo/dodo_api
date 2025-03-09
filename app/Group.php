@@ -129,7 +129,7 @@ class Group extends Model
 
     public function guests(): BelongsToMany
     {
-        return $this->members()->where('password', null);
+        return $this->members()->where('password', null)->where('google_id', null)->where('apple_id', null);
     }
 
     public function admins(): BelongsToMany
