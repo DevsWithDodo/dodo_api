@@ -13,6 +13,7 @@ use App\Notifications\Groups\ChangedGroupNameNotification;
 use App\Notifications\Groups\GroupBoostedNotification;
 use App\Http\Resources\GroupResource as GroupResource;
 use App\Group;
+use Auth;
 use DB;
 use Illuminate\Support\Facades\App;
 
@@ -150,7 +151,12 @@ class GroupController extends Controller
     }
 
     public function getFromInvitation(string $invitation) {
-        $group = Group::with('guests:id,group_user.nickname')->firstWhere('invitation', $invitation);
+        $user = Auth::user();
+        $query = Group::query();
+        if ($user !== null) {
+            $query->with('guests:id,group_user.nickname');
+        }
+        $group = $query->firstWhere('invitation', $invitation);
         if ($group === null) {
             return abort(422, __('errors.invalid_invitation'));
         }

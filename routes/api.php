@@ -20,6 +20,7 @@ Route::get('password_reminder',          [UserController::class, 'passwordRemind
 Route::put('forgot_password/{username}', [UserController::class, 'forgotPassword'])->name('user.forgot_password');
 Route::post('register-with-token', [UserController::class, 'registerWithToken'])->name('user.register-with-token');
 Route::post('/callbacks/sign-in-with-apple', [UserController::class, 'signInWithAppleCallback'])->name('user.sign-in-with-apple');
+Route::get('public/groups/from-invitation/{invitation}',   [GroupController::class, 'getFromInvitation'])->name('public.group.fromInvitation');
 
 Route::middleware(['auth:api'])->group(function () {
     /* Auth */
