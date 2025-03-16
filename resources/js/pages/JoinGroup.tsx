@@ -27,11 +27,13 @@ const JoinGroup = () => {
       if (response.status === 200) {
         setGroupData(response.data.name);
       } else {
-        setGroupData(null);
+        setGroupData('asd');
+        // setGroupData(null);
       }
       setGroupLoading(false);
     }
     catch (error) {
+      setGroupData('asd');
       setGroupLoading(false);
     }
   }, [invitationCode]);
@@ -50,7 +52,7 @@ const JoinGroup = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-dodo-blue to-dodo-blue/80 flex-1 flex flex-col justify-center">
+    <div className="bg-gradient-to-br from-dodo-blue to-dodo-blue/80 flex flex-col justify-center grow shrink-0">
       <Helmet>
         <title>{groupName ? `Join ${groupName} on Dodo` : 'Dodo'}</title>
         <meta property="og:title" content={groupName ? `Join ${groupName} on Dodo` : 'Dodo'} />
@@ -60,7 +62,7 @@ const JoinGroup = () => {
         <meta property="og:description" content="Join this group on Dodo - The privacy-focused bill splitting app" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-16 md:py-24">
+      <div className="container mx-auto px-4 py-16 md:py-24 flex-1">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center mb-12">
             <img src="/assets/icon.png" className="h-20 w-20 mr-4" />

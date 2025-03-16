@@ -6,7 +6,7 @@ import Screenshots from '../components/Screenshots';
 
 const HomePage = () => {
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden flex flex-col grow shrink-0">
       <Hero />
       <Features />
       <Screenshots />
