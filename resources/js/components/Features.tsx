@@ -127,7 +127,7 @@ const Features = () => {
               icon={feature.icon}
               title={feature.title}
               description={feature.description}
-              className={feature.emphasis ? "bg-gradient-to-br from-dodo-blue/10 to-white" : "bg-gray-50"}
+              className="bg-gray-50"
             />
           ))}
         </div>
