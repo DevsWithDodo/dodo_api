@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\Response;
 use App\User;
-use App\Group;
-use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {

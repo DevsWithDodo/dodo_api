@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
-import DownloadButtons from '../components/DownloadButtons';
+import DownloadButtons from '../../Components/DownloadButtons';
 
 const JoinGroup = () => {
   const { invitationCode } = useParams<{ invitationCode: string }>();
@@ -10,7 +10,6 @@ const JoinGroup = () => {
   const [groupName, setGroupData] = useState<string | null>(null);
   const [groupLoading, setGroupLoading] = useState(true);
 
-  // In a real implementation, you'd fetch group info from the API
   useEffect(() => {
     setGroupLoading(true);
     if (invitationCode) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AppOpenedEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -240,6 +241,7 @@ class UserController extends Controller
     public function show()
     {
         $user = auth('api')->user();
+        AppOpenedEvent::create();
         return new UserResource($user);
     }
 

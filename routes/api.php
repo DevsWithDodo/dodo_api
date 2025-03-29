@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiAdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\GroupController;
@@ -127,4 +128,13 @@ Route::get('/currencies', function (Request $request) {
  */
 Route::get('/supported', function (Request $request) {
     return response()->json($request->version >= config('app.supported_version', 17));
+});
+
+
+Route::post('/admin/login', [ApiAdminController::class, 'login'])->name('api-admin.login');
+Route::post('/admin/logout', [ApiAdminController::class, 'logout'])->name('api-admin.logout');
+
+Route::middleware('auth:web')->group(function () {
+    Route::get('/admin', [ApiAdminController::class, 'show'])->name('api-admin.show');
+    Route::get('/admin/statistics', [ApiAdminController::class, 'statistics'])->name('api-admin.statistics');
 });
