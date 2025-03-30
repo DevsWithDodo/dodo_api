@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AppOpenedEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -117,6 +118,7 @@ class UserController extends Controller
             ]);
         }
         $user->generateToken();
+        AppOpenedEvent::create();
 
         return new UserResource($user);
     }
@@ -210,8 +212,12 @@ class UserController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $user = Auth::user();
+        $user = User::where('username', $request->username)->first();
+        if (!$user) {
+            abort(400, __('validation.incorrect_username_or_password'));
+        }
+
+        if (Hash::check($request->password, $user->password)) {
             if ($user->api_token === null) {
                 $user->generateToken();
             }
@@ -219,6 +225,7 @@ class UserController extends Controller
                 $user->fcm_token = $request->fcm_token;
                 $user->save();
             }
+            AppOpenedEvent::create();
             return new UserResource($user);
         }
         abort(400, __('validation.incorrect_username_or_password'));
@@ -239,7 +246,8 @@ class UserController extends Controller
 
     public function show()
     {
-        $user = auth('api')->user();
+        $user = Auth::user();
+        AppOpenedEvent::create();
         return new UserResource($user);
     }
 

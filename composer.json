@@ -18,12 +18,14 @@
         "laravel-notification-channels/fcm": "^3.0",
         "laravel/framework": "^9.0",
         "laravel/sail": "^1.16",
+        "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
         "maatwebsite/excel": "^3.1",
         "mpdf/mpdf": "^8.0",
         "spatie/enum": "^3.0",
-        "spatie/laravel-backup": "^8.0"
+        "spatie/laravel-backup": "^8.0",
+        "tightenco/ziggy": "^2.5"
     },
     "require-dev": {
         "larastan/larastan": "^2.0",

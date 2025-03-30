@@ -1,5 +1,5 @@
 import React, { TouchEvent, useRef, useState } from "react";
-import { cn } from '../lib/utils';
+import { cn } from '../utils';
 
 const Screenshots = () => {
   const [activeIndex, setActiveIndex] = useState(0);

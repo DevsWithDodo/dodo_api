@@ -1,8 +1,8 @@
 import React from "react";
-import Download from '../components/Download';
-import Features from '../components/Features';
-import Hero from '../components/Hero';
-import Screenshots from '../components/Screenshots';
+import Download from '../../Components/Download';
+import Features from '../../Components/Features';
+import Hero from '../../Components/Hero';
+import Screenshots from '../../Components/Screenshots';
 
 const HomePage = () => {
   return (
