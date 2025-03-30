@@ -194,7 +194,16 @@ class ApiAdminController extends Controller
                 $stds[] = $stdDev;
             }
         }
-        // Histogram with binsize = 1 day
+        if (count($stds) == 0) {
+            return response([
+                "user_counts" => $userCounts,
+                "group_counts" => $groupCounts,
+                "color_theme_count" => $colorThemeCountUsedApp,
+                "total_users" => $colorThemeCountUsedApp->sum('count'),
+                "purchase_standard_deviation" => [],
+            ]);
+        }
+        // Histogram
         $max_std = ceil(max($stds));
         $min_std = floor(min($stds));
         $bins = [];

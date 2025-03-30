@@ -1,9 +1,9 @@
+import Footer from '@/js/Components/Footer';
+import Navbar from '@/js/Components/Navbar';
 import React from "react";
 import { Outlet } from 'react-router-dom';
-import Footer from './Footer';
-import Navbar from './Navbar';
 
-const Layout = () => {
+const Public = () => {
   return (
     <div className="flex flex-col flex-grow">
       <Navbar />
@@ -15,4 +15,4 @@ const Layout = () => {
   );
 };
 
-export default Layout; 
+export default Public; 

@@ -1,7 +1,7 @@
+import Public from '@/js/Layouts/Public';
 import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Layout from './Components/Layout';
 import ScrollToTop from './Components/ScrollToTop';
 import Gate from './Gate';
 import Lockscreen from './Layouts/Lockscreen';
@@ -17,7 +17,7 @@ function App() {
         <HelmetProvider>
             <ScrollToTop />
             <Routes>
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={<Public />}>
                     <Route index element={<HomePage />} />
                     <Route path="privacy-policy" element={<PrivacyPolicy />} />
                 </Route>

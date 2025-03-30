@@ -170,7 +170,7 @@ export default function Dashboard() {
                                     textAnchor='end'
                                     tickFormatter={(value) => new Date(value).toLocaleDateString('hu')}
                                 />
-                                <YAxis dataKey="new_count" name='Count' />
+                                <YAxis dataKey="app_opened_count" name='Count' />
                                 <Tooltip
                                     labelFormatter={(value) => new Date(value).toLocaleDateString('hu')}
                                     formatter={(value, name) => [value, name]}
