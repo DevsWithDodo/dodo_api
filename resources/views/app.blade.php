@@ -4,7 +4,9 @@
         <meta charset="UTF-8" />
         <link rel="icon" type="image/png" href="/assets/icon.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Dodo - Secure bill splitting. Track expenses with friends, roommates, or partners with end-to-end encryption." />
+        <meta property="og:image" content="https://www.dodoapp.net/assets/preview.png"/>
+        <meta property="og:description" content="The privacy-focused bill splitting app"/>
+        <meta name="description" content="Dodo - The privacy-focused bill splitting app" />
         <title>Dodo - Secure Bill Splitting</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
