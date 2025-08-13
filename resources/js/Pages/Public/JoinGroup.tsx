@@ -54,11 +54,8 @@ const JoinGroup = () => {
     <div className="bg-gradient-to-br from-dodo-blue to-dodo-blue/80 flex flex-col justify-center grow shrink-0">
       <Helmet>
         <title>{groupName ? `Join ${groupName} on Dodo` : 'Dodo'}</title>
-        <meta property="og:title" content={groupName ? `Join ${groupName} on Dodo` : 'Dodo'} />
-        <meta property="og:type" content="website" />
+        <meta property="og:title" content={groupName ? `Join '${groupName}' on Dodo` : 'Dodo'} />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:image" content="https://www.dodoapp.net/assets/icon.png" />
-        <meta property="og:description" content="Join this group on Dodo - The privacy-focused bill splitting app" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-16 md:py-24 flex-1">
@@ -155,4 +152,4 @@ const JoinGroup = () => {
   );
 };
 
-export default JoinGroup; 
+export default JoinGroup;
